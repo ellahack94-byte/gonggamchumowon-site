@@ -3,69 +3,276 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>공감 추모원</title>
-<meta name="description" content="그리운 분을 언제든 찾아뵙는 곳. 3D 분향소와 장지를 가족의 뜻대로 꾸미고, 기일과 생신을 함께 기억하는 온라인 추모원 앱.">
+<title>공감 추모원 — 그리운 분을 언제든 찾아뵙는 곳</title>
+<meta name="description" content="가족이 함께 만드는 온라인 추모원. 3D 분향소와 장지를 가족의 뜻대로 모시고, 제사·추도예배 순서와 기일·생신 알림까지 한곳에서.">
+<meta property="og:title" content="공감 추모원">
+<meta property="og:description" content="그리운 분을 언제든 찾아뵙는 곳. 3D 분향소와 장지, 제사 안내, 기일 알림.">
+<meta property="og:image" content="https://gonggamchumowon.co.kr/img/og.jpg">
+<meta property="og:url" content="https://gonggamchumowon.co.kr/">
+<meta name="theme-color" content="#151311">
 <link rel="icon" href="icon.png">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@500;700&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Song+Myung&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header class="top"><div class="wrap">
-  <img src="icon.png" alt=""><b>공감 추모원</b>
-  <nav><a href="#features">기능</a><a href="#plans">이용 등급</a><a href="privacy.html">개인정보처리방침</a><a href="terms.html">이용약관</a></nav>
+  <a class="brand" href="#"><img src="icon.png" alt="">공감 추모원</a>
+  <nav aria-label="주요 메뉴">
+    <a href="#public">공개 추모관</a>
+    <a href="#features">기능</a>
+    <a href="#plans">요금</a>
+    <a href="#faq">자주 묻는 질문</a>
+    <a class="cta" href="#contact">출시 알림 받기</a>
+  </nav>
 </div></header>
 
 <main>
-  <div class="wrap hero">
-    <div>
-      <span class="badge">구글 플레이 출시 준비 중</span>
-      <h1>그리운 분을<br>언제든 찾아뵙는 곳</h1>
-      <p>공감 추모원은 가족이 함께 만드는 온라인 추모원입니다. 3D 분향소와 장지를 가족의 뜻대로 꾸미고, 기일과 생신을 잊지 않도록 알려 드려요.</p>
-      <a class="btn" href="#contact">출시 소식 받기</a>
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="wrap">
+      <h1 class="epitaph" id="hero-title">그리운 분을<br><span>언제든 찾아뵙는 곳</span></h1>
+      <div class="hero-copy">
+        <p class="lead">멀리 있어 자주 가지 못하는 산소, 바쁜 날에도 잊고 싶지 않은 기일. 공감 추모원은 휴대폰 안에 3D 분향소와 장지를 모시고, 가족의 뜻대로 꾸며 언제든 찾아뵙는 곳입니다.</p>
+        <p class="sub">향을 피우고 국화를 올리고, 기일에는 제사 순서를 따라 절을 올립니다. 사진과 영상은 추모갤러리에 모으고, 찾아온 분들은 방명록에 마음을 남깁니다.</p>
+        <div class="actions">
+          <a class="btn gold" href="#contact">출시 알림 받기</a>
+          <a class="btn line" href="#public">공개 추모관 둘러보기</a>
+        </div>
+        <p class="status"><b>안드로이드 출시 준비 중</b> · 구글 플레이 심사를 앞두고 있습니다.</p>
+      </div>
+      <div class="phone"><img src="img/hero.jpg" alt="공감 추모원 앱의 3D 분향소. 영정과 흰 국화 제단, 촛불과 향이 놓여 있다." width="390" height="760"></div>
     </div>
-    <div class="shots"><img src="altar.jpg" alt="공감 추모원 3D 분향소 화면"><img src="grave.jpg" alt="공감 추모원 3D 장지 화면"></div>
-  </div>
+  </section>
 
-  <section class="block" id="features"><div class="wrap">
-    <h2>가족의 뜻대로 모시는 추모 공간</h2>
-    <div class="grid">
-      <div class="card"><h3>3D 분향소</h3><p>영정사진, 국화 제단, 촛불과 향. 무교·유교·기독교·천주교·불교, 종교에 맞게 차려집니다.</p></div>
-      <div class="card"><h3>3D 장지</h3><p>수목장, 봉분 묘소, 자연장, 봉안묘, 가족묘까지. 소나무 숲, 호숫가, 산사 등 장소도 고를 수 있어요.</p></div>
-      <div class="card"><h3>제사·추도예배 안내</h3><p>기제사, 공양, 추도예배, 위령기도 순서를 차례대로 안내합니다. 절과 기도는 가족이 직접 올립니다.</p></div>
-      <div class="card"><h3>기일·생신 알림</h3><p>기일 7일 전, 전날, 당일과 생신, 49재·100일을 알려 드려요. 음력 기일도 매년 정확히 계산합니다.</p></div>
-      <div class="card"><h3>추모갤러리·방명록</h3><p>가족이 사진과 영상을 모으고, 찾아온 분들이 추모글과 헌화로 마음을 남깁니다.</p></div>
-      <div class="card"><h3>바탕화면 위젯</h3><p>"하늘나라에 가신 지 ○○일"과 다음 기일까지 남은 날을 바탕화면에서 봅니다.</p></div>
+  <section class="band" id="public" aria-labelledby="public-title">
+    <div class="wrap">
+      <div class="head">
+        <h2 id="public-title">우리가 함께 기리는 분들</h2>
+        <p>공감 추모원이 직접 모신 공개 추모관입니다. 누구나 들어가 분향하고 국화를 올릴 수 있습니다. 장지는 기사로 확인된 실제 장례 방식과 모신 곳에 맞춰 꾸몄습니다.</p>
+      </div>
+      <div class="figures">
+        <!-- 카드는 아래 스크립트가 FIGS로 채운다 -->
+      </div>
+      <p class="note">공개 추모관에는 언론에 공개된 사실만 담습니다. 유족께서 원하지 않으시면 연락 주시는 즉시 내립니다. 새로 모실 분은 계속 더해 갑니다.</p>
     </div>
-  </div></section>
+  </section>
 
-  <section class="block" id="plans"><div class="wrap">
-    <h2>이용 등급</h2>
-    <div class="price">
-      <div class="card"><b>무료</b><p>기본 분향소와 장지, 알림, 방명록</p></div>
-      <div class="card"><b>기본 · 연 9,900원</b><p>장지 형태 선택, 비석·석물</p></div>
-      <div class="card"><b>중급 · 연 29,900원</b><p>테마 확장, 가족 음악, 추모갤러리</p></div>
-      <div class="card"><b>프리미엄 · 연 39,000원</b><p>모든 분향소·장지 꾸미기</p></div>
-      <div class="card"><b>평생 · 199,000원</b><p>프리미엄의 모든 기능을 평생</p></div>
+  <section class="band paper" aria-labelledby="how-title">
+    <div class="wrap">
+      <div class="head">
+        <h2 id="how-title">추모관은 이렇게 모십니다</h2>
+        <p>가입이나 결제 없이 바로 시작할 수 있습니다. 사진을 올리고 추모관을 늘리는 데에는 요금을 받지 않습니다.</p>
+      </div>
+      <ol class="steps">
+        <li><h3>고인 정보 적기</h3><p>성함, 생년월일, 기일과 종교를 적습니다. 음력 기일도 매년 양력 날짜로 바꿔 드립니다.</p></li>
+        <li><h3>분향소와 장지 꾸미기</h3><p>영정사진을 올리고 위치와 크기를 손가락으로 맞춥니다. 수목장, 봉분, 봉안묘 등 장지의 형식과 장소를 고릅니다.</p></li>
+        <li><h3>잊지 않고 찾아뵙기</h3><p>기일 일주일 전, 전날, 당일에 알려 드리고, 알림을 누르면 그날의 제사 순서가 열립니다. 추모관 소식은 카카오톡으로 가족에게 전할 수 있습니다.</p></li>
+      </ol>
     </div>
-    <p style="color:var(--sub);font-size:14px;margin-top:12px">조문하러 오시는 분은 모두 무료입니다. 사진·가족·추모관 추가에는 요금을 받지 않습니다.</p>
-  </div></section>
+  </section>
 
-  <section class="block" id="contact"><div class="wrap">
-    <h2>문의</h2>
-    <p>이용 문의, 제휴, 공개 추모관 관련 유족 요청은 아래 이메일로 보내 주세요. 공개 추모관은 유족께서 원하지 않으시면 바로 내립니다.</p>
-    <p><b>ellahack94@gmail.com</b></p>
-  </div></section>
+  <section class="band" id="features" aria-labelledby="features-title">
+    <div class="wrap">
+      <div class="head">
+        <h2 id="features-title">찾아뵙는 데 필요한 모든 것</h2>
+      </div>
+
+      <article class="feature">
+        <div class="text">
+          <h3>종교에 맞게 차려지는 3D 분향소</h3>
+          <p>영정사진 둘레로 흰 국화 제단이 놓이고, 촛불과 향이 켜집니다. 손가락으로 돌려 보고 가까이 다가갈 수 있습니다.</p>
+          <ul>
+            <li>향 피우기, 국화 올리기를 누구나 무료로</li>
+            <li>영정 액자는 검은 액자·금색 액자·원목 액자 중에서</li>
+            <li>국화 색과 제단의 풍성함을 가족이 고름</li>
+          </ul>
+        </div>
+        <div class="pair">
+          <div class="phone sm"><img src="img/hall.jpg" alt="3D 분향소 화면" loading="lazy" width="390" height="760"></div>
+          <div class="phone sm"><img src="img/hall2.jpg" alt="금색 액자로 모신 분향소 화면" loading="lazy" width="390" height="760"></div>
+        </div>
+      </article>
+
+      <article class="feature flip">
+        <div class="text">
+          <h3>가족의 뜻대로 모시는 장지</h3>
+          <p>수목장, 봉분 묘소, 자연장, 봉안묘, 가족묘, 왕릉형까지 열 가지 형식. 소나무 숲, 호숫가, 산사, 꽃동산 등 열 곳의 장소에 모십니다.</p>
+          <ul>
+            <li>비석에 영정사진을 새기고, 사진 액자를 세움</li>
+            <li>수목장 나무에 앨범 사진을 장식으로 걸기</li>
+            <li>꽃다발을 놓고 아침·한낮·노을·밤 시간을 고름</li>
+          </ul>
+        </div>
+        <div class="pair">
+          <div class="phone sm"><img src="img/grave.jpg" alt="봉분 묘소 장지 화면" loading="lazy" width="390" height="760"></div>
+          <div class="phone sm"><img src="img/tree.jpg" alt="수목장 장지 화면" loading="lazy" width="390" height="760"></div>
+        </div>
+      </article>
+
+      <article class="feature">
+        <div class="text">
+          <h3>제사와 추도예배, 순서대로</h3>
+          <p>기제사, 불교 공양, 기독교 추도예배, 천주교 위령기도의 순서를 한 단계씩 안내합니다. 잔을 올리고 메에 숟가락을 꽂는 일은 화면이 하고, 절과 기도는 가족이 직접 올립니다.</p>
+          <ul>
+            <li>기일 알림을 누르면 바로 그날의 순서가 열림</li>
+            <li>절과 묵념 단계에서는 화면이 멈춰 기다림</li>
+          </ul>
+        </div>
+        <div class="pair">
+          <div class="phone sm"><img src="img/rite.jpg" alt="제사상이 차려진 화면" loading="lazy" width="390" height="760"></div>
+        </div>
+      </article>
+
+      <article class="feature flip">
+        <div class="text">
+          <h3>잊지 않도록, 바탕화면에서</h3>
+          <p>바탕화면 위젯이 하늘나라에 가신 지 며칠째인지, 다음 기일까지 며칠 남았는지 알려 드립니다. 크기는 두 가지, 색은 어두운·밝은·투명 중에서 고릅니다.</p>
+          <ul>
+            <li>기일 7일 전·전날·당일, 생신, 49재·100일 알림</li>
+            <li>인터넷이 없어도 휴대폰 안에서 정확히 계산</li>
+          </ul>
+        </div>
+        <div class="widget" aria-label="위젯 예시">
+          <div class="wg"><div class="dot">故</div><div><b>김정호 님</b><span>하늘나라에 가신 지 312일 · 기일까지 53일</span></div></div>
+          <div class="wg light"><div class="dot">故</div><div><b>이순자 님</b><span>하늘나라에 가신 지 1,204일 · 생신까지 9일</span></div></div>
+        </div>
+      </article>
+
+      <article class="feature">
+        <div class="text">
+          <h3>추모갤러리와 방명록</h3>
+          <p>가족이 가진 사진과 영상을 한곳에 모읍니다. 찾아온 분들은 이름과 관계를 남기고 국화와 함께 추모글을 올립니다. 방명록은 가족만 보게 닫아 둘 수도 있습니다.</p>
+        </div>
+        <div class="pair">
+          <div class="phone sm"><img src="img/guest.jpg" alt="방명록 화면" loading="lazy" width="390" height="760"></div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section class="band paper" aria-labelledby="rites-title">
+    <div class="wrap">
+      <div class="head">
+        <h2 id="rites-title">종교마다 다른 상차림</h2>
+        <p>추모관을 만들 때 고른 종교에 맞춰 제단과 순서가 달라집니다.</p>
+      </div>
+      <div class="rites">
+        <div><h3>무교</h3><p>영정과 흰 국화, 촛불과 향. 헌화와 묵념.</p></div>
+        <div><h3>유교</h3><p>위패와 향로, 술잔과 제사상. 기제사 순서와 축문.</p></div>
+        <div><h3>불교</h3><p>영가 위패, 연등과 연꽃, 목탁과 염주. 공양 순서.</p></div>
+        <div><h3>기독교</h3><p>십자가와 헌화. 추도예배 순서와 찬송가 오르간 반주.</p></div>
+        <div><h3>천주교</h3><p>십자고상과 촛불. 위령기도 순서.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="plans" aria-labelledby="plans-title">
+    <div class="wrap">
+      <div class="head">
+        <h2 id="plans-title">요금</h2>
+        <p>조문하러 오시는 분은 모두 무료입니다. 결제는 구글 플레이로만 받습니다.</p>
+      </div>
+      <div class="tablebox">
+        <table class="plans">
+          <thead><tr>
+            <td></td>
+            <th scope="col">무료<small>0원</small></th>
+            <th scope="col">기본<small>연 9,900원</small></th>
+            <th scope="col">중급<small>연 29,900원</small></th>
+            <th scope="col" class="pick">프리미엄<small>연 39,000원</small></th>
+            <th scope="col">평생<small>199,000원</small></th>
+          </tr></thead>
+          <tbody>
+            <tr><th scope="row">분향소·장지</th><td class="yes">기본 차림</td><td class="yes">장지 형식 선택</td><td class="yes">테마 확장</td><td class="yes">모든 꾸미기</td><td class="yes">모든 꾸미기</td></tr>
+            <tr><th scope="row">영정사진·사진 올리기</th><td class="yes">무료</td><td class="yes">무료</td><td class="yes">무료</td><td class="yes">무료</td><td class="yes">무료</td></tr>
+            <tr><th scope="row">기일·생신 알림</th><td class="yes">있음</td><td class="yes">있음</td><td class="yes">있음</td><td class="yes">있음</td><td class="yes">있음</td></tr>
+            <tr><th scope="row">비석·석물</th><td class="no">없음</td><td class="yes">있음</td><td class="yes">있음</td><td class="yes">있음</td><td class="yes">있음</td></tr>
+            <tr><th scope="row">추모갤러리·가족 음악</th><td class="no">없음</td><td class="no">없음</td><td class="yes">있음</td><td class="yes">있음</td><td class="yes">있음</td></tr>
+            <tr><th scope="row">고급 장지·대형 수목</th><td class="no">포인트로 구매</td><td class="no">포인트로 구매</td><td class="no">포인트로 구매</td><td class="yes">포함</td><td class="yes">포함</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="fine">매일 출석하면 50P, 가족이나 지인에게 공유하면 100P를 드립니다. 포인트는 1P당 1원으로 고급 꾸미기에 씁니다. 매주 한두 가지 꾸미기를 반값에 드립니다.</p>
+    </div>
+  </section>
+
+  <section class="band paper" id="faq" aria-labelledby="faq-title">
+    <div class="wrap">
+      <div class="head"><h2 id="faq-title">자주 묻는 질문</h2></div>
+      <div class="faq">
+        <details><summary>정말 무료로 쓸 수 있나요?</summary><p>추모관 만들기, 영정사진, 분향·헌화, 기일 알림, 방명록은 모두 무료입니다. 장지 형식이나 석물 같은 꾸미기를 더하실 때만 요금이 있습니다.</p></details>
+        <details><summary>올린 사진은 어디에 보관되나요?</summary><p>지금은 가족이 올린 사진과 영상이 회사 서버로 가지 않고 휴대폰 안에만 보관됩니다. 가족이 함께 보는 기능이 생기면 시행 7일 전에 미리 알려 드립니다.</p></details>
+        <details><summary>음력 기일도 챙겨 주나요?</summary><p>네. 음력 기일을 적으시면 해마다 양력 날짜를 다시 계산해 일주일 전, 전날, 당일에 알려 드립니다. 2월 29일 같은 날짜도 처리합니다.</p></details>
+        <details><summary>공개 추모관에 계신 분의 유족입니다. 내려 줄 수 있나요?</summary><p>네. 아래 이메일로 연락 주시면 확인 즉시 내립니다. 사진이나 내용을 바꾸고 싶으신 경우에도 말씀해 주세요.</p></details>
+        <details><summary>아이폰에서도 쓸 수 있나요?</summary><p>안드로이드를 먼저 출시하고, 아이폰은 그다음에 준비합니다. 출시 알림을 신청하시면 가장 먼저 알려 드립니다.</p></details>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="contact" aria-labelledby="contact-title">
+    <div class="wrap contact">
+      <div class="text">
+        <h2 id="contact-title">출시 알림과 문의</h2>
+        <p>출시 소식을 받고 싶으시면 "출시 알림"이라고 적어 메일을 보내 주세요. 장례식장·추모공원과의 제휴, 공개 추모관 관련 유족의 요청도 같은 곳으로 받습니다.</p>
+      </div>
+      <div class="mail">
+        <span>이메일</span>
+        <b id="mail">ellahack94@gmail.com</b>
+        <button type="button" id="copy">주소 복사하기</button>
+      </div>
+    </div>
+  </section>
 </main>
 
 <footer><div class="wrap">
-  <b>공감 추모원</b>
+  <a class="brand" href="#"><img src="icon.png" alt="">공감 추모원</a>
   <dl>
     <dt>상호</dt><dd>라도그 (Ra Dog)</dd>
     <dt>대표자</dt><dd>최사무엘</dd>
     <dt>사업자등록번호</dt><dd>794-60-00416</dd>
     <dt>이메일</dt><dd>ellahack94@gmail.com</dd>
   </dl>
-  <p style="margin-top:14px"><a href="privacy.html">개인정보처리방침</a> · <a href="terms.html">이용약관</a></p>
+  <div class="links"><a href="privacy.html">개인정보처리방침</a><a href="terms.html">이용약관</a></div>
+  <p>© 2026 라도그. 공감 추모원.</p>
 </div></footer>
+
+<script>
+const FIGS = [
+  { code: 'LSJE-1934', name: '이순재', role: '배우', years: '1934–2025', line: '70년 가까이 무대와 화면을 지킨 국민 배우', rest: '경기 이천 에덴낙원', grave: '봉안묘 · 소나무 숲' },
+  { code: 'KSUM-1949', name: '김수미', role: '배우', years: '1949–2024', line: "'일용 엄니'로 기억되는 국민 엄니", rest: '경기 용인 아너스톤', grave: '봉안묘 · 꽃동산' },
+  { code: 'KMGI-1951', name: '김민기', role: '가수 · 학전 대표', years: '1951–2024', line: "'아침이슬'의 노래, 대학로 학전의 뒷것", rest: '충남 천안공원묘원', grave: '비석형 묘 · 산' },
+  { code: 'HYMI-1938', name: '현미', role: '가수', years: '1938–2023', line: "'밤안개'로 한 시대를 노래한 가수", rest: '미국, 가족 곁', grave: '호숫가 · 노을' },
+  { code: 'SONG-1927', name: '송해', role: '방송인 · 전국노래자랑 MC', years: '1927–2022', line: '일요일 낮을 함께한 영원한 국민 MC', rest: '대구 달성군, 부인 곁', grave: '부부 가족묘' },
+  { code: 'LEEO-1933', name: '이어령', role: '문학평론가 · 초대 문화부 장관', years: '1933–2022', line: '우리 시대의 지성, 굴렁쇠 소년의 꿈', rest: '', grave: '비석형 묘 · 소나무 숲' },
+];
+const box = document.querySelector('.figures');
+box.innerHTML = FIGS.map((f) => `
+  <article class="fig" data-view="altar">
+    <div class="shot">
+      <img class="altar" src="img/fig/${f.code}-altar.jpg" alt="${f.name} 님 공개 분향소" loading="lazy" width="390" height="452">
+      <img class="grave" src="img/fig/${f.code}-grave.jpg" alt="${f.name} 님 공개 장지" loading="lazy" width="390" height="452">
+      <div class="toggle" role="group" aria-label="${f.name} 님 화면 고르기">
+        <button type="button" data-v="altar" aria-pressed="true">분향소</button>
+        <button type="button" data-v="grave" aria-pressed="false">장지</button>
+      </div>
+    </div>
+    <h3>${f.name}<small>${f.role} · ${f.years}</small></h3>
+    <p class="line">${f.line}</p>
+    <dl>${f.rest ? `<dt>모신 곳</dt><dd>${f.rest}</dd>` : ''}<dt>장지 꾸밈</dt><dd>${f.grave}</dd></dl>
+  </article>`).join('');
+box.addEventListener('click', (e) => {
+  const b = e.target.closest('button[data-v]');
+  if (!b) return;
+  const card = b.closest('.fig');
+  card.dataset.view = b.dataset.v;
+  card.querySelectorAll('button[data-v]').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+});
+document.getElementById('copy').addEventListener('click', async (e) => {
+  const t = document.getElementById('mail').textContent;
+  try { await navigator.clipboard.writeText(t); e.target.textContent = '복사했어요'; }
+  catch { const r = document.createRange(); r.selectNodeContents(document.getElementById('mail')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); e.target.textContent = '주소를 길게 눌러 복사하세요'; }
+});
+</script>
 </body>
 </html>
