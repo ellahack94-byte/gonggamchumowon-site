@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>온라인 추모관 · 공감 추모원</title>
+<meta name="description" content="앱을 설치하지 않아도 링크로 조문하고 추모글을 남길 수 있어요.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="온라인 추모관 · 공감 추모원">
+<meta property="og:description" content="링크를 눌러 조문하고 추모글을 남겨 주세요.">
+<meta property="og:image" content="https://gonggamchumowon.co.kr/img/og.jpg">
+<meta name="theme-color" content="#151311">
+<link rel="icon" href="../icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Song+Myung&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<style>
+:root {
+  --ink: #151311; --ink-2: #1e1b18; --ink-3: #26221e; --line: #34302a;
+  --gold: #c9a45c; --gold-soft: #e6cf9f; --mum: #f2efe8; --sub: #b3ab9f; --faint: #8a8276;
+  --display: "Song Myung", "Nanum Myeongjo", serif;
+  --body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--ink); color: var(--mum); font: 400 17px/1.75 var(--body); word-break: keep-all; }
+a { color: var(--gold-soft); }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
+.wrap { max-width: 560px; margin: 0 auto; padding: 0 max(20px, env(safe-area-inset-right, 0px)) 0 max(20px, env(safe-area-inset-left, 0px)); }
+header { border-bottom: 1px solid var(--line); }
+header .wrap { display: flex; align-items: center; gap: 10px; height: 60px; }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--mum); text-decoration: none; font-family: var(--display); font-size: 19px; }
+.brand img { width: 30px; height: 30px; border-radius: 8px; }
+
+/* 분향소: 촛불빛이 영정 뒤로 번진다 */
+.altar { position: relative; text-align: center; padding: 44px 0 34px; isolation: isolate; }
+.altar::before { content: ""; position: absolute; inset: 0 -40px; z-index: -1; background: radial-gradient(ellipse 60% 52% at 50% 36%, rgba(201, 164, 92, .20), transparent 70%); }
+.portrait { position: relative; width: min(62vw, 240px); aspect-ratio: 3 / 4; margin: 0 auto; padding: 10px; background: linear-gradient(145deg, #e7cf93, #9c7a37 45%, #e1c47f 70%, #8a6a2d); border-radius: 4px; box-shadow: 0 24px 60px rgba(0, 0, 0, .55); }
+.portrait .in { width: 100%; height: 100%; background: #0d0c0b center / cover no-repeat; border-radius: 2px; display: grid; place-items: center; overflow: hidden; }
+.portrait .in svg { width: 46%; opacity: .35; }
+.portrait .ribbon { position: absolute; width: 46px; height: 46px; overflow: hidden; }
+.portrait .ribbon::after { content: ""; position: absolute; width: 90px; height: 16px; background: #0b0a09; top: 14px; left: -22px; transform: rotate(-45deg); }
+.portrait .ribbon.r { right: 0; top: 0; transform: scaleX(-1); }
+.portrait .ribbon.l { left: 0; top: 0; }
+.pet .portrait { border-radius: 50%; aspect-ratio: 1; padding: 8px; background: linear-gradient(145deg, #f6d8e4, #c8d9f3); }
+.pet .portrait .in { border-radius: 50%; }
+.pet .portrait .ribbon { display: none; }
+.pet .altar::before { background: radial-gradient(ellipse 60% 52% at 50% 36%, rgba(200, 180, 240, .2), transparent 70%); }
+h1 { font-family: var(--display); font-weight: 400; font-size: clamp(32px, 9vw, 42px); line-height: 1.25; margin: 28px 0 4px; }
+h1 small { font-size: .5em; color: var(--sub); margin-left: 6px; }
+.dates { color: var(--sub); font-size: 16px; letter-spacing: .02em; }
+.phrase { font-family: var(--display); color: var(--gold-soft); font-size: 20px; margin-top: 18px; }
+
+.acts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 6px 0 28px; }
+.btn { appearance: none; border: 0; cursor: pointer; font: 600 17px/1 var(--body); padding: 17px 12px; border-radius: 14px; text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 56px; }
+.btn.gold { background: var(--gold); color: #1d1608; }
+.btn.gold:hover { background: var(--gold-soft); }
+.btn.line { background: transparent; color: var(--mum); border: 1px solid #5a5145; }
+.btn.line:hover { border-color: var(--gold); }
+.btn[disabled] { opacity: .5; cursor: default; }
+
+.count { display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--line); padding-top: 22px; }
+.count h2 { font-family: var(--display); font-weight: 400; font-size: 22px; margin: 0; }
+.count span { color: var(--faint); font-size: 15px; }
+.notes { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; }
+.notes li { background: var(--ink-2); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+.notes .who { display: flex; gap: 8px; align-items: center; font-weight: 600; font-size: 15.5px; }
+.notes .who em { font-style: normal; color: var(--faint); font-weight: 400; font-size: 14px; }
+.notes .who .fl { margin-left: auto; color: var(--gold); font-size: 13px; font-weight: 500; }
+.notes p { margin: 6px 0 0; color: #e2ddd3; white-space: pre-wrap; }
+.empty { color: var(--faint); padding: 18px 0 4px; }
+
+form { display: none; background: var(--ink-2); border: 1px solid var(--line); border-radius: 18px; padding: 20px; margin: 0 0 28px; }
+form.on { display: block; }
+form h3 { font-family: var(--display); font-weight: 400; font-size: 21px; margin: 0 0 12px; }
+label { display: block; font-size: 14.5px; color: var(--sub); margin-top: 12px; }
+input, textarea { width: 100%; font: 400 17px/1.5 var(--body); color: var(--mum); background: var(--ink); border: 1px solid #4a4339; border-radius: 12px; padding: 13px 14px; margin-top: 6px; }
+input:focus, textarea:focus { outline: none; border-color: var(--gold); }
+textarea { min-height: 120px; resize: vertical; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.check { display: flex; align-items: center; gap: 10px; color: var(--mum); font-size: 16px; margin-top: 14px; }
+.check input { width: 22px; height: 22px; margin: 0; accent-color: var(--gold); }
+.err { color: #f0a58f; font-size: 15px; margin-top: 10px; min-height: 1em; }
+form .btns { display: flex; gap: 10px; margin-top: 16px; }
+form .btns .btn { flex: 1; }
+
+.app { margin: 34px 0 20px; padding: 22px; border-radius: 18px; background: linear-gradient(160deg, #241f19, #17140f); border: 1px solid #4b4031; }
+.app h2 { font-family: var(--display); font-weight: 400; font-size: 21px; margin: 0 0 6px; }
+.app p { color: var(--sub); font-size: 15.5px; margin: 0 0 14px; }
+.app .code { font-family: var(--display); font-size: 24px; letter-spacing: .08em; color: var(--gold-soft); }
+.copy { appearance: none; background: none; border: 1px solid #5a5145; color: var(--mum); font: 500 14px var(--body); padding: 6px 12px; border-radius: 999px; margin-left: 10px; cursor: pointer; vertical-align: middle; }
+
+.state { text-align: center; padding: 80px 0; }
+.state h1 { font-size: 28px; }
+.state p { color: var(--sub); margin-top: 10px; }
+footer { color: var(--faint); font-size: 13.5px; text-align: center; padding: 26px 0 calc(30px + env(safe-area-inset-bottom, 0px)); }
+footer a { color: var(--sub); }
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--mum); color: var(--ink); padding: 12px 18px; border-radius: 12px; font-size: 15px; opacity: 0; transition: opacity .25s; pointer-events: none; max-width: 90vw; }
+.toast.on { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+</style>
+</head>
+<body>
+<header><div class="wrap"><a class="brand" href="../"><img src="../icon.png" alt="">공감 추모원</a></div></header>
+<main class="wrap" id="main">
+  <div class="state" id="loading"><p>추모관을 여는 중이에요…</p></div>
+</main>
+<footer><a href="../">공감 추모원</a> · <a href="../privacy.html">개인정보처리방침</a></footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+const API = 'https://asia-northeast3-gonggam-chumowon.cloudfunctions.net/web';
+const $ = (s) => document.querySelector(s);
+const esc = (t) => String(t || '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const code = (new URLSearchParams(location.search).get('c') || location.hash.slice(1) || '').toUpperCase().trim();
+const fmt = (d) => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(d || ''); return m ? `${+m[1]}. ${+m[2]}. ${+m[3]}.` : ''; };
+const ago = (t) => { if (!t) return ''; const d = new Date(t); return `${d.getFullYear()}. ${d.getMonth() + 1}. ${d.getDate()}.`; };
+function toast(t) { const el = $('#toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('on'), 2600); }
+async function copy(t) { try { await navigator.clipboard.writeText(t); toast('복사했어요'); } catch (e) { toast(t); } }
+
+function state(title, body) {
+  $('#main').innerHTML = `<div class="state"><h1>${title}</h1><p>${body}</p><p style="margin-top:26px"><a class="btn line" href="../">공감 추모원 둘러보기</a></p></div>`;
+}
+
+const SIL = '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="22" r="12" fill="#c9a45c"/><path d="M8 62c2-14 12-22 24-22s22 8 24 22" fill="#c9a45c"/></svg>';
+const PAW = '<svg viewBox="0 0 64 64" aria-hidden="true"><g fill="#b9a3c9"><ellipse cx="32" cy="42" rx="14" ry="12"/><circle cx="14" cy="28" r="6"/><circle cx="24" cy="16" r="6"/><circle cx="40" cy="16" r="6"/><circle cx="50" cy="28" r="6"/></g></svg>';
+
+function render(v) {
+  const pet = v.pet;
+  document.body.classList.toggle('pet', pet);
+  document.title = `${pet ? v.name : '故 ' + v.name} 추모관 · 공감 추모원`;
+  const notes = v.notes.map((n) => `<li><div class="who">${esc(n.name)}${n.rel ? ` <em>${esc(n.rel)}</em>` : ''}${n.flower ? '<span class="fl">헌화</span>' : ''}</div><p>${esc(n.text)}</p></li>`).join('');
+  $('#main').innerHTML = `
+  <section class="altar" aria-label="분향소">
+    <div class="portrait"><div class="in" ${v.photo ? `style="background-image:url('${esc(v.photo)}')"` : ''} role="img" aria-label="${esc(v.name)} ${pet ? '사진' : '영정'}">${v.photo ? '' : (pet ? PAW : SIL)}</div><span class="ribbon l"></span><span class="ribbon r"></span></div>
+    <h1>${pet ? '' : '故 '}${esc(v.name)}${v.title ? `<small>${esc(v.title)}</small>` : ''}</h1>
+    <div class="dates">${fmt(v.born)} – ${fmt(v.died)}</div>
+    <div class="phrase">${esc(v.phrase)}</div>
+  </section>
+  <div class="acts">
+    <button class="btn gold" id="b-flower" ${v.gbOpen ? '' : 'disabled'}>${pet ? '꽃 놓아 주기' : '헌화하기'}</button>
+    <button class="btn line" id="b-note" ${v.gbOpen ? '' : 'disabled'}>추모글 남기기</button>
+  </div>
+  <form id="f" novalidate>
+    <h3 id="f-title">추모글 남기기</h3>
+    <div class="row">
+      <label>이름<input id="who" maxlength="14" autocomplete="name" placeholder="예: 김민수"></label>
+      <label>관계 (선택)<input id="rel" maxlength="10" placeholder="예: 친구, 이웃"></label>
+    </div>
+    <label>남길 말<textarea id="text" maxlength="500" placeholder="고인께 전하고 싶은 말을 적어 주세요."></textarea></label>
+    <label class="check"><input type="checkbox" id="flower"> ${pet ? '꽃도 함께 놓아요' : '국화 한 송이도 함께 올려요'}</label>
+    <div class="err" id="err"></div>
+    <div class="btns"><button type="button" class="btn line" id="cancel">닫기</button><button type="submit" class="btn gold" id="send">올리기</button></div>
+  </form>
+  <section aria-labelledby="gb">
+    <div class="count"><h2 id="gb">추모글</h2><span>${v.noteCount}개</span></div>
+    ${v.gbOpen ? (notes ? `<ul class="notes">${notes}</ul>` : '<p class="empty">아직 남긴 글이 없어요. 첫 마음을 전해 주세요.</p>') : '<p class="empty">가족만 볼 수 있는 방명록이에요.</p>'}
+  </section>
+  <section class="app">
+    <h2>${pet ? '무지개 정원에서 더 가까이' : '3D 분향소와 장지에서 더 가까이'}</h2>
+    <p>공감 추모원 앱에서는 ${pet ? '아이의 사진과 영상, 좋아하던 간식과 장난감이 놓인 무지개 정원' : '향을 피우고 꽃을 올리는 3D 분향소와, 실제처럼 꾸민 장지'}에 들어갈 수 있어요. 앱에서 아래 추모원 번호를 넣어 주세요.</p>
+    <div><span class="code">${esc(v.code)}</span><button class="copy" id="cp">번호 복사</button></div>
+    <p style="margin:14px 0 0"><a class="btn line" href="../#contact" style="width:100%">앱 출시 알림 받기</a></p>
+  </section>`;
+  const f = $('#f');
+  const open = (flower) => { f.classList.add('on'); $('#flower').checked = flower; $('#f-title').textContent = flower ? (pet ? '꽃 놓아 주기' : '헌화하기') : '추모글 남기기'; if (flower && !$('#text').value) $('#text').value = pet ? '고마웠어, 사랑해.' : '삼가 고인의 명복을 빕니다.'; $('#who').focus(); };
+  $('#b-flower').onclick = () => open(true);
+  $('#b-note').onclick = () => open(false);
+  $('#cancel').onclick = () => f.classList.remove('on');
+  $('#cp').onclick = () => copy(v.code);
+  f.onsubmit = async (e) => {
+    e.preventDefault();
+    const text = $('#text').value.trim();
+    if (!text) { $('#err').textContent = '남길 말을 적어 주세요.'; return; }
+    $('#send').disabled = true; $('#err').textContent = '';
+    try {
+      const r = await fetch(API, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ c: v.code, who: $('#who').value, rel: $('#rel').value, text, flower: $('#flower').checked }) });
+      const j = await r.json();
+      if (!r.ok || !j.ok) throw new Error(j.error || '올리지 못했어요.');
+      toast($('#flower').checked ? (pet ? '꽃을 놓았어요.' : '헌화했어요.') + ' 마음이 전해질 거예요.' : '추모글을 올렸어요.');
+      load();
+    } catch (err) { $('#err').textContent = err.message || '잠시 뒤 다시 시도해 주세요.'; $('#send').disabled = false; }
+  };
+}
+
+async function load() {
+  if (!/^[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(code)) return state('추모원 번호를 확인해 주세요', '받으신 링크가 끝까지 복사되었는지 확인해 주세요. 추모원 번호는 "ABCD-1234"처럼 생겼어요.');
+  try {
+    const r = await fetch(API + '?c=' + encodeURIComponent(code), { cache: 'no-store' });
+    const v = await r.json();
+    if (v.error) return state('추모원 번호를 확인해 주세요', esc(v.error));
+    if (!v.open) return v.exists
+      ? state('가족만 들어갈 수 있는 추모관이에요', '이 추모관은 비공개예요. 가족에게 초대를 받으면 공감 추모원 앱에서 들어갈 수 있어요.')
+      : state('추모관을 찾지 못했어요', '번호가 바뀌었거나 추모관이 정리되었을 수 있어요. 링크를 보내 주신 분께 한 번 더 확인해 주세요.');
+    render(v);
+  } catch (e) {
+    state('잠시 연결이 어려워요', '인터넷 연결을 확인하고 다시 열어 주세요.');
+  }
+}
+load();
+</script>
+</body>
+</html>
