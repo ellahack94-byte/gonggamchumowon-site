@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>부고 · 공감 추모원</title>
+<meta name="description" content="삼가 알려드립니다. 빈소와 발인 일정을 확인해 주세요.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="[부고] 삼가 알려드립니다">
+<meta property="og:description" content="빈소·발인 일정과 오시는 길을 확인해 주세요.">
+<meta property="og:image" content="https://gonggamchumowon.co.kr/img/og-bugo.jpg">
+<meta name="theme-color" content="#f6f4ef">
+<link rel="icon" href="../icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Song+Myung&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<style>
+:root {
+  --paper: #f6f4ef; --paper-2: #fffdf8; --ink: #24211d; --sub: #6b645a; --line: #d9d3c7; --black: #1a1816; --gold: #9c7a37;
+  --display: "Song Myung", "Nanum Myeongjo", serif;
+  --body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", system-ui, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--paper); color: var(--ink); font: 400 17px/1.75 var(--body); word-break: keep-all; }
+a { color: inherit; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; border-radius: 6px; }
+.wrap { max-width: 540px; margin: 0 auto; padding: 24px max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); }
+
+/* 한지에 먹으로 쓴 부고: 검은 이중 테두리 */
+.card { background: var(--paper-2); border: 1px solid var(--black); outline: 4px solid var(--paper-2); box-shadow: 0 0 0 5px var(--black), 0 18px 40px rgba(40, 30, 20, .12); margin: 6px; padding: 34px 22px 26px; position: relative; }
+.card::before, .card::after { content: ""; position: absolute; top: 0; width: 40px; height: 40px; overflow: hidden; }
+.head { text-align: center; }
+.head .kanji { font-family: var(--display); font-size: 54px; letter-spacing: .3em; line-height: 1; margin-right: -.3em; }
+.head .say { color: var(--sub); margin-top: 10px; font-size: 15px; letter-spacing: .2em; }
+.lead { text-align: center; font-family: var(--display); font-size: 21px; line-height: 1.8; margin: 28px 0 6px; }
+.lead b { font-weight: 400; font-size: 30px; display: block; margin-bottom: 4px; }
+.age { text-align: center; color: var(--sub); font-size: 15.5px; }
+.sec { border-top: 1px solid var(--line); margin-top: 26px; padding-top: 18px; }
+.sec h2 { font-family: var(--display); font-weight: 400; font-size: 19px; margin: 0 0 10px; display: flex; align-items: center; gap: 8px; }
+.sec h2::before { content: ""; width: 6px; height: 6px; background: var(--black); transform: rotate(45deg); }
+dl { display: grid; grid-template-columns: 76px 1fr; gap: 6px 12px; margin: 0; }
+dt { color: var(--sub); font-size: 15.5px; }
+dd { margin: 0; font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
+.chief { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 6px 14px; }
+.chief span { color: var(--sub); font-size: 15px; margin-right: 8px; }
+.btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.btn { appearance: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 48px; padding: 10px 16px; border-radius: 12px; font: 600 16px/1.2 var(--body); text-decoration: none; border: 1px solid var(--black); background: var(--paper-2); color: var(--ink); flex: 1 1 auto; }
+.btn.dark { background: var(--black); color: #f6f4ef; }
+.acct { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; margin-top: 8px; background: #fbf9f4; }
+.acct .t { flex: 1; min-width: 0; }
+.acct .who { color: var(--sub); font-size: 14.5px; }
+.acct .num { font-weight: 600; overflow-wrap: anywhere; }
+.acct button { appearance: none; border: 1px solid var(--black); background: var(--paper-2); border-radius: 999px; font: 500 14px var(--body); padding: 8px 14px; cursor: pointer; color: var(--ink); white-space: nowrap; }
+.msg { white-space: pre-wrap; }
+.memo { margin: 26px 6px 0; background: #1c1917; color: #f2efe8; border-radius: 16px; padding: 20px; }
+.memo h2 { font-family: var(--display); font-weight: 400; font-size: 20px; margin: 0 0 6px; }
+.memo p { color: #c9c1b4; font-size: 15.5px; margin: 0 0 14px; }
+.memo .btn { background: #c9a45c; color: #1d1608; border-color: #c9a45c; width: 100%; }
+.state { text-align: center; padding: 80px 0; }
+.state h1 { font-family: var(--display); font-weight: 400; font-size: 26px; margin: 0; }
+.state p { color: var(--sub); }
+footer { text-align: center; color: var(--sub); font-size: 13.5px; padding: 28px 0 calc(30px + env(safe-area-inset-bottom, 0px)); }
+.toast { position: fixed; left: 50%; bottom: calc(24px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--black); color: #f6f4ef; padding: 12px 18px; border-radius: 12px; font-size: 15px; opacity: 0; transition: opacity .25s; pointer-events: none; max-width: 90vw; }
+.toast.on { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .toast { transition: none; } }
+</style>
+</head>
+<body>
+<main class="wrap" id="main"><div class="state"><p>부고를 여는 중이에요…</p></div></main>
+<footer>공감 추모원으로 보낸 부고 · <a href="../">공감 추모원</a></footer>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+const API = 'https://asia-northeast3-gonggam-chumowon.cloudfunctions.net/web';
+const $ = (s) => document.querySelector(s);
+const esc = (t) => String(t || '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const id = (new URLSearchParams(location.search).get('id') || '').toLowerCase();
+const WD = '일월화수목금토';
+function when(v, withTime) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2}))?/.exec(v || ''); if (!m) return '';
+  const d = new Date(+m[1], +m[2] - 1, +m[3]);
+  let s = `${+m[2]}월 ${+m[3]}일(${WD[d.getDay()]})`;
+  if (withTime && m[4]) { const h = +m[4], mi = +m[5]; s += ` ${h < 12 ? '오전' : '오후'} ${h % 12 || 12}시${mi ? ' ' + mi + '분' : ''}`; }
+  return s;
+}
+function full(v) { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(v || ''); return m ? `${+m[1]}년 ${+m[2]}월 ${+m[3]}일` : ''; }
+function toast(t) { const el = $('#toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('on'), 2400); }
+async function copy(t) {
+  try { await navigator.clipboard.writeText(t); toast('계좌번호를 복사했어요'); }
+  catch (e) { const r = document.createRange(); const el = [...document.querySelectorAll('.num')].find((n) => n.textContent === t); if (el) { r.selectNodeContents(el); const s = getSelection(); s.removeAllRanges(); s.addRange(r); } toast('계좌번호를 길게 눌러 복사해 주세요'); }
+}
+function state(t, b) { $('#main').innerHTML = `<div class="state"><h1>${t}</h1><p>${b}</p></div>`; }
+
+function render(b, memorialOpen) {
+  document.title = `[부고] 故 ${b.name}님 별세 · 공감 추모원`;
+  const place = [b.hall, b.room].filter(Boolean).join(' ');
+  const q = encodeURIComponent(b.addr || b.hall || '');
+  const chief = (b.chief || []).map((c) => `<div><span>${esc(c.rel)}</span>${esc(c.name)}</div>`).join('');
+  const accts = (b.accounts || []).map((a) => `<div class="acct"><div class="t"><div class="who">${esc(a.who)}</div><div class="num">${esc([a.bank, a.num].filter(Boolean).join(' '))}</div></div><button data-num="${esc(a.num)}" data-full="${esc([a.bank, a.num].filter(Boolean).join(' '))}">복사</button></div>`).join('');
+  $('#main').innerHTML = `
+  <article class="card" aria-label="부고">
+    <div class="head"><div class="kanji">訃告</div><div class="say">삼가 알려드립니다</div></div>
+    <p class="lead"><b>故 ${esc(b.name)}${b.title ? ' ' + esc(b.title) : ''}</b>님께서 ${full(b.died) || '이번에'} 별세하셨기에<br>삼가 알려드립니다.</p>
+    ${b.age ? `<div class="age">향년 ${b.age}세${b.religion ? ' · ' + esc(b.religion) : ''}</div>` : ''}
+    ${chief ? `<section class="sec"><h2>상주</h2><div class="chief">${chief}</div></section>` : ''}
+    ${place || b.addr ? `<section class="sec"><h2>빈소</h2><dl>${place ? `<dt>장례식장</dt><dd>${esc(place)}</dd>` : ''}${b.addr ? `<dt>주소</dt><dd>${esc(b.addr)}</dd>` : ''}${b.tel ? `<dt>전화</dt><dd>${esc(b.tel)}</dd>` : ''}</dl>
+      ${q ? `<div class="btns"><a class="btn dark" href="https://map.kakao.com/link/search/${q}" target="_blank" rel="noopener">카카오맵 길찾기</a><a class="btn" href="https://map.naver.com/p/search/${q}" target="_blank" rel="noopener">네이버 지도</a></div>` : ''}</section>` : ''}
+    ${b.coffin || b.leave || b.burial ? `<section class="sec"><h2>장례 일정</h2><dl>${b.coffin ? `<dt>입관</dt><dd>${when(b.coffin, true)}</dd>` : ''}${b.leave ? `<dt>발인</dt><dd>${when(b.leave, true)}</dd>` : ''}${b.burial ? `<dt>장지</dt><dd>${esc(b.burial)}</dd>` : ''}</dl></section>` : ''}
+    ${b.msg ? `<section class="sec"><h2>전하는 말씀</h2><p class="msg">${esc(b.msg)}</p></section>` : ''}
+    ${accts ? `<section class="sec"><h2>마음 전하실 곳</h2>${accts}</section>` : ''}
+  </article>
+  ${memorialOpen && b.code ? `<section class="memo"><h2>온라인 추모관</h2><p>빈소에 오시기 어려우면 온라인 추모관에서 헌화하고 추모글을 남길 수 있어요.</p><a class="btn" href="../m/?c=${esc(b.code)}">온라인으로 조문하기</a></section>` : ''}`;
+  document.querySelectorAll('.acct button').forEach((btn) => { btn.onclick = () => copy(btn.dataset.full); });
+}
+
+(async () => {
+  if (!/^[a-z0-9]{10}$/.test(id)) return state('부고 주소를 확인해 주세요', '받으신 링크가 끝까지 복사되었는지 확인해 주세요.');
+  try {
+    const r = await fetch(API + '?b=' + id, { cache: 'no-store' });
+    const v = await r.json();
+    if (!r.ok || !v.bugo) return state('부고를 찾지 못했어요', esc(v.error || '기간이 지나 정리되었을 수 있어요.'));
+    render(v.bugo, v.memorialOpen);
+  } catch (e) { state('잠시 연결이 어려워요', '인터넷 연결을 확인하고 다시 열어 주세요.'); }
+})();
+</script>
+</body>
+</html>
