@@ -70,6 +70,16 @@ h1 small { font-size: .5em; color: var(--sub); margin-left: 6px; }
 .notes .who .fl { margin-left: auto; color: var(--gold); font-size: 13px; font-weight: 500; }
 .notes p { margin: 6px 0 0; color: #e2ddd3; white-space: pre-wrap; }
 .empty { color: var(--faint); padding: 18px 0 4px; }
+.story { border-top: 1px solid var(--line); padding: 22px 0 26px; }
+.story h2 { font-family: var(--display); font-weight: 400; font-size: 22px; margin: 0 0 10px; }
+.story .bio { white-space: pre-wrap; color: #e2ddd3; }
+.life { list-style: none; margin: 18px 0 0; padding: 0; }
+.life li { display: grid; grid-template-columns: 58px 14px 1fr; gap: 0 10px; }
+.life .y { color: var(--gold); font-weight: 600; font-size: 15.5px; }
+.life .dot { position: relative; }
+.life .dot::before { content: ""; position: absolute; left: 3px; top: 10px; width: 8px; height: 8px; border-radius: 50%; background: var(--gold-soft); }
+.life li:not(:last-child) .dot::after { content: ""; position: absolute; left: 6.5px; top: 22px; bottom: -6px; width: 1px; background: var(--line); }
+.life .t { padding-bottom: 14px; }
 
 form { display: none; background: var(--ink-2); border: 1px solid var(--line); border-radius: 18px; padding: 20px; margin: 0 0 28px; }
 form.on { display: block; }
@@ -153,6 +163,7 @@ function render(v) {
     <div class="err" id="err"></div>
     <div class="btns"><button type="button" class="btn line" id="cancel">닫기</button><button type="submit" class="btn gold" id="send">올리기</button></div>
   </form>
+  ${v.story && (v.story.bio || v.story.life.length) ? `<section class="story" aria-labelledby="st"><h2 id="st">생애 이야기</h2>${v.story.bio ? `<p class="bio">${esc(v.story.bio)}</p>` : ''}${v.story.life.length ? `<ul class="life">${v.story.life.map((l) => `<li><span class="y">${esc(l.y)}</span><span class="dot"></span><span class="t">${esc(l.t)}</span></li>`).join('')}</ul>` : ''}</section>` : ''}
   <section aria-labelledby="gb">
     <div class="count"><h2 id="gb">추모글</h2><span>${v.noteCount}개</span></div>
     ${v.gbOpen ? (notes ? `<ul class="notes">${notes}</ul>` : '<p class="empty">아직 남긴 글이 없어요. 첫 마음을 전해 주세요.</p>') : '<p class="empty">가족만 볼 수 있는 방명록이에요.</p>'}
