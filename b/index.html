@@ -58,6 +58,23 @@ dd { margin: 0; font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
 .memo h2 { font-family: var(--display); font-weight: 400; font-size: 20px; margin: 0 0 6px; }
 .memo p { color: #c9c1b4; font-size: 15.5px; margin: 0 0 14px; }
 .memo .btn { background: #c9a45c; color: #1d1608; border-color: #c9a45c; width: 100%; }
+.photo { width: 132px; aspect-ratio: 3 / 4; margin: 22px auto 0; padding: 5px; background: var(--black); position: relative; }
+.photo img { width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(.15); }
+.photo::before, .photo::after { content: ""; position: absolute; top: 0; width: 34px; height: 34px; background: linear-gradient(135deg, var(--black) 50%, transparent 50%); z-index: 1; }
+.photo::before { left: 0; } .photo::after { right: 0; transform: scaleX(-1); }
+.thanks { background: #1c1917; color: #f2efe8; border-radius: 14px; padding: 16px 18px; margin: 0 6px 18px; }
+.thanks b { font-family: var(--display); font-weight: 400; font-size: 18px; display: block; margin-bottom: 4px; color: #e6cf9f; }
+.thanks p { margin: 0; white-space: pre-wrap; font-size: 15.5px; }
+.msgs { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; }
+.msgs li { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: #fbf9f4; }
+.msgs .who { font-weight: 600; font-size: 15px; }
+.msgs .who em { font-style: normal; color: var(--sub); font-weight: 400; font-size: 14px; margin-left: 6px; }
+.msgs p { margin: 4px 0 0; white-space: pre-wrap; }
+.cform { display: grid; gap: 8px; margin-top: 12px; }
+.cform .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.cform input, .cform textarea { width: 100%; font: 400 16px/1.5 var(--body); color: var(--ink); background: #fff; border: 1px solid #cfc8bb; border-radius: 10px; padding: 11px 12px; }
+.cform textarea { min-height: 84px; resize: vertical; }
+.cform .err { color: #a5452c; font-size: 14.5px; min-height: 1em; }
 .state { text-align: center; padding: 80px 0; }
 .state h1 { font-family: var(--display); font-weight: 400; font-size: 26px; margin: 0; }
 .state p { color: var(--sub); }
@@ -92,16 +109,20 @@ async function copy(t) {
 }
 function state(t, b) { $('#main').innerHTML = `<div class="state"><h1>${t}</h1><p>${b}</p></div>`; }
 
-function render(b, memorialOpen) {
-  document.title = `[부고] 故 ${b.name}님 별세 · 공감 추모원`;
+function render(b, memorialOpen, photo, msgs, msgCount) {
+  const term = b.term || '별세';
+  document.title = `[부고] 故 ${b.name}님 ${term} · 공감 추모원`;
+  const ml = (msgs || []).map((m) => `<li><div class="who">${esc(m.name)}${m.rel ? `<em>${esc(m.rel)}</em>` : ''}</div><p>${esc(m.text)}</p></li>`).join('');
   const place = [b.hall, b.room].filter(Boolean).join(' ');
   const q = encodeURIComponent(b.addr || b.hall || '');
   const chief = (b.chief || []).map((c) => `<div><span>${esc(c.rel)}</span>${esc(c.name)}</div>`).join('');
   const accts = (b.accounts || []).map((a) => `<div class="acct"><div class="t"><div class="who">${esc(a.who)}</div><div class="num">${esc([a.bank, a.num].filter(Boolean).join(' '))}</div></div><button data-num="${esc(a.num)}" data-full="${esc([a.bank, a.num].filter(Boolean).join(' '))}">복사</button></div>`).join('');
   $('#main').innerHTML = `
+  ${b.thanks ? `<section class="thanks"><b>감사 인사 드립니다</b><p>${esc(b.thanks)}</p></section>` : ''}
   <article class="card" aria-label="부고">
     <div class="head"><div class="kanji">訃告</div><div class="say">삼가 알려드립니다</div></div>
-    <p class="lead"><b>故 ${esc(b.name)}${b.title ? ' ' + esc(b.title) : ''}</b>님께서 ${full(b.died) || '이번에'} 별세하셨기에<br>삼가 알려드립니다.</p>
+    ${photo ? `<div class="photo"><img src="${esc(photo)}" alt="故 ${esc(b.name)}님 영정"></div>` : ''}
+    <p class="lead"><b>故 ${esc(b.name)}${b.title ? ' ' + esc(b.title) : ''}</b>님께서 ${full(b.died) || '이번에'} ${esc(term)}하셨기에<br>삼가 알려드립니다.</p>
     ${b.age ? `<div class="age">향년 ${b.age}세${b.religion ? ' · ' + esc(b.religion) : ''}</div>` : ''}
     ${chief ? `<section class="sec"><h2>상주</h2><div class="chief">${chief}</div></section>` : ''}
     ${place || b.addr ? `<section class="sec"><h2>빈소</h2><dl>${place ? `<dt>장례식장</dt><dd>${esc(place)}</dd>` : ''}${b.addr ? `<dt>주소</dt><dd>${esc(b.addr)}</dd>` : ''}${b.tel ? `<dt>전화</dt><dd>${esc(b.tel)}</dd>` : ''}</dl>
@@ -109,20 +130,43 @@ function render(b, memorialOpen) {
     ${b.coffin || b.leave || b.burial ? `<section class="sec"><h2>장례 일정</h2><dl>${b.coffin ? `<dt>입관</dt><dd>${when(b.coffin, true)}</dd>` : ''}${b.leave ? `<dt>발인</dt><dd>${when(b.leave, true)}</dd>` : ''}${b.burial ? `<dt>장지</dt><dd>${esc(b.burial)}</dd>` : ''}</dl></section>` : ''}
     ${b.msg ? `<section class="sec"><h2>전하는 말씀</h2><p class="msg">${esc(b.msg)}</p></section>` : ''}
     ${accts ? `<section class="sec"><h2>마음 전하실 곳</h2>${accts}</section>` : ''}
+    <section class="sec"><h2>조의 말씀</h2>
+      ${ml ? `<ul class="msgs">${ml}</ul>` : '<p style="color:var(--sub);margin:0">상주께 위로의 말씀을 전해 주세요.</p>'}
+      <form class="cform" id="cf" novalidate>
+        <div class="row"><input id="cw" maxlength="14" placeholder="이름" autocomplete="name"><input id="cr" maxlength="10" placeholder="관계 (선택)"></div>
+        <textarea id="ct" maxlength="300" placeholder="예: 삼가 고인의 명복을 빕니다. 힘내세요."></textarea>
+        <div class="err" id="ce"></div>
+        <button class="btn dark" id="cs" type="submit">조의 말씀 남기기</button>
+      </form>
+    </section>
   </article>
   ${memorialOpen && b.code ? `<section class="memo"><h2>온라인 추모관</h2><p>빈소에 오시기 어려우면 온라인 추모관에서 헌화하고 추모글을 남길 수 있어요.</p><a class="btn" href="../m/?c=${esc(b.code)}">온라인으로 조문하기</a></section>` : ''}`;
   document.querySelectorAll('.acct button').forEach((btn) => { btn.onclick = () => copy(btn.dataset.full); });
+  $('#cf').onsubmit = async (e) => {
+    e.preventDefault();
+    const text = $('#ct').value.trim();
+    if (!text) { $('#ce').textContent = '남길 말씀을 적어 주세요.'; return; }
+    $('#cs').disabled = true; $('#ce').textContent = '';
+    try {
+      const r = await fetch(API, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ b: id, who: $('#cw').value, rel: $('#cr').value, text }) });
+      const j = await r.json();
+      if (!r.ok || !j.ok) throw new Error(j.error || '남기지 못했어요.');
+      toast('조의 말씀을 전했어요');
+      load();
+    } catch (err) { $('#ce').textContent = err.message; $('#cs').disabled = false; }
+  };
 }
 
-(async () => {
+async function load() {
   if (!/^[a-z0-9]{10}$/.test(id)) return state('부고 주소를 확인해 주세요', '받으신 링크가 끝까지 복사되었는지 확인해 주세요.');
   try {
     const r = await fetch(API + '?b=' + id, { cache: 'no-store' });
     const v = await r.json();
     if (!r.ok || !v.bugo) return state('부고를 찾지 못했어요', esc(v.error || '기간이 지나 정리되었을 수 있어요.'));
-    render(v.bugo, v.memorialOpen);
+    render(v.bugo, v.memorialOpen, v.photo, v.msgs, v.msgCount);
   } catch (e) { state('잠시 연결이 어려워요', '인터넷 연결을 확인하고 다시 열어 주세요.'); }
-})();
+}
+load();
 </script>
 </body>
 </html>
