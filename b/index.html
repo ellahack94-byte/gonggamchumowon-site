@@ -54,6 +54,11 @@ dd { margin: 0; font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
 .acct .num { font-weight: 600; overflow-wrap: anywhere; }
 .acct button { appearance: none; border: 1px solid var(--black); background: var(--paper-2); border-radius: 999px; font: 500 14px var(--body); padding: 8px 14px; cursor: pointer; color: var(--ink); white-space: nowrap; }
 .msg { white-space: pre-wrap; }
+.tip { color: var(--sub); font-size: 14px; margin: 10px 0 0; line-height: 1.6; }
+.safe { margin: 22px 6px 0; border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; background: var(--paper-2); font-size: 14.5px; }
+.safe b { font-size: 15px; }
+.safe p { color: var(--sub); margin: 6px 0 10px; line-height: 1.6; }
+.safe #rep-page { border: 0; background: none; padding: 0; color: var(--sub); font: inherit; font-size: 13.5px; text-decoration: underline; cursor: pointer; }
 .memo { margin: 26px 6px 0; background: #1c1917; color: #f2efe8; border-radius: 16px; padding: 20px; }
 .memo h2 { font-family: var(--display); font-weight: 400; font-size: 20px; margin: 0 0 6px; }
 .memo p { color: #c9c1b4; font-size: 15.5px; margin: 0 0 14px; }
@@ -147,7 +152,7 @@ function wireReports(list, kind, parent) {
   });
 }
 
-function render(b, memorialOpen, photo, msgs, msgCount) {
+function render(b, memorialOpen, photo, msgs, msgCount, accountsClosed) {
   const term = b.term || '별세';
   document.title = `[부고] 故 ${b.name}님 ${term} · 공감 추모원`;
   const ml = (msgs || []).map((m) => `<li data-id="${esc(m.id || '')}"><div class="who">${esc(m.name)}${m.rel ? `<em>${esc(m.rel)}</em>` : ''}${m.id ? `<button class="rep" type="button" aria-label="${esc(m.name)}님 글 신고">신고</button>` : ''}</div><p>${esc(m.text)}</p></li>`).join('');
@@ -167,7 +172,8 @@ function render(b, memorialOpen, photo, msgs, msgCount) {
       ${q ? `<div class="btns"><a class="btn dark" href="https://map.kakao.com/link/search/${q}" target="_blank" rel="noopener">카카오맵 길찾기</a><a class="btn" href="https://map.naver.com/p/search/${q}" target="_blank" rel="noopener">네이버 지도</a></div>` : ''}</section>` : ''}
     ${b.coffin || b.leave || b.burial ? `<section class="sec"><h2>장례 일정</h2><dl>${b.coffin ? `<dt>입관</dt><dd>${when(b.coffin, true)}</dd>` : ''}${b.leave ? `<dt>발인</dt><dd>${when(b.leave, true)}</dd>` : ''}${b.burial ? `<dt>장지</dt><dd>${esc(b.burial)}</dd>` : ''}</dl></section>` : ''}
     ${b.msg ? `<section class="sec"><h2>전하는 말씀</h2><p class="msg">${esc(b.msg)}</p></section>` : ''}
-    ${accts ? `<section class="sec"><h2>마음 전하실 곳</h2>${accts}</section>` : ''}
+    ${accts ? `<section class="sec"><h2>마음 전하실 곳</h2>${accts}<p class="tip">보내시기 전에 예금주가 위 상주분과 같은지 꼭 확인해 주세요. 의심스러우면 상주께 직접 전화로 여쭤 보세요.</p></section>`
+      : accountsClosed ? `<section class="sec"><h2>마음 전하실 곳</h2><p class="tip">${accountsClosed === 'reported' ? '신고가 들어와 계좌 안내를 닫았어요. 상주께 직접 여쭤 주세요.' : '장례를 마쳐 계좌 안내를 닫았어요.'}</p></section>` : ''}
     <section class="sec"><h2>조의 말씀</h2>
       ${ml ? `<ul class="msgs">${ml}</ul>` : '<p style="color:var(--sub);margin:0">상주께 위로의 말씀을 전해 주세요.</p>'}
       <form class="cform" id="cf" novalidate>
@@ -178,9 +184,28 @@ function render(b, memorialOpen, photo, msgs, msgCount) {
       </form>
     </section>
   </article>
+  <section class="safe" aria-label="안전 안내"><b>공감 추모원 공식 부고장</b><p>이 부고는 gonggamchumowon.co.kr 에서만 열려요. 공감 추모원은 부고장에서 앱 설치, 로그인, 인증번호, 개인정보 입력을 절대 요구하지 않아요. 그런 요청을 받으면 열지 마시고 신고해 주세요.</p><button type="button" id="rep-page">이 부고장 신고하기</button><div id="rep-page-f"></div></section>
   ${memorialOpen && b.code ? `<section class="memo"><h2>온라인 추모관</h2><p>빈소에 오시기 어려우면 온라인 추모관에서 헌화하고 추모글을 남길 수 있어요.</p><a class="btn" href="../m/?c=${esc(b.code)}">온라인으로 조문하기</a></section>` : ''}`;
   document.querySelectorAll('.acct button').forEach((btn) => { btn.onclick = () => copy(btn.dataset.full); });
   wireReports(document.querySelector('.msgs'), 'bugo', id);
+  $('#rep-page').onclick = () => {
+    const box = $('#rep-page-f');
+    if (box.innerHTML) { box.innerHTML = ''; return; }
+    box.innerHTML = `<form class="repf"><label>신고 사유<select name="r"><option value="fake">가짜 부고·사칭</option><option value="privacy">개인정보 노출</option><option value="spam">광고·스팸</option><option value="other">기타</option></select></label><div class="repb"><button type="button" class="repx">취소</button><button type="submit">신고 보내기</button></div><div class="repm" role="status"></div></form>`;
+    const f = box.querySelector('form');
+    f.querySelector('.repx').onclick = () => { box.innerHTML = ''; };
+    f.onsubmit = async (ev) => {
+      ev.preventDefault();
+      const btn = f.querySelector('button[type=submit]'); btn.disabled = true;
+      try {
+        const r = await fetch(API, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ report: { kind: 'bugopage', b: id, reason: f.r.value } }) });
+        const j = await r.json();
+        if (!r.ok || !j.ok) throw new Error(j.error || '신고하지 못했어요.');
+        f.innerHTML = '<div class="repm">신고했어요. 운영자가 확인할게요. 여러 분이 신고하면 계좌 안내가 바로 닫혀요.</div>';
+        if (j.hidden) load();
+      } catch (err) { f.querySelector('.repm').textContent = err.message; btn.disabled = false; }
+    };
+  };
   $('#cf').onsubmit = async (e) => {
     e.preventDefault();
     const text = $('#ct').value.trim();
@@ -202,7 +227,7 @@ async function load() {
     const r = await fetch(API + '?b=' + id, { cache: 'no-store' });
     const v = await r.json();
     if (!r.ok || !v.bugo) return state('부고를 찾지 못했어요', esc(v.error || '기간이 지나 정리되었을 수 있어요.'));
-    render(v.bugo, v.memorialOpen, v.photo, v.msgs, v.msgCount);
+    render(v.bugo, v.memorialOpen, v.photo, v.msgs, v.msgCount, v.accountsClosed);
   } catch (e) { state('잠시 연결이 어려워요', '인터넷 연결을 확인하고 다시 열어 주세요.'); }
 }
 load();
