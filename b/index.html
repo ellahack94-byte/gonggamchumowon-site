@@ -67,7 +67,18 @@ dd { margin: 0; font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
 .thanks p { margin: 0; white-space: pre-wrap; font-size: 15.5px; }
 .msgs { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 8px; }
 .msgs li { border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; background: #fbf9f4; }
-.msgs .who { font-weight: 600; font-size: 15px; }
+.msgs .who { font-weight: 600; font-size: 15px; display: flex; align-items: baseline; }
+.rep { margin-left: auto; border: 0; background: none; color: inherit; opacity: .6; font: inherit; font-size: 12.5px; cursor: pointer; padding: 2px 4px; }
+.rep:hover, .rep:focus-visible { opacity: 1; text-decoration: underline; }
+.repf { margin-top: 10px; display: grid; gap: 8px; font-size: 14px; }
+.repf label { display: grid; gap: 4px; }
+.repf select { font: inherit; padding: 8px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: inherit; }
+.repf select option { color: #222; }
+.repb { display: flex; gap: 8px; justify-content: flex-end; }
+.repb button { font: inherit; font-size: 13.5px; padding: 7px 12px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: inherit; cursor: pointer; }
+.repb button[type=submit] { font-weight: 600; }
+.repm { font-size: 13px; opacity: .85; }
+
 .msgs .who em { font-style: normal; color: var(--sub); font-weight: 400; font-size: 14px; margin-left: 6px; }
 .msgs p { margin: 4px 0 0; white-space: pre-wrap; }
 .cform { display: grid; gap: 8px; margin-top: 12px; }
@@ -109,10 +120,37 @@ async function copy(t) {
 }
 function state(t, b) { $('#main').innerHTML = `<div class="state"><h1>${t}</h1><p>${b}</p></div>`; }
 
+/* 신고: 부적절한 글을 운영자에게 알린다. 서로 다른 세 분이 신고하면 바로 가려진다. */
+const REASONS = [['abuse', '욕설·괴롭힘'], ['hate', '혐오·차별'], ['sexual', '음란물'], ['spam', '광고·도배'], ['privacy', '개인정보 노출'], ['fake', '거짓·사칭'], ['other', '기타']];
+function wireReports(list, kind, parent) {
+  if (!list) return;
+  list.addEventListener('click', async (e) => {
+    const li = e.target.closest('li'); if (!li || !li.dataset.id) return;
+    if (e.target.closest('.rep')) {
+      if (li.querySelector('.repf')) { li.querySelector('.repf').remove(); return; }
+      const f = document.createElement('form'); f.className = 'repf';
+      f.innerHTML = `<label>신고 사유<select name="r">${REASONS.map(([k, t]) => `<option value="${k}">${t}</option>`).join('')}</select></label><div class="repb"><button type="button" class="repx">취소</button><button type="submit">신고 보내기</button></div><div class="repm" role="status"></div>`;
+      li.appendChild(f); f.querySelector('select').focus();
+      f.querySelector('.repx').onclick = () => f.remove();
+      f.onsubmit = async (ev) => {
+        ev.preventDefault();
+        const btn = f.querySelector('button[type=submit]'); btn.disabled = true;
+        try {
+          const r = await fetch(API, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ report: { kind, [kind === 'bugo' ? 'b' : 'c']: parent, id: li.dataset.id, reason: f.r.value } }) });
+          const j = await r.json();
+          if (!r.ok || !j.ok) throw new Error(j.error || '신고하지 못했어요.');
+          if (j.hidden) li.remove(); else f.innerHTML = '<div class="repm">신고했어요. 운영자가 확인해서 처리할게요.</div>';
+          toast('신고했어요');
+        } catch (err) { f.querySelector('.repm').textContent = err.message; btn.disabled = false; }
+      };
+    }
+  });
+}
+
 function render(b, memorialOpen, photo, msgs, msgCount) {
   const term = b.term || '별세';
   document.title = `[부고] 故 ${b.name}님 ${term} · 공감 추모원`;
-  const ml = (msgs || []).map((m) => `<li><div class="who">${esc(m.name)}${m.rel ? `<em>${esc(m.rel)}</em>` : ''}</div><p>${esc(m.text)}</p></li>`).join('');
+  const ml = (msgs || []).map((m) => `<li data-id="${esc(m.id || '')}"><div class="who">${esc(m.name)}${m.rel ? `<em>${esc(m.rel)}</em>` : ''}${m.id ? `<button class="rep" type="button" aria-label="${esc(m.name)}님 글 신고">신고</button>` : ''}</div><p>${esc(m.text)}</p></li>`).join('');
   const place = [b.hall, b.room].filter(Boolean).join(' ');
   const q = encodeURIComponent(b.addr || b.hall || '');
   const chief = (b.chief || []).map((c) => `<div><span>${esc(c.rel)}</span>${esc(c.name)}</div>`).join('');
@@ -142,6 +180,7 @@ function render(b, memorialOpen, photo, msgs, msgCount) {
   </article>
   ${memorialOpen && b.code ? `<section class="memo"><h2>온라인 추모관</h2><p>빈소에 오시기 어려우면 온라인 추모관에서 헌화하고 추모글을 남길 수 있어요.</p><a class="btn" href="../m/?c=${esc(b.code)}">온라인으로 조문하기</a></section>` : ''}`;
   document.querySelectorAll('.acct button').forEach((btn) => { btn.onclick = () => copy(btn.dataset.full); });
+  wireReports(document.querySelector('.msgs'), 'bugo', id);
   $('#cf').onsubmit = async (e) => {
     e.preventDefault();
     const text = $('#ct').value.trim();

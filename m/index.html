@@ -68,6 +68,17 @@ h1 small { font-size: .5em; color: var(--sub); margin-left: 6px; }
 .notes .who { display: flex; gap: 8px; align-items: center; font-weight: 600; font-size: 15.5px; }
 .notes .who em { font-style: normal; color: var(--faint); font-weight: 400; font-size: 14px; }
 .notes .who .fl { margin-left: auto; color: var(--gold); font-size: 13px; font-weight: 500; }
+.rep { margin-left: auto; border: 0; background: none; color: inherit; opacity: .6; font: inherit; font-size: 12.5px; cursor: pointer; padding: 2px 4px; }
+.rep:hover, .rep:focus-visible { opacity: 1; text-decoration: underline; }
+.repf { margin-top: 10px; display: grid; gap: 8px; font-size: 14px; }
+.repf label { display: grid; gap: 4px; }
+.repf select { font: inherit; padding: 8px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: inherit; }
+.repf select option { color: #222; }
+.repb { display: flex; gap: 8px; justify-content: flex-end; }
+.repb button { font: inherit; font-size: 13.5px; padding: 7px 12px; border-radius: 8px; border: 1px solid var(--line); background: transparent; color: inherit; cursor: pointer; }
+.repb button[type=submit] { font-weight: 600; }
+.repm { font-size: 13px; opacity: .85; }
+.notes .who .fl + .rep { margin-left: 0; }
 .notes p { margin: 6px 0 0; color: #e2ddd3; white-space: pre-wrap; }
 .empty { color: var(--faint); padding: 18px 0 4px; }
 .story { border-top: 1px solid var(--line); padding: 22px 0 26px; }
@@ -136,11 +147,38 @@ function state(title, body) {
 const SIL = '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="22" r="12" fill="#c9a45c"/><path d="M8 62c2-14 12-22 24-22s22 8 24 22" fill="#c9a45c"/></svg>';
 const PAW = '<svg viewBox="0 0 64 64" aria-hidden="true"><g fill="#b9a3c9"><ellipse cx="32" cy="42" rx="14" ry="12"/><circle cx="14" cy="28" r="6"/><circle cx="24" cy="16" r="6"/><circle cx="40" cy="16" r="6"/><circle cx="50" cy="28" r="6"/></g></svg>';
 
+/* 신고: 부적절한 글을 운영자에게 알린다. 서로 다른 세 분이 신고하면 바로 가려진다. */
+const REASONS = [['abuse', '욕설·괴롭힘'], ['hate', '혐오·차별'], ['sexual', '음란물'], ['spam', '광고·도배'], ['privacy', '개인정보 노출'], ['fake', '거짓·사칭'], ['other', '기타']];
+function wireReports(list, kind, parent) {
+  if (!list) return;
+  list.addEventListener('click', async (e) => {
+    const li = e.target.closest('li'); if (!li || !li.dataset.id) return;
+    if (e.target.closest('.rep')) {
+      if (li.querySelector('.repf')) { li.querySelector('.repf').remove(); return; }
+      const f = document.createElement('form'); f.className = 'repf';
+      f.innerHTML = `<label>신고 사유<select name="r">${REASONS.map(([k, t]) => `<option value="${k}">${t}</option>`).join('')}</select></label><div class="repb"><button type="button" class="repx">취소</button><button type="submit">신고 보내기</button></div><div class="repm" role="status"></div>`;
+      li.appendChild(f); f.querySelector('select').focus();
+      f.querySelector('.repx').onclick = () => f.remove();
+      f.onsubmit = async (ev) => {
+        ev.preventDefault();
+        const btn = f.querySelector('button[type=submit]'); btn.disabled = true;
+        try {
+          const r = await fetch(API, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ report: { kind, [kind === 'bugo' ? 'b' : 'c']: parent, id: li.dataset.id, reason: f.r.value } }) });
+          const j = await r.json();
+          if (!r.ok || !j.ok) throw new Error(j.error || '신고하지 못했어요.');
+          if (j.hidden) li.remove(); else f.innerHTML = '<div class="repm">신고했어요. 운영자가 확인해서 처리할게요.</div>';
+          toast('신고했어요');
+        } catch (err) { f.querySelector('.repm').textContent = err.message; btn.disabled = false; }
+      };
+    }
+  });
+}
+
 function render(v) {
   const pet = v.pet;
   document.body.classList.toggle('pet', pet);
   document.title = `${pet ? v.name : '故 ' + v.name} 추모관 · 공감 추모원`;
-  const notes = v.notes.map((n) => `<li><div class="who">${esc(n.name)}${n.rel ? ` <em>${esc(n.rel)}</em>` : ''}${n.flower ? '<span class="fl">헌화</span>' : ''}</div><p>${esc(n.text)}</p></li>`).join('');
+  const notes = v.notes.map((n) => `<li data-id="${esc(n.id || '')}"><div class="who">${esc(n.name)}${n.rel ? ` <em>${esc(n.rel)}</em>` : ''}${n.flower ? '<span class="fl">헌화</span>' : ''}${n.id ? `<button class="rep" type="button" aria-label="${esc(n.name)}님 글 신고">신고</button>` : ''}</div><p>${esc(n.text)}</p></li>`).join('');
   $('#main').innerHTML = `
   <section class="altar" aria-label="분향소">
     <div class="portrait"><div class="in" ${v.photo ? `style="background-image:url('${esc(v.photo)}')"` : ''} role="img" aria-label="${esc(v.name)} ${pet ? '사진' : '영정'}">${v.photo ? '' : (pet ? PAW : SIL)}</div><span class="ribbon l"></span><span class="ribbon r"></span></div>
@@ -180,6 +218,7 @@ function render(v) {
   $('#b-note').onclick = () => open(false);
   $('#cancel').onclick = () => f.classList.remove('on');
   $('#cp').onclick = () => copy(v.code);
+  wireReports(document.querySelector('.notes'), 'note', v.code);
   f.onsubmit = async (e) => {
     e.preventDefault();
     const text = $('#text').value.trim();
