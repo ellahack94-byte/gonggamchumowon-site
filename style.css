@@ -153,6 +153,9 @@ table.plans { width: 100%; min-width: 720px; border-collapse: collapse; font-siz
 .contact h2 { font-size: clamp(32px, 4.2vw, 46px); }
 .contact .text { display: grid; gap: 16px; }
 .contact .text p { color: var(--mum-sub); }
+.contact .kakao { justify-self: start; display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 22px; border-radius: 999px; background: #fee500; color: #191600; font-weight: 600; text-decoration: none; }
+.contact .kakao::before { content: ""; width: 20px; height: 18px; background: #191600; border-radius: 50% / 46%; clip-path: polygon(0 0, 100% 0, 100% 80%, 42% 80%, 22% 100%, 26% 80%, 0 80%); }
+.contact .kakao:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
 .mail { display: grid; gap: 10px; padding: 26px; border-radius: 22px; background: var(--ink-2); box-shadow: 0 0 0 1px var(--ink-line); }
 .mail span { color: var(--mum-sub); font-size: 14px; }
 .mail b { font-size: 21px; font-weight: 500; user-select: all; word-break: break-all; }
