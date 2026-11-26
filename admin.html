@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>운영자 관리 · 공감 추모원</title>
+<link rel="icon" href="icon.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Song+Myung&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="style.css">
+<style>
+.adm { padding-block: 32px 80px; display: grid; gap: 28px; }
+.adm h1 { font-size: clamp(28px, 5vw, 38px); }
+.adm .lead { color: var(--mum-sub); }
+.who { display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: center; }
+.btn { font: 600 15px var(--body); border-radius: 999px; padding: 10px 18px; border: 1px solid var(--ink-line); background: transparent; color: var(--mum); cursor: pointer; }
+.btn.gold { background: var(--gold); color: var(--ink); border-color: var(--gold); }
+.btn:disabled { opacity: .5; cursor: default; }
+.tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--ink-line); }
+.tabs button { font: 500 16px var(--body); color: var(--mum-sub); background: none; border: 0; padding: 10px 14px; border-bottom: 2px solid transparent; cursor: pointer; }
+.tabs button[aria-selected="true"] { color: var(--mum); border-bottom-color: var(--gold); }
+.list { display: grid; gap: 12px; }
+.row { background: var(--ink-2); border: 1px solid var(--ink-line); border-radius: 14px; padding: 14px 16px; display: grid; gap: 8px; min-width: 0; }
+.row h3 { font-size: 20px; }
+.row .sub { color: var(--mum-sub); font-size: 14px; }
+.row input { font: 400 16px var(--body); width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--ink-line); background: var(--ink); color: var(--mum); }
+.line { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.line .grow { flex: 1 1 240px; min-width: 0; }
+.cnt { font-size: 13px; color: var(--mum-sub); }
+.quote { white-space: pre-wrap; overflow-wrap: anywhere; background: var(--ink); border-radius: 10px; padding: 10px 12px; font-size: 15px; }
+.tag { display: inline-block; font-size: 12.5px; padding: 2px 9px; border-radius: 999px; border: 1px solid var(--ink-line); color: var(--gold-soft); }
+.tag.red { color: #f0a08f; border-color: #6b3a31; }
+.msg { color: var(--gold-soft); min-height: 1.4em; font-size: 14px; }
+.empty { color: var(--mum-sub); padding: 24px 0; }
+[hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header class="top"><div class="wrap"><a class="brand" href="index.html"><img src="icon.png" alt="">공감 추모원</a><nav aria-label="문서"><a class="cta" href="index.html">홈으로</a></nav></div></header>
+<main class="wrap adm">
+  <div>
+    <h1>운영자 관리</h1>
+    <p class="lead">공개 추모관 문구를 고치고, 들어온 신고를 처리하는 곳이에요. 운영자 구글 계정으로만 열려요.</p>
+  </div>
+
+  <div class="who" id="who">
+    <button class="btn gold" id="login" type="button">구글 계정으로 로그인</button>
+    <span id="me"></span>
+    <button class="btn" id="logout" type="button" hidden>로그아웃</button>
+  </div>
+  <p class="msg" id="gate" role="status"></p>
+
+  <section id="app" hidden>
+    <div class="tabs" role="tablist">
+      <button role="tab" aria-selected="true" data-tab="figs" type="button">제단 문구</button>
+      <button role="tab" aria-selected="false" data-tab="reps" type="button">신고 <span id="repn"></span></button>
+    </div>
+
+    <div id="figs" class="list" style="margin-top:18px">
+      <p class="lead">공개 추모관 제단 앞에 보이는 한 줄이에요. 30자까지 쓸 수 있고, 저장하면 앱에서 추모관을 새로 열 때 바로 바뀌어요.</p>
+      <div id="figlist" class="list"></div>
+    </div>
+
+    <div id="reps" class="list" style="margin-top:18px" hidden>
+      <p class="lead">세 분 이상이 신고한 글은 이미 자동으로 가려져 있어요. 내용을 보고 처리해 주세요. 신고한 사람은 여기에도 보이지 않아요.</p>
+      <div id="replist" class="list"></div>
+    </div>
+  </section>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey: 'AIzaSyCQcSmk4bielcfI_pnhSbd3vezUypyKvR8',
+  authDomain: 'gonggam-chumowon.firebaseapp.com',
+  projectId: 'gonggam-chumowon',
+  appId: '1:196589039125:web:e605f80940432225fb681c',
+});
+const auth = firebase.auth();
+const fn = firebase.app().functions('asia-northeast3');
+const call = async (name, data) => (await fn.httpsCallable(name)(data || {})).data;
+const $ = (s) => document.querySelector(s);
+const esc = (t) => String(t ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const NAMES = { 'KMGU-1876': '김구', 'HBDO-1868': '홍범도', 'KJJI-1889': '김좌진', 'AJGE-1879': '안중근', 'YBGI-1908': '윤봉길', 'LBCH-1901': '이봉창', 'YGSU-1902': '유관순', 'PKYE-1902': '박열', 'KNFU-1903': '가네코 후미코', 'YUIH-1895': '유일한' };
+const ORDER = Object.keys(NAMES);
+const KIND = { note: '추모글', bugo: '조의 말씀', bugopage: '부고장(계좌)' };
+const STATUS = { open: '확인 전', hidden: '자동으로 가려짐', kept: '문제없음 처리', 'hidden-by-admin': '가림 처리', deleted: '지움' };
+const day = (ms) => ms ? new Date(ms).toLocaleString('ko-KR', { month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+
+$('#login').onclick = async () => {
+  $('#gate').textContent = '';
+  try { await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }
+  catch (e) { if (e.code !== 'auth/popup-closed-by-user') $('#gate').textContent = '로그인하지 못했어요. (' + e.code + ')'; }
+};
+$('#logout').onclick = () => auth.signOut();
+
+auth.onAuthStateChanged(async (u) => {
+  $('#login').hidden = !!u; $('#logout').hidden = !u; $('#me').textContent = u ? u.email : '';
+  $('#app').hidden = true;
+  if (!u) return;
+  try { await loadFigs(); $('#app').hidden = false; $('#gate').textContent = ''; loadReps(); }
+  catch (e) { $('#gate').textContent = e.code === 'functions/permission-denied' ? '이 계정은 운영자가 아니에요. 운영자 구글 계정으로 로그인해 주세요.' : '불러오지 못했어요. (' + (e.code || e.message) + ')'; }
+});
+
+document.querySelectorAll('[role=tab]').forEach((t) => t.onclick = () => {
+  document.querySelectorAll('[role=tab]').forEach((x) => x.setAttribute('aria-selected', x === t));
+  $('#figs').hidden = t.dataset.tab !== 'figs'; $('#reps').hidden = t.dataset.tab !== 'reps';
+});
+
+async function loadFigs() {
+  const { items } = await call('adminFigures');
+  const by = Object.fromEntries(items.map((i) => [i.code, i]));
+  $('#figlist').innerHTML = ORDER.map((c) => {
+    const f = by[c] || { phrase: '' };
+    return `<form class="row" data-code="${c}">
+      <h3>${esc(NAMES[c])}</h3>
+      <div class="line"><input class="grow" name="p" maxlength="30" value="${esc(f.phrase)}" aria-label="${esc(NAMES[c])} 제단 문구"><span class="cnt">${[...f.phrase].length}/30</span><button class="btn gold" type="submit">저장</button></div>
+      <p class="msg" role="status">${f.at ? '마지막 수정 ' + esc(day(f.at)) : ''}</p>
+    </form>`;
+  }).join('');
+  document.querySelectorAll('#figlist form').forEach((f) => {
+    const cnt = f.querySelector('.cnt'), inp = f.querySelector('input'), msg = f.querySelector('.msg');
+    inp.oninput = () => { cnt.textContent = [...inp.value].length + '/30'; };
+    f.onsubmit = async (ev) => {
+      ev.preventDefault(); const b = f.querySelector('button'); b.disabled = true; msg.textContent = '저장하는 중…';
+      try { await call('adminSetFigure', { code: f.dataset.code, phrase: inp.value }); msg.textContent = '저장했어요. 앱에서 추모관을 다시 열면 바뀌어요.'; }
+      catch (e) { msg.textContent = e.message || '저장하지 못했어요.'; }
+      b.disabled = false;
+    };
+  });
+}
+
+async function loadReps() {
+  const { items } = await call('adminReports');
+  const open = items.filter((r) => r.status === 'open' || r.status === 'hidden');
+  // 같은 글에 들어온 신고는 하나로 묶는다
+  const groups = {};
+  for (const r of open) { const k = r.kind + '|' + r.parent + '|' + r.id; (groups[k] = groups[k] || []).push(r); }
+  const list = Object.values(groups);
+  $('#repn').textContent = list.length ? '(' + list.length + ')' : '';
+  if (!list.length) { $('#replist').innerHTML = '<p class="empty">처리할 신고가 없어요.</p>'; return; }
+  $('#replist').innerHTML = list.map((g) => {
+    const r = g[0], reasons = [...new Set(g.map((x) => x.reasonText))].join(', ');
+    const link = r.kind === 'note' ? `m/?c=${encodeURIComponent(r.parent)}` : `b/?id=${encodeURIComponent(r.parent)}`;
+    return `<div class="row" data-rid="${esc(r.rid)}">
+      <div class="line"><span class="tag">${esc(KIND[r.kind] || r.kind)}</span><span class="tag ${r.status === 'hidden' ? 'red' : ''}">${esc(STATUS[r.status] || r.status)}</span><span class="sub">신고 ${g.length}건 · ${esc(reasons)} · ${esc(day(r.at))}</span></div>
+      <div class="sub">${esc(r.kind === 'note' ? '추모관 ' + r.parent : '부고장 ' + r.parent)} · 쓴 사람 ${esc(r.name || '-')} · <a href="${link}" target="_blank" rel="noopener">페이지 보기</a></div>
+      <div class="quote">${esc(r.text || '(내용 없음)')}</div>
+      ${g.some((x) => x.detail) ? `<div class="sub">신고 내용: ${esc(g.map((x) => x.detail).filter(Boolean).join(' / '))}</div>` : ''}
+      <div class="line"><button class="btn" data-a="keep" type="button">문제없음</button><button class="btn" data-a="hide" type="button">가리기</button><button class="btn" data-a="delete" type="button">${r.kind === 'bugopage' ? '부고장 닫기' : '지우기'}</button></div>
+      <p class="msg" role="status"></p>
+    </div>`;
+  }).join('');
+  document.querySelectorAll('#replist .row').forEach((row) => {
+    row.querySelectorAll('[data-a]').forEach((b) => b.onclick = async () => {
+      const msg = row.querySelector('.msg');
+      if (b.dataset.a === 'delete' && b.dataset.sure !== '1') { b.dataset.sure = '1'; b.textContent = '한 번 더 누르면 지워져요'; return; }
+      row.querySelectorAll('button').forEach((x) => x.disabled = true); msg.textContent = '처리하는 중…';
+      try { await call('adminResolveReport', { rid: row.dataset.rid, action: b.dataset.a }); msg.textContent = '처리했어요.'; setTimeout(loadReps, 800); }
+      catch (e) { msg.textContent = e.message || '처리하지 못했어요.'; row.querySelectorAll('button').forEach((x) => x.disabled = false); }
+    });
+  });
+}
+</script>
+</body>
+</html>
