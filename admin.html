@@ -33,6 +33,17 @@
 .msg { color: var(--gold-soft); min-height: 1.4em; font-size: 14px; }
 .empty { color: var(--mum-sub); padding: 24px 0; }
 [hidden] { display: none !important; }
+.totals { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; }
+.totals div { background: var(--ink-2); border: 1px solid var(--ink-line); border-radius: 14px; padding: 14px 16px; }
+.totals b { display: block; font: 400 28px/1.2 var(--display, serif); color: var(--gold-soft); }
+.totals span { color: var(--mum-sub); font-size: 14px; }
+.tbl { overflow-x: auto; border: 1px solid var(--ink-line); border-radius: 14px; }
+.tbl table { border-collapse: collapse; width: 100%; min-width: 620px; font-size: 14.5px; font-variant-numeric: tabular-nums; }
+.tbl th, .tbl td { padding: 9px 12px; text-align: right; border-bottom: 1px solid var(--ink-line); white-space: nowrap; }
+.tbl th:first-child, .tbl td:first-child { text-align: left; }
+.tbl thead th { color: var(--mum-sub); font-weight: 500; font-size: 13px; }
+.tbl tbody tr:last-child td { border-bottom: 0; }
+.tbl td.z { color: var(--mum-sub); opacity: .55; }
 </style>
 </head>
 <body>
@@ -54,11 +65,17 @@
     <div class="tabs" role="tablist">
       <button role="tab" aria-selected="true" data-tab="figs" type="button">제단 문구</button>
       <button role="tab" aria-selected="false" data-tab="reps" type="button">신고 <span id="repn"></span></button>
+      <button role="tab" aria-selected="false" data-tab="stats" type="button">통계</button>
     </div>
 
     <div id="figs" class="list" style="margin-top:18px">
       <p class="lead">공개 추모관 제단 앞에 보이는 한 줄이에요. 30자까지 쓸 수 있고, 저장하면 앱에서 추모관을 새로 열 때 바로 바뀌어요.</p>
       <div id="figlist" class="list"></div>
+    </div>
+
+    <div id="stats" class="list" style="margin-top:18px" hidden>
+      <p class="lead">최근 14일 동안 날짜별로 얼마나 쓰였는지예요(한국 시간 기준). 누가 했는지는 담지 않아요.</p>
+      <div id="statbox"><p class="empty">통계 탭을 누르면 불러와요.</p></div>
     </div>
 
     <div id="reps" class="list" style="margin-top:18px" hidden>
@@ -106,8 +123,32 @@ auth.onAuthStateChanged(async (u) => {
 
 document.querySelectorAll('[role=tab]').forEach((t) => t.onclick = () => {
   document.querySelectorAll('[role=tab]').forEach((x) => x.setAttribute('aria-selected', x === t));
-  $('#figs').hidden = t.dataset.tab !== 'figs'; $('#reps').hidden = t.dataset.tab !== 'reps';
+  $('#figs').hidden = t.dataset.tab !== 'figs'; $('#reps').hidden = t.dataset.tab !== 'reps'; $('#stats').hidden = t.dataset.tab !== 'stats';
+  if (t.dataset.tab === 'stats') loadStats();
 });
+
+const COLS = [['users', '새 가입'], ['google', '구글 연결'], ['memorials', '추모관'], ['pets', '반려동물'], ['bugo', '부고장'], ['notes', '추모글'], ['msgs', '조의 말씀'], ['subs', '구독 결제'], ['buys', '포인트·평생']];
+async function loadStats() {
+  $('#statbox').innerHTML = '<p class="empty">불러오는 중…</p>';
+  try {
+    const { days, total } = await call('adminStats', { days: 14 });
+    const sum = (k) => days.reduce((a, d) => a + d[k], 0);
+    const n = (v) => Number(v).toLocaleString('ko-KR');
+    const dayName = (k) => { const d = new Date(k + 'T00:00:00+09:00'); return (d.getMonth() + 1) + '월 ' + d.getDate() + '일 (' + '일월화수목금토'[d.getDay()] + ')'; };
+    $('#statbox').innerHTML = `<div class="totals">
+        <div><b>${n(total.users)}</b><span>전체 계정 · 구글 연결 ${n(total.google)}</span></div>
+        <div><b>${n(total.memorials)}</b><span>전체 추모관</span></div>
+        <div><b>${n(total.bugo)}</b><span>보관 중인 부고장</span></div>
+        <div><b>${n(sum('subs') + sum('buys'))}</b><span>최근 14일 결제</span></div>
+      </div>
+      <div class="tbl" style="margin-top:14px"><table>
+        <thead><tr><th>날짜</th>${COLS.map(([, t]) => `<th>${t}</th>`).join('')}</tr></thead>
+        <tbody>${days.map((d) => `<tr><td>${dayName(d.day)}</td>${COLS.map(([k]) => `<td class="${d[k] ? '' : 'z'}">${n(d[k])}</td>`).join('')}</tr>`).join('')}
+        <tr><td><b>14일 합계</b></td>${COLS.map(([k]) => `<td><b>${n(sum(k))}</b></td>`).join('')}</tr></tbody>
+      </table></div>
+      <p class="cnt" style="margin-top:8px">새 가입은 앱을 처음 연 휴대폰 수예요(구글 연결 전 익명 계정 포함). 부고장은 90일이 지나면 지워져서 전체 수가 줄 수 있어요.</p>`;
+  } catch (e) { $('#statbox').innerHTML = '<p class="empty">불러오지 못했어요. (' + esc(e.code || e.message) + ')</p>'; }
+}
 
 async function loadFigs() {
   const { items } = await call('adminFigures');
