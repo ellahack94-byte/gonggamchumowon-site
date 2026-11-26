@@ -63,6 +63,9 @@ dd { margin: 0; font-weight: 500; min-width: 0; overflow-wrap: anywhere; }
 .memo h2 { font-family: var(--display); font-weight: 400; font-size: 20px; margin: 0 0 6px; }
 .memo p { color: #c9c1b4; font-size: 15.5px; margin: 0 0 14px; }
 .memo .btn { background: #c9a45c; color: #1d1608; border-color: #c9a45c; width: 100%; }
+.make { margin: 26px 6px 0; border-top: 1px solid var(--line); padding-top: 20px; font-size: 14.5px; color: var(--sub); line-height: 1.6; }
+.make b { color: inherit; font-weight: 600; display: block; font-size: 15px; margin-bottom: 4px; }
+.make a { color: inherit; font-weight: 600; }
 .photo { width: 132px; aspect-ratio: 3 / 4; margin: 22px auto 0; padding: 5px; background: var(--black); position: relative; }
 .photo img { width: 100%; height: 100%; object-fit: cover; display: block; filter: grayscale(.15); }
 .photo::before, .photo::after { content: ""; position: absolute; top: 0; width: 34px; height: 34px; background: linear-gradient(135deg, var(--black) 50%, transparent 50%); z-index: 1; }
@@ -185,7 +188,8 @@ function render(b, memorialOpen, photo, msgs, msgCount, accountsClosed) {
     </section>
   </article>
   <section class="safe" aria-label="안전 안내"><b>공감 추모원 공식 부고장</b><p>이 부고는 gonggamchumowon.co.kr 에서만 열려요. 공감 추모원은 부고장에서 앱 설치, 로그인, 인증번호, 개인정보 입력을 절대 요구하지 않아요. 그런 요청을 받으면 열지 마시고 신고해 주세요.</p><button type="button" id="rep-page">이 부고장 신고하기</button><div id="rep-page-f"></div></section>
-  ${memorialOpen && b.code ? `<section class="memo"><h2>온라인 추모관</h2><p>빈소에 오시기 어려우면 온라인 추모관에서 헌화하고 추모글을 남길 수 있어요.</p><a class="btn" href="../m/?c=${esc(b.code)}">온라인으로 조문하기</a></section>` : ''}`;
+  ${memorialOpen && b.code ? `<section class="memo"><h2>온라인 추모관</h2><p>빈소에 오시기 어려우면 온라인 추모관에서 헌화하고 추모글을 남길 수 있어요.</p><a class="btn" href="../m/?c=${esc(b.code)}">온라인으로 조문하기</a></section>` : ''}
+  <aside class="make"><b>이 부고장은 공감 추모원으로 만들었어요</b>상을 당하셨을 때 부고장과 온라인 추모관을 무료로 만들 수 있어요. 지금 필요하지 않으시면 지나치셔도 괜찮아요. <a href="../?from=bugo">공감 추모원 알아보기</a></aside>`;
   document.querySelectorAll('.acct button').forEach((btn) => { btn.onclick = () => copy(btn.dataset.full); });
   wireReports(document.querySelector('.msgs'), 'bugo', id);
   $('#rep-page').onclick = () => {
