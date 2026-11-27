@@ -820,6 +820,7 @@ function buildAltar() {
   })();
   const wLeafMat = new THREE.MeshStandardMaterial({ color: '#16291c', roughness: 0.5, side: THREE.DoubleSide });
   const wMumMat = new THREE.MeshStandardMaterial({ roughness: 0.78 });
+  const wCoreMat = new THREE.MeshStandardMaterial({ color: '#1d3324', roughness: 0.9 });
   const wLilyMat = new THREE.MeshStandardMaterial({ color: '#f3cf3e', roughness: 0.5, side: THREE.DoubleSide, emissive: '#3a2a00', emissiveIntensity: 0.25 });
   const wLegMat = new THREE.MeshStandardMaterial({ color: '#1d1a17', roughness: 0.5, metalness: 0.3 });
   const bowTex = makeTex(256, 64, (c, w, h) => { c.fillStyle = '#f7f5f0'; c.fillRect(0, 0, w, h); c.fillStyle = '#121212'; for (let x = 0; x < w; x += 32) c.fillRect(x, 0, 14, h); });
@@ -842,22 +843,30 @@ function buildAltar() {
   }
   const DEFAULT_PHRASE = '삼가 故人의 冥福을 빕니다';
   function mumDisc(list, cx, cy, R, sy, accent, r) {
-    for (let rr = 0; rr <= R; rr += 0.046) {
-      const n = Math.max(1, Math.round((Math.PI * 2 * rr) / 0.05));
+    // 반구처럼 볼록한 꽃 덩어리: 가장자리는 옆을, 가운데는 앞을 보며 꽂힌다
+    const H = R * 0.55;
+    for (let rr = 0; rr <= R + 0.001; rr += 0.044) {
+      const n = Math.max(1, Math.round((Math.PI * 2 * rr) / 0.048));
       for (let k = 0; k < n; k++) {
         const th = (k / n) * Math.PI * 2 + rr * 7;
-        const x = cx + Math.cos(th) * rr, y = cy + Math.sin(th) * rr * sy;
-        const dome = 0.07 * (1 - (rr / R) * (rr / R));
-        list.push({ x: x, y: y, z: dome, s: 0.52 + r() * 0.14, c: accent && accent(rr / R, th) });
+        const u = Math.min(1, rr / R), dz = H * Math.sqrt(Math.max(0, 1 - u * u));
+        const dx = Math.cos(th) * rr, dy = Math.sin(th) * rr * sy;
+        const nrm = new THREE.Vector3(dx / (R * R), dy / (R * R * sy * sy), dz / (H * H) + 0.0001).normalize();
+        list.push({ x: cx + dx, y: cy + dy, z: dz, n: nrm, s: 0.5 + r() * 0.14, c: accent && accent(u, th) });
       }
     }
+    list.cores = list.cores || [];
+    list.cores.push([cx, cy, R, sy, H]);
   }
   function fan(list, cx, cy, R, sy, r) {
-    const n = Math.round(R * 230);
-    for (let k = 0; k < n; k++) {
-      const a = (k / n) * Math.PI * 2 + (r() - 0.5) * 0.04;
-      const ex = Math.hypot(Math.cos(a), Math.sin(a) * sy); // 타원이면 위아래로 더 길게
-      list.push({ x: cx + Math.cos(a) * R * 0.5, y: cy + Math.sin(a) * R * 0.5 * sy, a: Math.atan2(Math.sin(a) * sy, Math.cos(a)), len: (R * 0.55 * ex + 0.13) * (0.92 + r() * 0.16) });
+    // 부채꼴 잎: 두 겹으로, 바깥을 향해 뒤로 젖혀 꽂아 옆에서 봐도 입체로 보이게
+    for (const [tilt, k0, lenK] of [[0.28, 0, 1], [0.75, 0.5, 0.8]]) {
+      const n = Math.round(R * 150);
+      for (let k = 0; k < n; k++) {
+        const a = ((k + k0) / n) * Math.PI * 2 + (r() - 0.5) * 0.05;
+        const ex = Math.hypot(Math.cos(a), Math.sin(a) * sy);
+        list.push({ x: cx + Math.cos(a) * R * 0.78, y: cy + Math.sin(a) * R * 0.78 * sy, a: Math.atan2(Math.sin(a) * sy, Math.cos(a)), len: (R * 0.35 * ex + 0.12) * lenK * (0.9 + r() * 0.2), tilt: tilt + (r() - 0.5) * 0.15 });
+      }
     }
   }
   function makeWreath(w, seed) {
@@ -889,14 +898,18 @@ function buildAltar() {
     }
     const m = new THREE.Matrix4(), q = new THREE.Quaternion(), col = new THREE.Color();
     const lm = new THREE.InstancedMesh(W_LEAF, wLeafMat, leaves.length);
-    leaves.forEach((L, i) => { q.setFromEuler(new THREE.Euler(0, 0, L.a - Math.PI / 2)); const s = L.len / 0.27; m.compose(new THREE.Vector3(L.x, L.y, -0.05 - r() * 0.02), q, new THREE.Vector3(1.9, s, 1)); lm.setMatrixAt(i, m); });
+    const qz = new THREE.Quaternion(), qx = new THREE.Quaternion(), ZA = new THREE.Vector3(0, 0, 1), XA = new THREE.Vector3(1, 0, 0);
+    leaves.forEach((L, i) => { qz.setFromAxisAngle(ZA, L.a - Math.PI / 2); qx.setFromAxisAngle(XA, -L.tilt); q.copy(qz).multiply(qx); const s = L.len / 0.27; m.compose(new THREE.Vector3(L.x, L.y, -0.02), q, new THREE.Vector3(1.9, s, 1)); lm.setMatrixAt(i, m); });
     lm.castShadow = true; g.add(lm);
+    // 꽃 덩어리 뒤를 받치는 짙은 초록 오아시스(뒤나 옆에서 봐도 속이 비지 않게)
+    (mums.cores || []).forEach(([cx, cy, R, sy, H]) => { const core = new THREE.Mesh(new THREE.SphereGeometry(1, 20, 14), wCoreMat); core.scale.set(R * 0.98, R * sy * 0.98, H * 0.95); core.position.set(cx, cy, -0.005); core.castShadow = true; g.add(core); const back = new THREE.Mesh(new THREE.SphereGeometry(1, 18, 12), wCoreMat); back.scale.set(R * 0.9, R * sy * 0.9, H * 0.6); back.position.set(cx, cy, -0.02); g.add(back); });
     const mm = new THREE.InstancedMesh(CHRYS_LO, wMumMat, mums.length);
-    mums.forEach((u, i) => { q.setFromEuler(new THREE.Euler((r() - 0.5) * 0.3, (r() - 0.5) * 0.3, r() * 6)); m.compose(new THREE.Vector3(u.x, u.y, u.z), q, new THREE.Vector3(u.s, u.s, u.s)); mm.setMatrixAt(i, m); col.set(u.c || pick(CHRYS_PALETTES.white, r)); mm.setColorAt(i, col); });
+    const qs = new THREE.Quaternion();
+    mums.forEach((u, i) => { q.setFromUnitVectors(ZA, u.n); qs.setFromAxisAngle(ZA, r() * 6.28); q.multiply(qs); m.compose(new THREE.Vector3(u.x, u.y, u.z), q, new THREE.Vector3(u.s, u.s, u.s)); mm.setMatrixAt(i, m); col.set(u.c || pick(CHRYS_PALETTES.white, r)); mm.setColorAt(i, col); });
     mm.castShadow = true; g.add(mm);
     if (lilies.length) {
       const li = new THREE.InstancedMesh(W_LILY, wLilyMat, lilies.length);
-      lilies.forEach((L, i) => { q.setFromEuler(new THREE.Euler(0.1, 0, L[3])); m.compose(new THREE.Vector3(L[0], L[1], L[2]), q, new THREE.Vector3(1.25, 1.25, 1.25)); li.setMatrixAt(i, m); });
+      lilies.forEach((L, i) => { q.setFromEuler(new THREE.Euler(0.1, 0, L[3])); m.compose(new THREE.Vector3(L[0], L[1], L[2] + 0.1), q, new THREE.Vector3(1.25, 1.25, 1.25)); li.setMatrixAt(i, m); });
       g.add(li);
     }
     if (legsTo > 0) for (const a of [0.5, -0.5, Math.PI]) {
@@ -909,13 +922,13 @@ function buildAltar() {
     const bow = new THREE.Group();
     for (const sx of [-1, 1]) { const loop = new THREE.Mesh(new THREE.TorusGeometry(0.06, 0.016, 6, 14), wBowMat); loop.scale.set(1.25, 0.75, 0.6); loop.position.set(sx * 0.07, 0, 0); loop.rotation.z = sx * 0.3; bow.add(loop); }
     const knot = new THREE.Mesh(new THREE.SphereGeometry(0.03, 10, 8), wBowMat); bow.add(knot);
-    bow.position.set(0, top, 0.11); g.add(bow);
+    bow.position.set(0, top, 0.2); g.add(bow);
     const len = top - bottom;
     const phrase = (w.phrase || DEFAULT_PHRASE).slice(0, 30), from = (w.from || '謹弔').slice(0, 20);
     [[1, phrase, false], [-1, from, true]].forEach(([sx, text, left]) => {
       const rib = new THREE.Mesh(new THREE.PlaneGeometry(0.082, len), wRibbonMat(text, left));
       // 보는 사람 기준 오른쪽(+x)에 문구, 왼쪽에 보내는 분
-      rib.position.set(sx * (kind === 'basket' ? 0.1 : 0.2), top - len / 2 - 0.03, 0.12 + (kind === 'basket' ? 0.08 : 0));
+      rib.position.set(sx * (kind === 'basket' ? 0.1 : 0.2), top - len / 2 - 0.03, 0.2 + (kind === 'basket' ? 0.06 : 0));
       rib.rotation.z = sx * (kind === 'basket' ? 0.1 : 0.035);
       rib.castShadow = true; g.add(rib);
     });
@@ -1333,8 +1346,6 @@ function buildAltar() {
       const win = new THREE.MeshBasicMaterial({ map: tex('chapelWin', chapelWindowTex), toneMapped: false });
       for (const z of [0.3, 3.3]) for (const sx of [-1, 1]) g.add(panel(1.0, 2.5, win, sx * (SIDE_X - 0.01), 2.45, z, sx < 0 ? Math.PI / 2 : -Math.PI / 2));
       for (const sx of [-1, 1]) g.add(panel(0.95, 2.4, win, sx * 2.85, 2.55, BACK_Z + 0.008));
-      const shaftMat = new THREE.MeshBasicMaterial({ color: '#fff3d6', transparent: true, opacity: 0.07, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide });
-      for (const z of [0.3, 3.3]) for (const sx of [-1, 1]) { const s = panel(1.0, 4.4, shaftMat, sx * 3.2, 1.6, z, 0); s.rotation.z = sx * 0.55; s.receiveShadow = false; g.add(s); }
       const wainscot = new THREE.MeshStandardMaterial({ map: tex('oakWall', () => plank(41, '#a07850', [150, 108, 70])), roughness: 0.6 });
       g.add(panel(16, 1.1, wainscot, 0, 0.55, BACK_Z + 0.006));
     } else if (k === 'hanok') {
@@ -1562,41 +1573,54 @@ function buildAltar() {
     scene.add(side);
   }
 
-  /* flower wall */
+  /* flower wall: 실제 장례식장 제단처럼 네 단의 입체 계단. 단마다 흰 천을 덮은 받침 위로
+     앞면·윗면·옆면 모두 국화를 꽂아, 옆이나 위에서 봐도 꽉 찬 덩어리로 보인다. */
+  const TIERS = [
+    { y0: 0.8, y1: 1.06, z: -0.42, half: 1.62, d: 0.3 },
+    { y0: 0.8, y1: 1.32, z: -0.7, half: 1.46, d: 0.3 },
+    { y0: 0.8, y1: 1.6, z: -0.98, half: 1.26, d: 0.3 },
+    { y0: 0.8, y1: 1.88, z: -1.26, half: 1.02, d: 0.3 },
+    { y0: 0.8, y1: 2.12, z: -1.52, half: 0.7, d: 0.26 }
+  ];
+  const curveZ = (x) => 0.12 * (x / 1.6) * (x / 1.6); // 양끝이 살짝 앞으로 감싸는 곡선
   const slots = [];
   {
-    const r = rng(77);
-    for (let row = 0; row < 12; row++) {
-      const y = 0.9 + row * 0.1;
-      for (let col = -16; col <= 16; col++) {
-        const x = col * 0.1 + (row % 2 ? 0.05 : 0);
-        const ax = Math.abs(x) / 1.65;
-        if (ax > 1) continue;
-        const yMax = 2.06 - 0.42 * ax * ax;
-        if (y > yMax) continue;
-        // 영정 바로 뒤도 비워 두지 않는다: 위에서 내려다봐도 꽃이 빈틈없이 차 보이게
-        // 실제 장례식장처럼 계단식: 세 줄씩 한 단, 단마다 뒤로 물러나며 올라간다
-        const band = Math.floor(row / 3), inBand = row % 3;
-        const z = -0.66 - band * 0.17 - inBand * 0.03 + 0.3 * ax * ax + (r() - 0.5) * 0.025;
-        const d = Math.hypot(x / 1.4, (y - 1.5) / 0.9);
-        slots.push({ x: x + (r() - 0.5) * 0.025, y: y + (r() - 0.5) * 0.025, z: z, d: d, spin: r() * Math.PI * 2, s: 0.92 + r() * 0.26, tilt: (r() - 0.5) * 0.3 - (inBand === 0 ? 0.15 : 0), acc: inBand === 2 && r() < 0.85 });
-        // 뒤로 두 겹 더 쌓아 두툼한 꽃 제단으로(옆·위에서 봐도 꽉 차게)
-        for (let k = 1; k <= 2; k++) {
-          const yy = y + (r() - 0.5) * 0.05 + (k === 2 && y + 0.1 > yMax ? -0.04 : 0);
-          slots.push({ x: x + 0.05 * (k % 2 ? 1 : -1) + (r() - 0.5) * 0.03, y: yy, z: z - 0.11 * k + (r() - 0.5) * 0.03, d: d + 0.001 * k, spin: r() * Math.PI * 2, s: 0.9 + r() * 0.24, tilt: (r() - 0.5) * 0.3 - 0.25 * k });
+    const r = rng(77), STEP = 0.095;
+    TIERS.forEach((T, ti) => {
+      const vis0 = ti === 0 ? T.y0 + 0.02 : TIERS[ti - 1].y1 - 0.02; // 앞 단에 가려지는 아래쪽은 꽃을 꽂지 않는다
+      // 앞면(+z를 본다)
+      for (let y = T.y1 - 0.04; y > vis0; y -= STEP) {
+        const row = Math.round((T.y1 - y) / STEP);
+        for (let x = -T.half + 0.04; x <= T.half - 0.04; x += STEP) {
+          const xx = x + (row % 2 ? STEP / 2 : 0); if (Math.abs(xx) > T.half - 0.03) continue;
+          slots.push({ x: xx + (r() - 0.5) * 0.02, y: y + (r() - 0.5) * 0.02, z: T.z + curveZ(xx) + 0.02, d: Math.abs(xx) / 2 + ti * 0.1, spin: r() * 6.28, s: 0.95 + r() * 0.22, tilt: (r() - 0.5) * 0.25 - 0.1, acc: row === 0 && r() < 0.8 });
         }
       }
-    }
-    // 제단 뒤와 꽃벽 사이 바닥이 비어 보이지 않게, 위를 보는 꽃으로 낮게 메운다
-    for (let zr = 0; zr < 4; zr++) {
-      const z = -0.44 - zr * 0.1;
-      for (let col = -14; col <= 14; col++) {
-        const x = col * 0.1 + (zr % 2 ? 0.05 : 0);
-        if (Math.abs(x) > 1.38) continue;
-        slots.push({ x: x + (r() - 0.5) * 0.03, y: 0.84 + zr * 0.025 + (r() - 0.5) * 0.02, z: z + (r() - 0.5) * 0.03, d: 0.35 + Math.abs(x) * 0.2 + zr * 0.01, spin: r() * Math.PI * 2, s: 0.95 + r() * 0.2, tilt: -1.15 + (r() - 0.5) * 0.3 });
+      // 윗면(위를 본다)
+      for (let k = 0; k < 3; k++) {
+        const z = T.z - 0.05 - k * 0.1;
+        for (let x = -T.half + 0.05; x <= T.half - 0.05; x += STEP) {
+          const xx = x + (k % 2 ? STEP / 2 : 0); if (Math.abs(xx) > T.half - 0.04) continue;
+          slots.push({ x: xx + (r() - 0.5) * 0.02, y: T.y1 + 0.01, z: z + curveZ(xx) + (r() - 0.5) * 0.02, d: Math.abs(xx) / 2 + ti * 0.1 + 0.01, spin: r() * 6.28, s: 0.95 + r() * 0.2, tilt: -1.2 + (r() - 0.5) * 0.3, acc: k === 0 && r() < 0.5 });
+        }
       }
-    }
+      // 옆면(바깥을 본다)
+      for (const sx of [-1, 1]) {
+        for (let y = T.y1 - 0.05; y > vis0 - 0.1 && y > T.y0 + 0.05; y -= STEP) for (let k = 0; k < 3; k++) {
+          slots.push({ x: sx * (T.half + 0.01), y: y + (r() - 0.5) * 0.02, z: T.z + curveZ(T.half) - 0.04 - k * 0.1, d: 0.9 + ti * 0.1, spin: r() * 6.28, s: 0.95 + r() * 0.2, tilt: (r() - 0.5) * 0.2, ry: sx * 1.45, acc: false });
+        }
+      }
+    });
     slots.sort((a, b) => a.d - b.d);
+  }
+  /* 단 받침: 흰 천을 덮은 상자(꽃 사이로 비쳐도 빈 곳이 어둡게 뚫려 보이지 않게) */
+  {
+    const tm = new THREE.MeshStandardMaterial({ color: '#e9e4d8', roughness: 0.95 });
+    TIERS.forEach((T) => {
+      const bx = new THREE.Mesh(new THREE.BoxGeometry(T.half * 2, T.y1 - T.y0, T.d + 0.04), tm);
+      bx.position.set(0, (T.y0 + T.y1) / 2, T.z - T.d / 2 - 0.02 + 0.06); bx.receiveShadow = true; bx.castShadow = true;
+      scene.add(bx);
+    });
   }
   const flowerMat = new THREE.MeshStandardMaterial({ roughness: 0.75 });
   const flowerWall = new THREE.InstancedMesh(CHRYS_MID, flowerMat, slots.length);
@@ -1604,7 +1628,7 @@ function buildAltar() {
   {
     const m = new THREE.Matrix4(), q = new THREE.Quaternion(), e = new THREE.Euler();
     slots.forEach((s, i) => {
-      e.set(s.tilt - 0.12, s.tilt * 0.5, s.spin);
+      e.set(s.tilt - 0.12, s.ry !== undefined ? s.ry : s.tilt * 0.5, s.spin);
       q.setFromEuler(e);
       m.compose(new THREE.Vector3(s.x, s.y, s.z), q, new THREE.Vector3(s.s * 1.25, s.s * 1.25, s.s * 1.25));
       flowerWall.setMatrixAt(i, m);
@@ -1626,11 +1650,10 @@ function buildAltar() {
   scene.add(leaves);
   /* 단과 단 사이 초록 잎 줄(실제 제단의 단 경계) */
   const tierLeafPts = [];
-  for (let band = 0; band < 4; band++) {
-    const y0 = 0.9 + band * 0.3 - 0.05;
-    const half = 1.65 * Math.min(1, Math.sqrt(Math.max(0, (2.06 - y0) / 0.42)));
-    for (let x = -half; x <= half; x += 0.035) { const ax = Math.abs(x) / 1.65; tierLeafPts.push([x, y0, -0.66 - band * 0.17 + 0.3 * ax * ax + 0.06]); }
-  }
+  TIERS.forEach((T, ti) => {
+    const yb = ti === 0 ? T.y0 + 0.03 : TIERS[ti - 1].y1 + 0.005;
+    for (let x = -T.half; x <= T.half; x += 0.035) tierLeafPts.push([x, yb, T.z + curveZ(x) + 0.05]);
+  });
   const tierLeaves = new THREE.InstancedMesh(leafGeo, new THREE.MeshStandardMaterial({ color: '#1b3121', roughness: 0.65 }), tierLeafPts.length * 2);
   {
     const r = rng(15), m = new THREE.Matrix4(), q = new THREE.Quaternion();
