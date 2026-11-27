@@ -57,6 +57,10 @@ h1 small { font-size: .5em; color: var(--sub); margin-left: 6px; }
 .v3d-tip { text-align: center; color: var(--sub); font-size: 14.5px; margin: 12px 16px 0; }
 .v3d-tip b { color: var(--mum); font-weight: 600; }
 @media (max-width: 600px) { .v3d { margin-inline: calc(-1 * max(20px, env(safe-area-inset-left, 0px))); } .v3d iframe { border-radius: 0; box-shadow: none; height: 78vh; } }
+.yt { margin: 22px 0 6px; }
+.yt-box { position: relative; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; background: #000; box-shadow: 0 0 0 1px var(--line); }
+.yt-box iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.yt figcaption { color: var(--sub); font-size: 14px; margin-top: 10px; }
 .acts.one { grid-template-columns: 1fr; }
 .acts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 6px 0 28px; }
 .btn { appearance: none; border: 0; cursor: pointer; font: 600 17px/1 var(--body); padding: 17px 12px; border-radius: 14px; text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 56px; }
@@ -220,6 +224,15 @@ function wireReports(list, kind, parent) {
 }
 
 let FIGP = {};
+/* 공개 추모관 인물의 호칭과 생애 영상 */
+const FIG_TITLE = { 'KMGU-1876': '선생', 'HBDO-1868': '장군', 'KJJI-1889': '장군', 'AJGE-1879': '의사', 'YBGI-1908': '의사', 'LBCH-1901': '의사', 'YGSU-1902': '열사', 'PKYE-1902': '의사', 'KNFU-1903': '여사', 'YUIH-1895': '박사' };
+const FIG_VIDEO = {
+  'YBGI-1908': ['GEgHdpmfrV0', '윤봉길 의사 훙커우공원 의거, 그날의 모든 것'],
+  'AJGE-1879': ['aLEb972ebwc', '“죽어도 마음은 쇠와 같다” 안중근, 그날의 하얼빈'],
+  'PKYE-1902': ['bgHtOnfBZWE', '가네코 후미코가 사랑한 남자, 박열'],
+  'YGSU-1902': ['eoOEEnxdNUE', '유관순 열사 아우내 만세운동, 그날의 모든 것'],
+  'YUIH-1895': ['PBiUIqmb1v8', '유한양행 유일한 특별편: 쉰 살에 총을 든 회장, 코드명 A'],
+};
 function v3dUrl(v) {
   const q = new URLSearchParams({ app: '1', web: v.code });
   const f = FIGP[v.code];
@@ -235,7 +248,7 @@ function render(v) {
   const pray = !pet && ['christian', 'catholic'].includes(v.religion);
   const rite = pray ? '기도' : '분향';
   document.body.classList.toggle('pet', pet);
-  document.title = `${pet ? v.name : '故 ' + v.name} 추모관 · 공감 추모원`;
+  document.title = `${pet ? v.name : '故 ' + v.name + (FIG_TITLE[v.code] ? ' ' + FIG_TITLE[v.code] : '')} 추모관 · 공감 추모원`;
   const notes = v.notes.map((n) => `<li data-id="${esc(n.id || '')}"><div class="who">${esc(n.name)}${n.rel ? ` <em>${esc(n.rel)}</em>` : ''}${n.flower ? '<span class="fl">헌화</span>' : ''}${n.id ? `<button class="rep" type="button" aria-label="${esc(n.name)}님 글 신고">신고</button>` : ''}</div><p>${esc(n.text)}</p></li>`).join('');
   $('#main').innerHTML = `
   <section class="v3d" aria-label="3D 분향소와 장지">
@@ -243,7 +256,7 @@ function render(v) {
     <p class="v3d-tip">손가락으로 돌려 보고, 아래 <b>분향소 · 장지</b>를 눌러 오가며 둘러보세요.</p>
   </section>
   <section class="altar" aria-label="고인 정보">
-    <h1>${pet ? '' : '故 '}${esc(v.name)}${v.title ? `<small>${esc(v.title)}</small>` : ''}</h1>
+    <h1>${pet ? '' : '故 '}${esc(v.name)}${FIG_TITLE[v.code] ? ' ' + FIG_TITLE[v.code] : ''}${v.title ? `<small>${esc(v.title)}</small>` : ''}</h1>
     <div class="dates">${fmt(v.born)} – ${fmt(v.died)}</div>
     <div class="phrase">${esc(v.phrase)}</div>
     <div class="tally" id="tally" aria-live="polite"></div>
@@ -261,7 +274,7 @@ function render(v) {
     <div class="err" id="err"></div>
     <div class="btns"><button type="button" class="btn line" id="cancel">닫기</button><button type="submit" class="btn gold" id="send">올리기</button></div>
   </form>
-  ${v.story && (v.story.bio || v.story.life.length) ? `<section class="story" aria-labelledby="st"><h2 id="st">생애 이야기</h2>${v.story.bio ? `<p class="bio">${esc(v.story.bio)}</p>` : ''}${v.story.life.length ? `<ul class="life">${v.story.life.map((l) => `<li><span class="y">${esc(l.y)}</span><span class="dot"></span><span class="t">${esc(l.t)}</span></li>`).join('')}</ul>` : ''}</section>` : ''}
+  ${(v.story && (v.story.bio || v.story.life.length)) || FIG_VIDEO[v.code] ? `<section class="story" aria-labelledby="st"><h2 id="st">생애 이야기</h2>${v.story && v.story.bio ? `<p class="bio">${esc(v.story.bio)}</p>` : ''}${FIG_VIDEO[v.code] ? `<figure class="yt"><div class="yt-box"><iframe src="https://www.youtube-nocookie.com/embed/${FIG_VIDEO[v.code][0]}?rel=0" title="${esc(FIG_VIDEO[v.code][1])}" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div><figcaption>생애를 담은 영상 · ${esc(FIG_VIDEO[v.code][1])}</figcaption></figure>` : ''}${v.story && v.story.life.length ? `<ul class="life">${v.story.life.map((l) => `<li><span class="y">${esc(l.y)}</span><span class="dot"></span><span class="t">${esc(l.t)}</span></li>`).join('')}</ul>` : ''}</section>` : ''}
   <section aria-labelledby="gb">
     <div class="count"><h2 id="gb">추모글</h2><span>${v.noteCount}개</span></div>
     ${v.gbOpen ? (notes ? `<ul class="notes">${notes}</ul>` : '<p class="empty">아직 남긴 글이 없어요. 첫 마음을 전해 주세요.</p>') : '<p class="empty">가족만 볼 수 있는 방명록이에요.</p>'}
