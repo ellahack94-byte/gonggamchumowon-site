@@ -34,7 +34,7 @@ header .wrap { display: flex; align-items: center; gap: 10px; height: 60px; }
 .brand img { width: 30px; height: 30px; border-radius: 8px; }
 
 /* 분향소: 촛불빛이 영정 뒤로 번진다 */
-.altar { position: relative; text-align: center; padding: 44px 0 34px; isolation: isolate; }
+.altar { position: relative; text-align: center; padding: 10px 0 24px; isolation: isolate; }
 .altar::before { content: ""; position: absolute; inset: 0 -40px; z-index: -1; background: radial-gradient(ellipse 60% 52% at 50% 36%, rgba(201, 164, 92, .20), transparent 70%); }
 .portrait { position: relative; width: min(62vw, 240px); aspect-ratio: 3 / 4; margin: 0 auto; padding: 10px; background: linear-gradient(145deg, #e7cf93, #9c7a37 45%, #e1c47f 70%, #8a6a2d); border-radius: 4px; box-shadow: 0 24px 60px rgba(0, 0, 0, .55); }
 .portrait .in { width: 100%; height: 100%; background: #0d0c0b center / cover no-repeat; border-radius: 2px; display: grid; place-items: center; overflow: hidden; }
@@ -47,11 +47,17 @@ header .wrap { display: flex; align-items: center; gap: 10px; height: 60px; }
 .pet .portrait .in { border-radius: 50%; }
 .pet .portrait .ribbon { display: none; }
 .pet .altar::before { background: radial-gradient(ellipse 60% 52% at 50% 36%, rgba(200, 180, 240, .2), transparent 70%); }
-h1 { font-family: var(--display); font-weight: 400; font-size: clamp(32px, 9vw, 42px); line-height: 1.25; margin: 28px 0 4px; }
+h1 { font-family: var(--display); font-weight: 400; font-size: clamp(32px, 9vw, 42px); line-height: 1.25; margin: 18px 0 4px; }
 h1 small { font-size: .5em; color: var(--sub); margin-left: 6px; }
 .dates { color: var(--sub); font-size: 16px; letter-spacing: .02em; }
 .phrase { font-family: var(--display); color: var(--gold-soft); font-size: 20px; margin-top: 18px; }
 
+.v3d { margin: 18px calc(50% - min(50vw, 520px)) 0; }
+.v3d iframe { display: block; width: 100%; height: min(80vh, 760px); min-height: 520px; border: 0; border-radius: 16px; background: #0b0a09; box-shadow: 0 0 0 1px var(--line), 0 30px 70px rgba(0, 0, 0, .5); }
+.v3d-tip { text-align: center; color: var(--sub); font-size: 14.5px; margin: 12px 16px 0; }
+.v3d-tip b { color: var(--mum); font-weight: 600; }
+@media (max-width: 600px) { .v3d { margin-inline: calc(-1 * max(20px, env(safe-area-inset-left, 0px))); } .v3d iframe { border-radius: 0; box-shadow: none; height: 78vh; } }
+.acts.one { grid-template-columns: 1fr; }
 .acts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 6px 0 28px; }
 .btn { appearance: none; border: 0; cursor: pointer; font: 600 17px/1 var(--body); padding: 17px 12px; border-radius: 14px; text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 56px; }
 .btn.gold { background: var(--gold); color: #1d1608; }
@@ -213,6 +219,16 @@ function wireReports(list, kind, parent) {
   });
 }
 
+let FIGP = {};
+function v3dUrl(v) {
+  const q = new URLSearchParams({ app: '1', web: v.code });
+  const f = FIGP[v.code];
+  if (f) {
+    q.set('public', '1'); q.set('code', v.code); q.set('ptitle', f.ptitle || ''); q.set('pphrase', v.phrase || '');
+    Object.entries(f.preset || {}).forEach(([k, x]) => q.set('g' + k, Array.isArray(x) ? x.join(',') : String(x)));
+  }
+  return '/3d/index.html?' + q.toString();
+}
 function render(v) {
   const pet = v.pet;
   /* 기독교·천주교 추모관은 앱처럼 분향 대신 기도(촛불)로 */
@@ -222,18 +238,18 @@ function render(v) {
   document.title = `${pet ? v.name : '故 ' + v.name} 추모관 · 공감 추모원`;
   const notes = v.notes.map((n) => `<li data-id="${esc(n.id || '')}"><div class="who">${esc(n.name)}${n.rel ? ` <em>${esc(n.rel)}</em>` : ''}${n.flower ? '<span class="fl">헌화</span>' : ''}${n.id ? `<button class="rep" type="button" aria-label="${esc(n.name)}님 글 신고">신고</button>` : ''}</div><p>${esc(n.text)}</p></li>`).join('');
   $('#main').innerHTML = `
-  <section class="altar" aria-label="분향소">
-    <div class="portrait"><div class="in" ${v.photo ? `style="background-image:url('${esc(v.photo)}')"` : ''} role="img" aria-label="${esc(v.name)} ${pet ? '사진' : '영정'}">${v.photo ? '' : (pet ? PAW : SIL)}</div><span class="ribbon l"></span><span class="ribbon r"></span></div>
-    <div class="table" id="table" aria-hidden="true"><div class="mums l" id="mums-l"></div>${pet ? '' : pray ? '<div class="candle"><i class="wick"></i><i class="flame"></i></div>' : `<div class="burner">${BURNER}<span class="stick"></span><span class="stick"></span><span class="stick"></span><i class="smoke"></i><i class="smoke s2"></i><i class="smoke s3"></i></div>`}<div class="mums r" id="mums-r"></div></div>
+  <section class="v3d" aria-label="3D 분향소와 장지">
+    <iframe src="${esc(v3dUrl(v))}" title="${esc(v.name)} ${pet ? '추모관' : '님 추모관'} 3D 분향소와 장지" allow="fullscreen; autoplay" allowfullscreen></iframe>
+    <p class="v3d-tip">손가락으로 돌려 보고, 아래 <b>분향소 · 장지</b>를 눌러 오가며 둘러보세요.</p>
+  </section>
+  <section class="altar" aria-label="고인 정보">
     <h1>${pet ? '' : '故 '}${esc(v.name)}${v.title ? `<small>${esc(v.title)}</small>` : ''}</h1>
     <div class="dates">${fmt(v.born)} – ${fmt(v.died)}</div>
     <div class="phrase">${esc(v.phrase)}</div>
     <div class="tally" id="tally" aria-live="polite"></div>
   </section>
-  <div class="acts">
-    ${pet ? '' : `<button class="btn gold" id="b-incense">${rite}하기</button>`}
-    <button class="btn ${pet ? 'gold' : 'goldline'}" id="b-flower">${pet ? '꽃 놓아 주기' : '헌화하기'}</button>
-    <button class="btn line ${pet ? '' : 'wide'}" id="b-note" ${v.gbOpen ? '' : 'disabled'}>추모글 남기기</button>
+  <div class="acts one">
+    <button class="btn line wide" id="b-note" ${v.gbOpen ? '' : 'disabled'}>추모글 남기기</button>
   </div>
   <form id="f" novalidate>
     <h3 id="f-title">추모글 남기기</h3>
@@ -251,8 +267,8 @@ function render(v) {
     ${v.gbOpen ? (notes ? `<ul class="notes">${notes}</ul>` : '<p class="empty">아직 남긴 글이 없어요. 첫 마음을 전해 주세요.</p>') : '<p class="empty">가족만 볼 수 있는 방명록이에요.</p>'}
   </section>
   <section class="app">
-    <h2>${pet ? '무지개 정원에서 더 가까이' : '3D 분향소와 장지에서 더 가까이'}</h2>
-    <p>공감 추모원 앱에서는 ${pet ? '아이의 사진과 영상, 좋아하던 간식과 장난감이 놓인 무지개 정원' : '향을 피우고 꽃을 올리는 3D 분향소와, 실제처럼 꾸민 장지'}에 들어갈 수 있어요. 앱에서 아래 추모원 번호를 넣어 주세요.</p>
+    <h2>가족과 함께 꾸미고 기억하기</h2>
+    <p>공감 추모원 앱에서는 가족이 함께 ${pet ? '무지개 정원' : '분향소와 장지'}를 꾸미고, 기일과 생신 알림을 받을 수 있어요. 앱에서 아래 추모원 번호를 넣어 주세요.</p>
     <div><span class="code">${esc(v.code)}</span><button class="copy" id="cp">번호 복사</button></div>
     <p style="margin:14px 0 0"><a class="btn line" href="../#contact" style="width:100%">앱 출시 알림 받기</a></p>
   </section>`;
@@ -276,8 +292,6 @@ function render(v) {
       btn.textContent = kind === 'incense' ? `${rite}했어요` : (pet ? '꽃을 놓았어요' : '헌화했어요');
     } catch (err) { toast(err.message); btn.disabled = false; }
   };
-  if (!pet) $('#b-incense').onclick = (e) => give('incense', e.currentTarget);
-  $('#b-flower').onclick = (e) => give('flower', e.currentTarget);
   $('#b-note').onclick = () => open();
   $('#cancel').onclick = () => f.classList.remove('on');
   $('#cp').onclick = () => copy(v.code);
@@ -306,6 +320,7 @@ async function load() {
     if (!v.open) return v.exists
       ? state('가족만 들어갈 수 있는 추모관이에요', '이 추모관은 비공개예요. 가족에게 초대를 받으면 공감 추모원 앱에서 들어갈 수 있어요.')
       : state('추모관을 찾지 못했어요', '번호가 바뀌었거나 추모관이 정리되었을 수 있어요. 링크를 보내 주신 분께 한 번 더 확인해 주세요.');
+    try { FIGP = await (await fetch('/3d/figs.json')).json(); } catch (e) {}
     render(v);
   } catch (e) {
     state('잠시 연결이 어려워요', '인터넷 연결을 확인하고 다시 열어 주세요.');
