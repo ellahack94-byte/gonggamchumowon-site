@@ -818,7 +818,7 @@ function buildAltar() {
     const c = new THREE.CylinderGeometry(0.006, 0.006, 0.05, 5); c.rotateX(Math.PI / 2); c.translate(0, 0, 0.025); parts.push(c.toNonIndexed());
     return mergeGeometries(parts);
   })();
-  const wLeafMat = new THREE.MeshStandardMaterial({ color: '#2c5a3b', roughness: 0.55, side: THREE.DoubleSide });
+  const wLeafMat = new THREE.MeshStandardMaterial({ color: '#16291c', roughness: 0.5, side: THREE.DoubleSide });
   const wMumMat = new THREE.MeshStandardMaterial({ roughness: 0.78 });
   const wLilyMat = new THREE.MeshStandardMaterial({ color: '#f3cf3e', roughness: 0.5, side: THREE.DoubleSide, emissive: '#3a2a00', emissiveIntensity: 0.25 });
   const wLegMat = new THREE.MeshStandardMaterial({ color: '#1d1a17', roughness: 0.5, metalness: 0.3 });
@@ -940,8 +940,12 @@ function buildAltar() {
   function setWreaths(list) {
     if (Array.isArray(list)) wreathList = list.slice(0, 16);
     while (wreathGroup.children.length) wreathGroup.remove(wreathGroup.children[0]);
-    const pubDefault = S.public && !S.pet ? [{ kind: 'basket', phrase: '謹弔', from: '공감 추모원' }, { kind: 'basket', phrase: '삼가 故人의 冥福을 빕니다', from: '공감 추모원 가족 일동' }] : [];
-    const items = wreathList && wreathList.length ? wreathList.concat(pubDefault) : (S.pet ? [] : pubDefault.concat([{ kind: 't3', phrase: DEFAULT_PHRASE, from: S.public ? '공감 추모원' : '' }, { kind: 't3', phrase: S.religion === 'ki' ? (S.catholic ? '주님, 영원한 안식을 주소서' : '주님의 품에서 편히 쉬소서') : S.religion === 'bul' ? '극락왕생하소서' : '故人의 永眠을 기원합니다', from: '' }]));
+    // 공개 추모관은 실제 분향소처럼 양옆이 화환으로 가득 차 보이게, 보낸 화환이 적으면 공감 추모원 화환으로 채운다
+    const PUB = [['t3', '삼가 故人의 冥福을 빕니다', '공감 추모원'], ['t3', '조국은 당신을 기억합니다', '공감 추모원 가족 일동'], ['t3', '숭고한 희생을 기립니다', '공감 추모원'], ['t2', '그 뜻을 이어 가겠습니다', '공감 추모원 가족 일동'], ['t3', '나라를 위한 헌신을 잊지 않겠습니다', '공감 추모원'], ['t2', '謹弔', '공감 추모원'], ['t3', '故人의 永眠을 기원합니다', '공감 추모원 가족 일동'], ['t2', '삼가 哀悼의 뜻을 표합니다', '공감 추모원'], ['basket', '謹弔', '공감 추모원'], ['basket', '삼가 故人의 冥福을 빕니다', '공감 추모원 가족 일동']];
+    const real = wreathList && wreathList.length ? wreathList : [];
+    let pubDefault = [];
+    if (S.public && !S.pet) { const nStand = real.filter((w) => w.kind !== 'basket').length, nBas = real.length - nStand; pubDefault = PUB.filter((w) => w[0] !== 'basket').slice(0, Math.max(0, 8 - nStand)).concat(PUB.filter((w) => w[0] === 'basket').slice(0, Math.max(0, 2 - nBas))).map((w) => ({ kind: w[0], phrase: w[1], from: w[2] })); }
+    const items = S.public && !S.pet ? real.concat(pubDefault) : real.length ? real : (S.pet ? [] : ([{ kind: 't3', phrase: DEFAULT_PHRASE, from: '' }, { kind: 't3', phrase: S.religion === 'ki' ? (S.catholic ? '주님, 영원한 안식을 주소서' : '주님의 품에서 편히 쉬소서') : S.religion === 'bul' ? '극락왕생하소서' : '故人의 永眠을 기원합니다', from: '' }]));
     const baskets = items.filter((w) => w.kind === 'basket'), stands = items.filter((w) => w.kind !== 'basket');
     stands.forEach((w, i) => { const g = makeWreath(w, 61 + i), p = wreathSlot(i, stands.length, w.kind); g.position.set(p.x, 0, p.z); g.rotation.y = p.ry; wreathGroup.add(g); });
     baskets.slice(0, 6).forEach((w, i) => { const g = makeWreath(w, 91 + i), p = wreathSlot(i, baskets.length, 'basket'); g.position.set(p.x, 0, p.z); g.rotation.y = p.ry; wreathGroup.add(g); });
@@ -1627,7 +1631,7 @@ function buildAltar() {
     const half = 1.65 * Math.min(1, Math.sqrt(Math.max(0, (2.06 - y0) / 0.42)));
     for (let x = -half; x <= half; x += 0.035) { const ax = Math.abs(x) / 1.65; tierLeafPts.push([x, y0, -0.66 - band * 0.17 + 0.3 * ax * ax + 0.06]); }
   }
-  const tierLeaves = new THREE.InstancedMesh(leafGeo, new THREE.MeshStandardMaterial({ color: '#2f5a33', roughness: 0.7 }), tierLeafPts.length * 2);
+  const tierLeaves = new THREE.InstancedMesh(leafGeo, new THREE.MeshStandardMaterial({ color: '#1b3121', roughness: 0.65 }), tierLeafPts.length * 2);
   {
     const r = rng(15), m = new THREE.Matrix4(), q = new THREE.Quaternion();
     tierLeafPts.forEach((P, i) => {
