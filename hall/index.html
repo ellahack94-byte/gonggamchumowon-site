@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>온라인 분향소 · 공감 추모원</title>
+<meta name="description" content="누구나 분향하고 국화를 올릴 수 있는 온라인 분향소와 무지개 정원">
+<meta property="og:title" content="온라인 분향소 · 공감 추모원">
+<meta property="og:description" content="누구나 분향하고 국화를 올릴 수 있는 온라인 분향소와 무지개 정원">
+<meta property="og:image" content="https://gonggamchumowon.co.kr/img/og.jpg">
+<meta name="theme-color" content="#151311">
+<link rel="icon" href="/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Song+Myung&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/style.css?v=20">
+</head>
+<body>
+<div id="site-top"></div>
+<main>
+  <section class="pagehead"><div class="wrap">
+    <h1>온라인 분향소</h1>
+    <p>가족이 모두에게 열어 둔 분향소예요. 들어가서 분향하고 국화를 올리고, 위로의 말을 남겨 주세요. 가입하지 않아도 조문할 수 있어요.</p>
+  </div></section>
+  <section class="section"><div class="wrap">
+    <h2>공감 추모원이 모신 독립운동가</h2>
+    <p class="lead">나라를 위해 목숨을 바친 분들을 직접 모셨어요.</p>
+    <div class="cards" id="figs"></div>
+  </div></section>
+  <section class="section"><div class="wrap">
+    <h2>가족이 열어 둔 분향소</h2>
+    <p class="lead">최근에 조문이 있었던 순서예요.</p>
+    <div class="cards" id="hall"><p class="empty">불러오는 중…</p></div>
+  </div></section>
+  <section class="section"><div class="wrap">
+    <h2>무지개 정원</h2>
+    <p class="lead">함께했던 반려동물을 기리는 곳이에요. 꽃 한 송이 놓아 주세요.</p>
+    <div class="cards" id="pets"><p class="empty">불러오는 중…</p></div>
+  </div></section>
+  <section class="section"><div class="wrap">
+    <div class="panel" style="max-width:720px">
+      <h3>우리 가족 분향소도 열 수 있어요</h3>
+      <p class="hint">추모관을 만들 때 '공개 추모관'과 '온라인 분향소 목록에 올리기'를 고르면 이곳에 모셔져요. 원하실 때 언제든 내릴 수 있어요.</p>
+      <a class="btn gold sm" href="/create/" style="justify-self:start">추모관 만들기</a>
+    </div>
+  </div></section>
+</main>
+
+<div id="site-foot"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
+<script src="/js/fb.js?v=20"></script>
+<script src="/js/site.js?v=20"></script>
+<script>
+const FIGS = [
+  { code: 'KMGU-1876', name: '김구', role: '임시정부 주석', years: '1876–1949' },
+  { code: 'HBDO-1868', name: '홍범도', role: '대한독립군 총사령관', years: '1868–1943' },
+  { code: 'KJJI-1889', name: '김좌진', role: '북로군정서 총사령관', years: '1889–1930' },
+  { code: 'AJGE-1879', name: '안중근', role: '의사', years: '1879–1910' },
+  { code: 'YBGI-1908', name: '윤봉길', role: '의사', years: '1908–1932' },
+  { code: 'LBCH-1901', name: '이봉창', role: '의사', years: '1901–1932' },
+  { code: 'YGSU-1902', name: '유관순', role: '열사', years: '1902–1920' },
+  { code: 'PKYE-1902', name: '박열', role: '독립운동가', years: '1902–1974' },
+  { code: 'KNFU-1903', name: '가네코 후미코', role: '독립운동가', years: '1903–1926' },
+  { code: 'YUIH-1895', name: '유일한', role: '기업인 · 독립운동가', years: '1895–1971' },
+];
+const figCard = (f) => `<a class="card" href="/m/?c=${f.code}"><div class="pic"><img src="/img/fig/${f.code}-portrait.jpg" alt="" loading="lazy"></div><b>${esc(f.name)}</b><span>${esc(f.role)} · ${esc(f.years)}</span></a>`;
+const memCard = (m) => {
+  const yrs = [m.born, m.died].map((d) => (d ? d.slice(0, 4) : '')).filter(Boolean).join('–');
+  const tr = m.tribute || {};
+  const n = (tr.incense || 0) + (tr.flower || 0);
+  return `<a class="card" href="/m/?c=${encodeURIComponent(m.code)}"><div class="pic">${m.photo ? `<img src="${esc(m.photo)}" alt="" loading="lazy">` : `<span class="sil">${esc((m.name || '').slice(0, 1))}</span>`}</div><b>${m.pet ? '' : '故 '}${esc(m.title ? m.title + ' ' : '')}${esc(m.name)}</b><span>${yrs || ''}${n ? ` · 조문 ${n}` : ''}${m.notes ? ` · 추모글 ${m.notes}` : ''}</span></a>`;
+};
+const $ = (s) => document.querySelector(s);
+$('#figs').innerHTML = FIGS.map(figCard).join('');
+GG.get({ hall: 1 }).then(({ items }) => { $('#hall').innerHTML = items.length ? items.map(memCard).join('') : '<p class="empty">아직 목록에 올라온 분향소가 없어요.</p>'; }).catch((e) => { $('#hall').innerHTML = `<p class="empty">${esc(e.message)}</p>`; });
+GG.call('listPets', {}).then(({ items }) => { $('#pets').innerHTML = items.length ? items.map((p) => memCard({ ...p, pet: true })).join('') : '<p class="empty">아직 모셔진 친구가 없어요.</p>'; }).catch((e) => { $('#pets').innerHTML = `<p class="empty">${esc(e.message)}</p>`; });
+
+</script>
+</body>
+</html>

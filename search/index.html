@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>추모관 찾기 · 공감 추모원</title>
+<meta name="description" content="고인 성함으로 공개 추모관을 찾아 조문하세요.">
+<meta property="og:title" content="추모관 찾기 · 공감 추모원">
+<meta property="og:description" content="고인 성함으로 공개 추모관을 찾아 조문하세요.">
+<meta property="og:image" content="https://gonggamchumowon.co.kr/img/og.jpg">
+<meta name="theme-color" content="#151311">
+<link rel="icon" href="/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Song+Myung&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/style.css?v=20">
+</head>
+<body>
+<div id="site-top"></div>
+<main>
+  <section class="pagehead"><div class="wrap">
+    <h1>추모관 찾기</h1>
+    <p>고인의 성함으로 공개 추모관을 찾아 조문하세요. 가족이 공개한 추모관만, 성함이 정확히 같을 때만 보여요.</p>
+  </div></section>
+  <section class="section"><div class="wrap">
+    <form class="searchbar" id="f" role="search">
+      <label for="q" class="visually-hidden">고인 성함</label>
+      <input type="search" id="q" maxlength="20" placeholder="고인 성함 (예: 홍길동)" autocomplete="off" enterkeyhint="search">
+      <button class="btn gold" type="submit">찾기</button>
+    </form>
+    <p class="msg" id="msg" role="status"></p>
+    <div class="cards" id="res" style="margin-top:18px"></div>
+    <div class="warn" style="margin-top:28px">
+      추모원 번호(예: ABCD-1234)를 받으셨나요? 번호로 바로 들어가세요.
+      <form id="cf" class="searchbar" style="margin-top:12px"><label for="c" class="visually-hidden">추모원 번호</label><input type="text" id="c" maxlength="9" placeholder="ABCD-1234" autocomplete="off" style="text-transform:uppercase"><button class="btn line" type="submit">들어가기</button></form>
+    </div>
+  </div></section>
+  <section class="section"><div class="wrap">
+    <h2>공감 추모원이 모신 독립운동가</h2>
+    <div class="cards" id="figs"></div>
+  </div></section>
+</main>
+
+<div id="site-foot"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
+<script src="/js/fb.js?v=20"></script>
+<script src="/js/site.js?v=20"></script>
+<script>
+const FIGS = [
+  { code: 'KMGU-1876', name: '김구', role: '임시정부 주석', years: '1876–1949' },
+  { code: 'HBDO-1868', name: '홍범도', role: '대한독립군 총사령관', years: '1868–1943' },
+  { code: 'KJJI-1889', name: '김좌진', role: '북로군정서 총사령관', years: '1889–1930' },
+  { code: 'AJGE-1879', name: '안중근', role: '의사', years: '1879–1910' },
+  { code: 'YBGI-1908', name: '윤봉길', role: '의사', years: '1908–1932' },
+  { code: 'LBCH-1901', name: '이봉창', role: '의사', years: '1901–1932' },
+  { code: 'YGSU-1902', name: '유관순', role: '열사', years: '1902–1920' },
+  { code: 'PKYE-1902', name: '박열', role: '독립운동가', years: '1902–1974' },
+  { code: 'KNFU-1903', name: '가네코 후미코', role: '독립운동가', years: '1903–1926' },
+  { code: 'YUIH-1895', name: '유일한', role: '기업인 · 독립운동가', years: '1895–1971' },
+];
+const figCard = (f) => `<a class="card" href="/m/?c=${f.code}"><div class="pic"><img src="/img/fig/${f.code}-portrait.jpg" alt="" loading="lazy"></div><b>${esc(f.name)}</b><span>${esc(f.role)} · ${esc(f.years)}</span></a>`;
+const memCard = (m) => {
+  const yrs = [m.born, m.died].map((d) => (d ? d.slice(0, 4) : '')).filter(Boolean).join('–');
+  const tr = m.tribute || {};
+  const n = (tr.incense || 0) + (tr.flower || 0);
+  return `<a class="card" href="/m/?c=${encodeURIComponent(m.code)}"><div class="pic">${m.photo ? `<img src="${esc(m.photo)}" alt="" loading="lazy">` : `<span class="sil">${esc((m.name || '').slice(0, 1))}</span>`}</div><b>${m.pet ? '' : '故 '}${esc(m.title ? m.title + ' ' : '')}${esc(m.name)}</b><span>${yrs || ''}${n ? ` · 조문 ${n}` : ''}${m.notes ? ` · 추모글 ${m.notes}` : ''}</span></a>`;
+};
+const $ = (s) => document.querySelector(s);
+$('#figs').innerHTML = FIGS.map(figCard).join('');
+const run = async (q) => {
+  q = q.replace(/\s+/g, '');
+  if ([...q].length < 2) { $('#msg').textContent = '성함을 두 글자 이상 적어 주세요.'; return; }
+  history.replaceState(null, '', '/search/?q=' + encodeURIComponent(q));
+  $('#msg').textContent = '찾는 중이에요…'; $('#res').innerHTML = '';
+  const figs = FIGS.filter((f) => f.name.replace(/\s/g, '') === q);
+  try {
+    const { items } = await GG.get({ q });
+    const all = figs.map(figCard).concat(items.map(memCard));
+    $('#res').innerHTML = all.join('');
+    $('#msg').textContent = all.length ? `'${q}' 님 추모관 ${all.length}곳을 찾았어요.` : `'${q}' 님의 공개 추모관을 찾지 못했어요. 가족만 볼 수 있는 추모관은 찾기에 나오지 않아요. 가족에게 추모관 링크를 받아 들어가 주세요.`;
+  } catch (e) { $('#msg').textContent = e.message; }
+};
+$('#f').addEventListener('submit', (e) => { e.preventDefault(); run($('#q').value); });
+$('#cf').addEventListener('submit', (e) => { e.preventDefault(); const c = $('#c').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, ''); if (c.length !== 8) { toast('추모원 번호 8자리를 확인해 주세요.'); return; } location.href = '/m/?c=' + c.slice(0, 4) + '-' + c.slice(4); });
+const q0 = new URLSearchParams(location.search).get('q'); if (q0) { $('#q').value = q0; run(q0); }
+
+</script>
+</body>
+</html>

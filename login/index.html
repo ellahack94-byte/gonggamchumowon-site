@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>로그인 · 회원가입 · 공감 추모원</title>
+<meta name="description" content="카카오·네이버·구글 계정으로 공감 추모원에 가입하고 추모관과 부고장을 만드세요.">
+<meta property="og:title" content="로그인 · 회원가입 · 공감 추모원">
+<meta property="og:description" content="카카오·네이버·구글 계정으로 공감 추모원에 가입하고 추모관과 부고장을 만드세요.">
+<meta property="og:image" content="https://gonggamchumowon.co.kr/img/og.jpg">
+<meta name="theme-color" content="#151311">
+<link rel="icon" href="/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Song+Myung&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/style.css?v=20">
+</head>
+<body>
+<div id="site-top"></div>
+<main>
+  <section class="pagehead"><div class="wrap">
+    <h1>로그인 · 회원가입</h1>
+    <p>카카오, 네이버, 구글 계정으로 바로 시작하세요. 처음이시면 가입되고, 이미 가입하셨으면 로그인돼요. 앱에서도 같은 계정으로 이어서 쓸 수 있어요.</p>
+  </div></section>
+  <section class="section"><div class="wrap">
+    <div class="split">
+      <div class="form" id="box">
+        <div class="fieldset" id="agree">
+          <h2>약관 동의</h2>
+          <label class="check"><input type="checkbox" id="all"> <span><b>모두 동의합니다</b></span></label>
+          <label class="check"><input type="checkbox" class="req"> <span>[필수] <a href="/terms.html" target="_blank" rel="noopener">이용약관</a>에 동의합니다</span></label>
+          <label class="check"><input type="checkbox" class="req"> <span>[필수] <a href="/privacy.html" target="_blank" rel="noopener">개인정보 수집·이용</a>에 동의합니다<small>로그인에 필요한 회원번호만 받아요. 이름·전화번호·이메일은 받지 않아요.</small></span></label>
+          <label class="check"><input type="checkbox" class="req"> <span>[필수] 만 14세 이상입니다</span></label>
+        </div>
+        <div class="fieldset">
+          <h2>계정 고르기</h2>
+          <button class="btn block sbtn kakao" type="button" data-p="kakao">카카오로 시작하기</button>
+          <button class="btn block sbtn naver" type="button" data-p="naver">네이버로 시작하기</button>
+          <button class="btn block sbtn google" type="button" data-p="google">구글로 시작하기</button>
+          <p class="msg" id="msg" role="status"></p>
+        </div>
+      </div>
+      <aside class="aside">
+        <div class="panel">
+          <h3>가입하면 할 수 있는 일</h3>
+          <ul class="ticks">
+            <li>홈페이지에서 추모관 만들기</li>
+            <li>모바일 부고장 만들고 카톡으로 보내기</li>
+            <li>보낸 부고장에 온 조의 말씀 모아 보기</li>
+            <li>앱에서 같은 계정으로 3D 분향소·장지 꾸미기</li>
+          </ul>
+        </div>
+        <p class="hint">가입비는 없어요. 조문하러 오신 분은 가입하지 않아도 분향·헌화하고 추모글을 남길 수 있어요.</p>
+      </aside>
+    </div>
+  </div></section>
+</main>
+
+<div id="site-foot"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
+<script src="/js/fb.js?v=20"></script>
+<script src="/js/site.js?v=20"></script>
+<script>
+const KAKAO_REST = 'da05f894f15dbf6a903864793e45e1d1';
+const NAVER_ID = 'VIy2LZCft2LmtzylDAcB';
+const REDIRECT = location.origin + '/login/';
+const qs = new URLSearchParams(location.search);
+const msg = (t, err) => { const m = document.getElementById('msg'); m.textContent = t; m.classList.toggle('err', !!err); };
+const reqs = [...document.querySelectorAll('.req')];
+const all = document.getElementById('all');
+const agreed = () => reqs.every((c) => c.checked);
+all.addEventListener('change', () => reqs.forEach((c) => { c.checked = all.checked; }));
+reqs.forEach((c) => c.addEventListener('change', () => { all.checked = agreed(); }));
+const next = () => { const n = qs.get('next') || sessionStorage.getItem('gg_next') || '/my/'; return n.startsWith('/') && !n.startsWith('//') ? n : '/my/'; };
+const store = (k, v) => { try { sessionStorage.setItem(k, v); } catch (e) {} };
+const read = (k) => { try { return sessionStorage.getItem(k); } catch (e) { return null; } };
+
+document.querySelectorAll('.sbtn').forEach((b) => b.addEventListener('click', async () => {
+  if (!agreed()) { msg('약관에 모두 동의해 주세요.', true); document.getElementById('agree').scrollIntoView({ behavior: 'smooth', block: 'center' }); return; }
+  const p = b.dataset.p;
+  store('gg_next', next());
+  if (p === 'google') {
+    try {
+      msg('구글 로그인 창을 여는 중이에요…');
+      await GG.auth.signInWithPopup(new firebase.auth.GoogleAuthProvider());
+      location.replace(next());
+    } catch (e) { if (e.code !== 'auth/popup-closed-by-user' && e.code !== 'auth/cancelled-popup-request') msg('구글 로그인을 마치지 못했어요. (' + (e.code || e.message) + ')', true); else msg(''); }
+    return;
+  }
+  const state = p + '.' + Math.random().toString(36).slice(2, 12);
+  store('gg_state', state);
+  location.href = p === 'kakao'
+    ? 'https://kauth.kakao.com/oauth/authorize?' + new URLSearchParams({ client_id: KAKAO_REST, redirect_uri: REDIRECT, response_type: 'code', state })
+    : 'https://nid.naver.com/oauth2.0/authorize?' + new URLSearchParams({ response_type: 'code', client_id: NAVER_ID, redirect_uri: REDIRECT, state });
+}));
+
+/* 카카오·네이버 로그인 창에서 돌아왔을 때 */
+(async () => {
+  const code = qs.get('code'), state = qs.get('state'), err = qs.get('error');
+  if (err) { msg('로그인을 취소했거나 마치지 못했어요. 다시 시도해 주세요.', true); return; }
+  if (!code) { const u = await GG.user(); if (GG.isMember(u)) msg('이미 로그인되어 있어요. 오른쪽 위 "내 추모관"으로 가실 수 있어요.'); return; }
+  if (!state || state !== read('gg_state')) { msg('로그인 정보가 맞지 않아요. 처음부터 다시 시도해 주세요.', true); return; }
+  document.querySelectorAll('.sbtn').forEach((b) => { b.disabled = true; });
+  msg('로그인하는 중이에요…');
+  try {
+    await GG.user();
+    // 새 계정은 익명으로 시작해 카카오·네이버에 잇는다(이미 가입했으면 그 계정으로 바뀐다)
+    if (GG.auth.currentUser && !GG.auth.currentUser.isAnonymous) await GG.auth.signOut();
+    if (!GG.auth.currentUser) await GG.auth.signInAnonymously();
+    const r = await GG.call('socialWeb', { provider: state.split('.')[0], code, state, redirectUri: REDIRECT });
+    await GG.auth.signInWithCustomToken(r.token);
+    try { sessionStorage.removeItem('gg_state'); } catch (e) {}
+    store('gg_welcome', r.joined ? '1' : '');
+    location.replace(next());
+  } catch (e) {
+    msg(e.message || '로그인을 마치지 못했어요.', true);
+    document.querySelectorAll('.sbtn').forEach((b) => { b.disabled = false; });
+    history.replaceState(null, '', '/login/');
+  }
+})();
+
+</script>
+</body>
+</html>

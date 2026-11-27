@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>내 추모관 · 공감 추모원</title>
+<meta name="description" content="내가 모신 추모관과 보낸 부고장">
+<meta property="og:title" content="내 추모관 · 공감 추모원">
+<meta property="og:description" content="내가 모신 추모관과 보낸 부고장">
+<meta property="og:image" content="https://gonggamchumowon.co.kr/img/og.jpg">
+<meta name="theme-color" content="#151311">
+<link rel="icon" href="/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Song+Myung&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/style.css?v=20">
+</head>
+<body>
+<div id="site-top"></div>
+<main>
+  <section class="pagehead"><div class="wrap">
+    <h1>내 추모관</h1>
+    <p id="who">로그인 정보를 확인하는 중이에요…</p>
+  </div></section>
+  <section class="section"><div class="wrap">
+    <div class="warn" id="welcome" hidden>가입을 환영해요. 아래에서 추모관을 만들거나 부고장을 보내 보세요. 앱에서도 같은 계정으로 로그인하면 그대로 이어져요.</div>
+    <div class="split" style="margin-top:20px">
+      <div style="display:grid;gap:28px;min-width:0">
+        <div class="panel">
+          <div class="row-head"><h2>모신 추모관</h2><a class="btn gold sm" href="/create/">추모관 만들기</a></div>
+          <div class="list" id="mems"><p class="empty">불러오는 중…</p></div>
+        </div>
+        <div class="panel">
+          <div class="row-head"><h2>보낸 부고장</h2><a class="btn gold sm" href="/bugo/">부고장 만들기</a></div>
+          <p class="hint">부고장은 만든 날부터 90일 동안 보관돼요.</p>
+          <div class="list" id="bugos"><p class="empty">불러오는 중…</p></div>
+        </div>
+      </div>
+      <aside class="aside">
+        <div class="panel">
+          <h3>앱에서 이어서 꾸미기</h3>
+          <p class="hint">3D 분향소와 장지 꾸미기, 사진·영상 올리기, 가족 초대, 기일 알림은 앱에서 할 수 있어요. 앱의 <b>내 정보 → 다른 휴대폰의 기록 불러오기</b>에서 같은 계정을 고르시면 여기서 만든 추모관이 그대로 들어와요.</p>
+          <a class="btn line sm" href="/guide/#app">앱 설치 안내</a>
+        </div>
+        <div class="panel">
+          <h3>계정</h3>
+          <button class="btn line sm" type="button" id="out">로그아웃</button>
+          <button class="linkish" type="button" id="del">회원 탈퇴</button>
+          <div id="delbox" hidden class="warn">
+            <p>탈퇴하면 만든 추모관, 사진·영상, 부고장, 추모글, 멤버십과 포인트가 <b>모두 지워지고 되돌릴 수 없어요.</b> 가족이 함께 쓰던 추모관도 함께 사라져요.</p>
+            <label class="check" style="margin-top:10px"><input type="checkbox" id="sure"> <span>위 내용을 확인했고 모두 지우겠습니다</span></label>
+            <button class="btn sm danger" type="button" id="del2" disabled style="margin-top:10px">탈퇴하고 모두 지우기</button>
+          </div>
+          <p class="msg" id="amsg" role="status"></p>
+        </div>
+      </aside>
+    </div>
+  </div></section>
+</main>
+
+<div id="site-foot"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
+<script src="/js/fb.js?v=20"></script>
+<script src="/js/site.js?v=20"></script>
+<script>
+(async () => {
+  const u = await GG.requireMember();
+  const claims = (await u.getIdTokenResult()).claims || {};
+  const via = [claims.kakao && '카카오', claims.naver && '네이버', u.providerData.some((p) => p.providerId === 'google.com') && '구글'].filter(Boolean).join('·') || '계정';
+  document.getElementById('who').textContent = `${via} 계정으로 로그인했어요.${u.email ? ' (' + u.email + ')' : ''}`;
+  try { if (sessionStorage.getItem('gg_welcome') === '1') { document.getElementById('welcome').hidden = false; sessionStorage.removeItem('gg_welcome'); } } catch (e) {}
+
+  GG.call('myMemorials', {}).then(({ items }) => {
+    const box = document.getElementById('mems');
+    if (!items || !items.length) { box.innerHTML = '<p class="empty">아직 모신 추모관이 없어요. 오른쪽 위 "추모관 만들기"로 시작해 보세요.</p>'; return; }
+    box.innerHTML = items.map((m) => `<div class="item"><div class="t"><b>${esc(m.title ? m.title + ' ' : '')}${esc(m.name)} 님</b><span>${[ymd(m.born), ymd(m.died)].filter(Boolean).join(' – ') || '날짜 미입력'} · 추모원 번호 ${esc(m.code)} · ${m.owner ? '만든 추모관' : '가족으로 함께하는 추모관'} · ${m.open ? '공개' : '가족만'}</span></div>
+      <div class="go">${m.open ? `<a class="btn line sm" href="/m/?c=${encodeURIComponent(m.code)}">웹 추모관</a>` : ''}${m.owner ? `<a class="btn line sm" href="/bugo/?code=${encodeURIComponent(m.code)}&name=${encodeURIComponent(m.name)}">부고장 만들기</a>` : ''}</div></div>`).join('');
+  }).catch((e) => { document.getElementById('mems').innerHTML = `<p class="empty">${esc(e.message)}</p>`; });
+
+  GG.call('myBugos', {}).then(({ items }) => {
+    const box = document.getElementById('bugos');
+    if (!items || !items.length) { box.innerHTML = '<p class="empty">보낸 부고장이 없어요.</p>'; return; }
+    box.innerHTML = items.map((b) => `<div class="item"><div class="t"><b>故 ${esc(b.name)} 님 부고</b><span>${b.at ? new Date(b.at).toLocaleDateString('ko-KR') + ' 만듦' : ''} · 조의 말씀 ${b.msgs || 0}개 · ${new Date(b.expires).toLocaleDateString('ko-KR')}까지 보관</span></div>
+      <div class="go"><a class="btn line sm" href="/b/?id=${encodeURIComponent(b.id)}">부고장 보기</a><a class="btn line sm" href="/bugo/?id=${encodeURIComponent(b.id)}">고치기·보내기</a></div></div>`).join('');
+  }).catch((e) => { document.getElementById('bugos').innerHTML = `<p class="empty">${esc(e.message)}</p>`; });
+
+  document.getElementById('out').onclick = async () => { await GG.auth.signOut(); location.href = '/'; };
+  document.getElementById('del').onclick = () => { const b = document.getElementById('delbox'); b.hidden = !b.hidden; };
+  document.getElementById('sure').onchange = (e) => { document.getElementById('del2').disabled = !e.target.checked; };
+  document.getElementById('del2').onclick = async (e) => {
+    e.target.disabled = true; document.getElementById('amsg').textContent = '지우는 중이에요…';
+    try { await GG.call('deleteAccount', {}); await GG.auth.signOut(); location.href = '/?deleted=1'; }
+    catch (err) { document.getElementById('amsg').textContent = err.message; e.target.disabled = false; }
+  };
+})();
+
+</script>
+</body>
+</html>

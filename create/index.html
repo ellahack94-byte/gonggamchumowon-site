@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>추모관 만들기 · 공감 추모원</title>
+<meta name="description" content="고인의 성함과 기일로 온라인 추모관을 모시고 가족과 함께 꾸며요.">
+<meta property="og:title" content="추모관 만들기 · 공감 추모원">
+<meta property="og:description" content="고인의 성함과 기일로 온라인 추모관을 모시고 가족과 함께 꾸며요.">
+<meta property="og:image" content="https://gonggamchumowon.co.kr/img/og.jpg">
+<meta name="theme-color" content="#151311">
+<link rel="icon" href="/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Song+Myung&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/style.css?v=20">
+</head>
+<body>
+<div id="site-top"></div>
+<main>
+  <section class="pagehead"><div class="wrap">
+    <h1>추모관 만들기</h1>
+    <p>고인의 성함과 날짜만 있으면 바로 모실 수 있어요. 영정 사진, 3D 분향소·장지 꾸미기, 가족 초대는 만든 뒤 앱에서 이어서 하세요.</p>
+  </div></section>
+  <section class="section"><div class="wrap">
+    <div class="split">
+      <form class="form" id="f" novalidate>
+        <div class="fieldset">
+          <h2>어느 분을 모실까요</h2>
+          <div class="field"><span class="lab">모시는 분</span>
+            <div class="chips" role="radiogroup" aria-label="모시는 분">
+              <label><input type="radio" name="target" value="person" checked><span>사람</span></label>
+              <label><input type="radio" name="target" value="family"><span>가족(부부·선대)</span></label>
+              <label><input type="radio" name="target" value="pet"><span>반려동물</span></label>
+            </div>
+          </div>
+          <div class="row2">
+            <div class="field"><label for="name">성함 <span class="req-mark">(꼭 적어 주세요)</span></label><input type="text" id="name" maxlength="20" autocomplete="off" placeholder="예: 홍길동"></div>
+            <div class="field"><label for="title">호칭·직함 <span class="hint">(선택)</span></label><input type="text" id="title" maxlength="10" placeholder="예: 권사, 장로, 교수"></div>
+          </div>
+          <div class="row2">
+            <div class="field"><label for="born">태어나신 날</label><input type="date" id="born" min="1850-01-01"></div>
+            <div class="field"><label for="died">떠나신 날(기일)</label><input type="date" id="died" min="1850-01-01"></div>
+          </div>
+          <label class="check"><input type="checkbox" id="lunar"> <span>기일을 음력으로 챙깁니다<small>앱에서 해마다 양력 날짜로 바꿔 미리 알려 드려요.</small></span></label>
+          <div class="field" id="relf"><span class="lab">종교</span>
+            <div class="chips" role="radiogroup" aria-label="종교">
+              <label><input type="radio" name="religion" value="none" checked><span>없음</span></label>
+              <label><input type="radio" name="religion" value="confucian"><span>유교(제사)</span></label>
+              <label><input type="radio" name="religion" value="christian"><span>기독교</span></label>
+              <label><input type="radio" name="religion" value="catholic"><span>천주교</span></label>
+              <label><input type="radio" name="religion" value="buddhist"><span>불교</span></label>
+            </div>
+            <p class="hint">종교에 맞춰 분향소 차림(향·십자가·염주)과 추모 문구가 달라져요.</p>
+          </div>
+        </div>
+        <div class="fieldset">
+          <h2>누가 찾아올 수 있나요</h2>
+          <label class="check"><input type="checkbox" id="open"> <span><b>공개 추모관으로 열기</b><small>링크를 받은 분이 앱 없이도 분향·헌화하고 추모글을 남길 수 있어요. 끄면 초대한 가족만 들어와요.</small></span></label>
+          <label class="check" id="listedL"><input type="checkbox" id="listed" disabled> <span>온라인 분향소 목록에도 올리기<small>홈페이지 '온라인 분향소'에 모셔져 누구나 찾아와 조문할 수 있어요. 공개 추모관일 때만 고를 수 있어요.</small></span></label>
+          <p class="hint" id="petnote" hidden>반려동물 추모관은 '무지개 정원'에 모셔져 다른 분들도 꽃을 놓아 줄 수 있어요.</p>
+        </div>
+        <button class="btn gold block" type="submit" id="go">추모관 모시기</button>
+        <p class="msg" id="msg" role="status"></p>
+      </form>
+      <aside class="aside">
+        <div class="panel" id="done" hidden>
+          <h3>추모관을 모셨어요</h3>
+          <p class="hint">추모원 번호</p>
+          <div class="copyline"><code id="code"></code><button class="btn line sm" type="button" id="cp">복사</button></div>
+          <div id="openbox" hidden style="display:grid;gap:10px">
+            <p class="hint">이 링크를 카카오톡으로 보내면 누구나 조문할 수 있어요.</p>
+            <div class="copyline"><code id="link"></code><button class="btn line sm" type="button" id="cp2">링크 복사</button></div>
+            <a class="btn line sm" id="view" href="#">웹 추모관 보기</a>
+          </div>
+          <a class="btn gold sm" id="tobugo" href="/bugo/">이어서 부고장 만들기</a>
+          <a class="btn line sm" href="/my/">내 추모관으로</a>
+        </div>
+        <div class="panel">
+          <h3>만든 뒤에는</h3>
+          <ul class="ticks">
+            <li>앱에서 같은 계정으로 로그인하면 이 추모관이 들어와요</li>
+            <li>영정 사진을 올리고 분향소·장지를 꾸며요</li>
+            <li>가족을 초대해 함께 모셔요</li>
+            <li>기일·생신·49재 알림을 받아요</li>
+          </ul>
+          <p class="hint">무료로 추모관 2곳을 모실 수 있어요. <a href="/guide/#plans">요금 보기</a></p>
+        </div>
+      </aside>
+    </div>
+  </div></section>
+</main>
+
+<div id="site-foot"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
+<script src="/js/fb.js?v=20"></script>
+<script src="/js/site.js?v=20"></script>
+<script>
+(async () => {
+  await GG.requireMember();
+  const $ = (s) => document.querySelector(s);
+  const val = (n) => (document.querySelector(`input[name=${n}]:checked`) || {}).value;
+  const sync = () => {
+    const pet = val('target') === 'pet';
+    $('#relf').hidden = pet; $('#petnote').hidden = !pet;
+    $('#open').closest('label').hidden = pet; $('#listedL').hidden = pet;
+    $('#listed').disabled = !$('#open').checked; if (!$('#open').checked) $('#listed').checked = false;
+  };
+  document.querySelectorAll('input[name=target]').forEach((r) => r.addEventListener('change', sync));
+  $('#open').addEventListener('change', sync); sync();
+  const today = new Date(Date.now() + 9 * 3600e3).toISOString().slice(0, 10);
+  $('#born').max = today; $('#died').max = today;
+  const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  const part = () => Array.from(crypto.getRandomValues(new Uint32Array(4)), (n) => A[n % A.length]).join('');
+  const msg = (t, e) => { $('#msg').textContent = t; $('#msg').classList.toggle('err', !!e); };
+  const copy = async (t, btn) => { try { await navigator.clipboard.writeText(t); btn.textContent = '복사했어요'; } catch (e) { toast('글자를 길게 눌러 복사해 주세요'); } };
+
+  $('#f').addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    const name = $('#name').value.trim();
+    if (!name) { msg('성함을 적어 주세요.', true); $('#name').focus(); return; }
+    if ($('#born').value && $('#died').value && $('#born').value > $('#died').value) { msg('태어나신 날이 떠나신 날보다 늦어요. 날짜를 확인해 주세요.', true); return; }
+    const pet = val('target') === 'pet';
+    $('#go').disabled = true; msg('모시는 중이에요…');
+    try {
+      let code, r;
+      for (let i = 0; i < 4; i++) {
+        code = part() + '-' + part();
+        try {
+          r = await GG.call('registerMemorial', { code, name, title: $('#title').value.trim(), born: $('#born').value, died: $('#died').value, lunar: $('#lunar').checked, target: val('target'), religion: pet ? 'none' : val('religion'), open: pet || $('#open').checked, listed: !pet && $('#listed').checked });
+          break;
+        } catch (e) { if (!/이미 다른 분|지운 지/.test(e.message) || i === 3) throw e; }
+      }
+      msg('');
+      $('#f').hidden = true;
+      $('#done').hidden = false;
+      $('#code').textContent = code;
+      const open = pet || $('#open').checked;
+      if (open) {
+        const link = location.origin + '/m/?c=' + code;
+        $('#openbox').hidden = false; $('#link').textContent = link; $('#view').href = link;
+        $('#cp2').onclick = (e) => copy(link, e.target);
+      }
+      $('#cp').onclick = (e) => copy(code, e.target);
+      $('#tobugo').href = '/bugo/?code=' + encodeURIComponent(code) + '&name=' + encodeURIComponent(name);
+      $('#tobugo').hidden = pet;
+      $('#done').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch (e) { msg(e.message, true); $('#go').disabled = false; }
+  });
+})();
+
+</script>
+</body>
+</html>
