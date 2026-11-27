@@ -948,16 +948,16 @@ function buildAltar() {
     const side = i % 2 ? 1 : -1, idx = Math.floor(i / 2);
     if (kind === 'basket') return { x: side * (1.58 + idx * 0.08), z: 0.5 - idx * 0.55, ry: -side * 0.3 };
     if (idx < 4) return { x: side * (2.0 + idx * 0.62), z: 0.12 - idx * 0.16, ry: -side * (0.34 + idx * 0.06) };
-    return { x: side * 3.95, z: 0.75 + (idx - 4) * 0.66, ry: -side * 1.25 };
+    return { x: side * 3.75, z: 0.55 + (idx - 4) * 0.68, ry: -side * 1.4 };
   }
   function setWreaths(list) {
     if (Array.isArray(list)) wreathList = list.slice(0, 16);
     while (wreathGroup.children.length) wreathGroup.remove(wreathGroup.children[0]);
     // 공개 추모관은 실제 분향소처럼 양옆이 화환으로 가득 차 보이게, 보낸 화환이 적으면 공감 추모원 화환으로 채운다
-    const PUB = [['t3', '삼가 故人의 冥福을 빕니다', '공감 추모원'], ['t3', '조국은 당신을 기억합니다', '공감 추모원 가족 일동'], ['t3', '숭고한 희생을 기립니다', '공감 추모원'], ['t2', '그 뜻을 이어 가겠습니다', '공감 추모원 가족 일동'], ['t3', '나라를 위한 헌신을 잊지 않겠습니다', '공감 추모원'], ['t2', '謹弔', '공감 추모원'], ['t3', '故人의 永眠을 기원합니다', '공감 추모원 가족 일동'], ['t2', '삼가 哀悼의 뜻을 표합니다', '공감 추모원'], ['basket', '謹弔', '공감 추모원'], ['basket', '삼가 故人의 冥福을 빕니다', '공감 추모원 가족 일동']];
+    const PUB = [['t3', '삼가 故人의 冥福을 빕니다', '공감 추모원'], ['t3', '조국은 당신을 기억합니다', '공감 추모원 가족 일동'], ['t3', '숭고한 희생을 기립니다', '공감 추모원'], ['t2', '그 뜻을 이어 가겠습니다', '공감 추모원 가족 일동'], ['t3', '나라를 위한 헌신을 잊지 않겠습니다', '공감 추모원'], ['t2', '謹弔', '공감 추모원'], ['t3', '故人의 永眠을 기원합니다', '공감 추모원 가족 일동'], ['t2', '삼가 哀悼의 뜻을 표합니다', '공감 추모원'], ['t3', '깊은 哀悼를 표합니다', '공감 추모원 가족 일동'], ['t2', '편히 잠드소서', '공감 추모원'], ['t3', '고인의 뜻을 받들겠습니다', '공감 추모원'], ['t2', '追慕', '공감 추모원 가족 일동'], ['t3', '고인의 업적을 길이 기억하겠습니다', '공감 추모원'], ['t2', '謹悼', '공감 추모원'], ['t3', '삼가 머리 숙여 명복을 빕니다', '공감 추모원 가족 일동'], ['t2', '하늘나라에서 편히 쉬소서', '공감 추모원'], ['basket', '謹弔', '공감 추모원'], ['basket', '삼가 故人의 冥福을 빕니다', '공감 추모원 가족 일동']];
     const real = wreathList && wreathList.length ? wreathList : [];
     let pubDefault = [];
-    if (S.public && !S.pet) { const nStand = real.filter((w) => w.kind !== 'basket').length, nBas = real.length - nStand; pubDefault = PUB.filter((w) => w[0] !== 'basket').slice(0, Math.max(0, 8 - nStand)).concat(PUB.filter((w) => w[0] === 'basket').slice(0, Math.max(0, 2 - nBas))).map((w) => ({ kind: w[0], phrase: w[1], from: w[2] })); }
+    if (S.public && !S.pet) { const nStand = real.filter((w) => w.kind !== 'basket').length, nBas = real.length - nStand; pubDefault = PUB.filter((w) => w[0] !== 'basket').slice(0, Math.max(0, 16 - nStand)).concat(PUB.filter((w) => w[0] === 'basket').slice(0, Math.max(0, 2 - nBas))).map((w) => ({ kind: w[0], phrase: w[1], from: w[2] })); }
     const items = S.public && !S.pet ? real.concat(pubDefault) : real.length ? real : (S.pet ? [] : ([{ kind: 't3', phrase: DEFAULT_PHRASE, from: '' }, { kind: 't3', phrase: S.religion === 'ki' ? (S.catholic ? '주님, 영원한 안식을 주소서' : '주님의 품에서 편히 쉬소서') : S.religion === 'bul' ? '극락왕생하소서' : '故人의 永眠을 기원합니다', from: '' }]));
     const baskets = items.filter((w) => w.kind === 'basket'), stands = items.filter((w) => w.kind !== 'basket');
     stands.forEach((w, i) => { const g = makeWreath(w, 61 + i), p = wreathSlot(i, stands.length, w.kind); g.position.set(p.x, 0, p.z); g.rotation.y = p.ry; wreathGroup.add(g); });
