@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Song+Myung&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="/style.css?v=21">
+<link rel="stylesheet" href="/style.css?v=22">
 </head>
 <body>
 <div id="site-top"></div>
@@ -69,6 +69,39 @@
         <li><b>입관과 발인, 화장 또는 매장</b><span>화장은 돌아가신 때부터 24시간이 지나야 할 수 있어요.</span></li>
         <li><b>사망신고와 안심상속</b><span>사망신고는 돌아가신 사실을 안 날부터 1개월 안에 해요. 이때 안심상속 원스톱서비스를 함께 신청하면 재산과 빚을 한 번에 조회할 수 있어요.</span></li>
       </ol>
+    </div>
+  </section>
+
+  <section class="band showcase" id="showcase" aria-labelledby="show-title">
+    <div class="wrap">
+      <div class="head">
+        <h2 id="show-title">이렇게 꾸며 모십니다</h2>
+        <p>앱에서 실제로 꾸민 화면 그대로입니다. 분향소 테마와 장지의 형식·장소·석물을 가족이 골라 정성껏 모실 수 있어요.</p>
+      </div>
+      <div class="tabs" role="tablist" aria-label="꾸밈 예시 고르기">
+        <button type="button" role="tab" id="t-hall" aria-controls="p-hall" aria-selected="true">분향소</button>
+        <button type="button" role="tab" id="t-grave" aria-controls="p-grave" aria-selected="false" tabindex="-1">장지</button>
+        <button type="button" role="tab" id="t-pet" aria-controls="p-pet" aria-selected="false" tabindex="-1">반려동물</button>
+      </div>
+      <div class="shots" role="tabpanel" id="p-hall" aria-labelledby="t-hall">
+        <figure><div class="img"><img src="/img/show/hall-hanok-s.jpg" srcset="/img/show/hall-hanok-s.jpg 600w, /img/show/hall-hanok.jpg 1200w" sizes="(max-width: 560px) 84vw, (max-width: 860px) 50vw, 370px" alt="한옥 사당 분향소. 창살문 사당에 흰 국화 제단, 촛불과 위패, 근조화환" loading="lazy" width="1200" height="900"></div><figcaption><b>한옥 사당 분향소</b><span>창살문 사당에 흰 국화 제단, 촛불과 위패, 근조화환</span></figcaption></figure>
+        <figure><div class="img"><img src="/img/show/hall-chapel-s.jpg" srcset="/img/show/hall-chapel-s.jpg 600w, /img/show/hall-chapel.jpg 1200w" sizes="(max-width: 560px) 84vw, (max-width: 860px) 50vw, 370px" alt="예배당 분향소. 스테인드글라스와 십자가, 흰 국화 제단" loading="lazy" width="1200" height="900"></div><figcaption><b>예배당 분향소</b><span>스테인드글라스와 십자가, 흰 국화 제단</span></figcaption></figure>
+        <figure><div class="img"><img src="/img/show/hall-garden-s.jpg" srcset="/img/show/hall-garden-s.jpg 600w, /img/show/hall-garden.jpg 1200w" sizes="(max-width: 560px) 84vw, (max-width: 860px) 50vw, 370px" alt="정원 추모실. 큰 창 너머로 꽃동산 장지가 보이는 추모실" loading="lazy" width="1200" height="900"></div><figcaption><b>정원 추모실</b><span>큰 창 너머로 꽃동산 장지가 보이는 추모실</span></figcaption></figure>
+      </div>
+      <div class="shots" role="tabpanel" id="p-grave" aria-labelledby="t-grave" hidden>
+        <figure><div class="img"><img src="/img/show/g-royal-s.jpg" srcset="/img/show/g-royal-s.jpg 600w, /img/show/g-royal.jpg 1200w" sizes="(max-width: 560px) 84vw, (max-width: 860px) 50vw, 370px" alt="왕릉. 능 규모의 봉분에 석양·석호·문인석·동자석까지" loading="lazy" width="1200" height="900"></div><figcaption><b>왕릉</b><span>능 규모의 봉분에 석양·석호·문인석·동자석까지</span></figcaption></figure>
+        <figure><div class="img"><img src="/img/show/g-temple-s.jpg" srcset="/img/show/g-temple-s.jpg 600w, /img/show/g-temple.jpg 1200w" sizes="(max-width: 560px) 84vw, (max-width: 860px) 50vw, 370px" alt="산사 승탑. 연등 줄과 향로석, 장명등을 갖춘 불교 승탑" loading="lazy" width="1200" height="900"></div><figcaption><b>산사 승탑</b><span>연등 줄과 향로석, 장명등을 갖춘 불교 승탑</span></figcaption></figure>
+        <figure><div class="img"><img src="/img/show/g-flowers-s.jpg" srcset="/img/show/g-flowers-s.jpg 600w, /img/show/g-flowers.jpg 1200w" sizes="(max-width: 560px) 84vw, (max-width: 860px) 50vw, 370px" alt="꽃동산 추모비. 비석 곁에 가족사진 액자와 꽃밭, 돌 벤치" loading="lazy" width="1200" height="900"></div><figcaption><b>꽃동산 추모비</b><span>비석 곁에 가족사진 액자와 꽃밭, 돌 벤치</span></figcaption></figure>
+        <figure><div class="img"><img src="/img/show/g-lake-s.jpg" srcset="/img/show/g-lake-s.jpg 600w, /img/show/g-lake.jpg 1200w" sizes="(max-width: 560px) 84vw, (max-width: 860px) 50vw, 370px" alt="호숫가 봉안묘. 노을빛 호숫가, 둘레석과 생울타리" loading="lazy" width="1200" height="900"></div><figcaption><b>호숫가 봉안묘</b><span>노을빛 호숫가, 둘레석과 생울타리</span></figcaption></figure>
+        <figure><div class="img"><img src="/img/show/g-island-s.jpg" srcset="/img/show/g-island-s.jpg 600w, /img/show/g-island.jpg 1200w" sizes="(max-width: 560px) 84vw, (max-width: 860px) 50vw, 370px" alt="작은 섬 추모비. 바다 건너 산이 보이는 섬, 해 질 녘" loading="lazy" width="1200" height="900"></div><figcaption><b>작은 섬 추모비</b><span>바다 건너 산이 보이는 섬, 해 질 녘</span></figcaption></figure>
+        <figure><div class="img"><img src="/img/show/g-mountain-s.jpg" srcset="/img/show/g-mountain-s.jpg 600w, /img/show/g-mountain.jpg 1200w" sizes="(max-width: 560px) 84vw, (max-width: 860px) 50vw, 370px" alt="산 중턱 명당 봉분. 상석·향로석·망주석·문인석을 갖춘 전통 묘역" loading="lazy" width="1200" height="900"></div><figcaption><b>산 중턱 명당 봉분</b><span>상석·향로석·망주석·문인석을 갖춘 전통 묘역</span></figcaption></figure>
+      </div>
+      <div class="shots" role="tabpanel" id="p-pet" aria-labelledby="t-pet" hidden>
+        <figure><div class="img"><img src="/img/show/pet-hall-s.jpg" srcset="/img/show/pet-hall-s.jpg 600w, /img/show/pet-hall.jpg 1200w" sizes="(max-width: 560px) 84vw, (max-width: 860px) 50vw, 370px" alt="무지개 분향소. 무지개 아래 노란 국화 제단과 아이 사진" loading="lazy" width="1200" height="900"></div><figcaption><b>무지개 분향소</b><span>무지개 아래 노란 국화 제단과 아이 사진</span></figcaption></figure>
+        <figure><div class="img"><img src="/img/show/pet-grave-s.jpg" srcset="/img/show/pet-grave-s.jpg 600w, /img/show/pet-grave.jpg 1200w" sizes="(max-width: 560px) 84vw, (max-width: 860px) 50vw, 370px" alt="무지개 언덕. 아이 비석과 사진 액자, 밥그릇과 공" loading="lazy" width="1200" height="900"></div><figcaption><b>무지개 언덕</b><span>아이 비석과 사진 액자, 밥그릇과 공</span></figcaption></figure>
+        <figure><div class="img"><img src="/img/show/pet-grave2-s.jpg" srcset="/img/show/pet-grave2-s.jpg 600w, /img/show/pet-grave2.jpg 1200w" sizes="(max-width: 560px) 84vw, (max-width: 860px) 50vw, 370px" alt="무지개 언덕 · 해 질 녘. 나비의 사진 액자와 비석" loading="lazy" width="1200" height="900"></div><figcaption><b>무지개 언덕 · 해 질 녘</b><span>나비의 사진 액자와 비석</span></figcaption></figure>
+      </div>
+      <p class="fine">분향소 예시는 공감 추모원이 모신 독립운동가 공개 추모관이고, 장지와 반려동물은 꾸밈 예시입니다.</p>
     </div>
   </section>
 
@@ -173,6 +206,11 @@
         <h2 id="rainbow-title">무지개 정원</h2>
         <p>무지개다리를 건넌 반려견, 반려묘, 그리고 모든 친구들을 위한 정원이에요. 추모관을 모시면 이곳에 함께 있어, 다른 분들도 꽃 한 송이 놓아 줄 수 있어요.</p>
       </div>
+      <div class="shots petshots">
+        <figure><div class="img"><img src="/img/show/pet-hall-s.jpg" srcset="/img/show/pet-hall-s.jpg 600w, /img/show/pet-hall.jpg 1200w" sizes="(max-width: 560px) 84vw, (max-width: 860px) 50vw, 370px" alt="무지개 분향소. 무지개 아래 노란 국화 제단과 아이 사진" loading="lazy" width="1200" height="900"></div><figcaption><b>무지개 분향소</b><span>무지개 아래 노란 국화 제단과 아이 사진</span></figcaption></figure>
+        <figure><div class="img"><img src="/img/show/pet-grave-s.jpg" srcset="/img/show/pet-grave-s.jpg 600w, /img/show/pet-grave.jpg 1200w" sizes="(max-width: 560px) 84vw, (max-width: 860px) 50vw, 370px" alt="무지개 언덕. 아이 비석과 사진 액자, 밥그릇과 공" loading="lazy" width="1200" height="900"></div><figcaption><b>무지개 언덕</b><span>아이 비석과 사진 액자, 밥그릇과 공</span></figcaption></figure>
+        <figure><div class="img"><img src="/img/show/pet-grave2-s.jpg" srcset="/img/show/pet-grave2-s.jpg 600w, /img/show/pet-grave2.jpg 1200w" sizes="(max-width: 560px) 84vw, (max-width: 860px) 50vw, 370px" alt="무지개 언덕 · 해 질 녘. 나비의 사진 액자와 비석" loading="lazy" width="1200" height="900"></div><figcaption><b>무지개 언덕 · 해 질 녘</b><span>나비의 사진 액자와 비석</span></figcaption></figure>
+      </div>
       <div class="cards pets" id="home-pets"></div>
       <div class="actions"><a class="btn sky" href="/create/?target=pet">반려동물 추모관 만들기</a><a class="btn skyline" href="/pet/">무지개 정원 모두 보기</a><a class="btn skyline" href="/pet/#guide">반려동물 장례 안내</a></div>
     </div>
@@ -233,6 +271,13 @@
 <script src="/js/fb.js?v=20"></script>
 <script src="/js/site.js?v=21"></script>
 <script src="/js/smoke.js?v=1"></script>
+<script>
+(function () {
+  const tabs = [...document.querySelectorAll('.showcase [role=tab]')];
+  const pick = (t) => { tabs.forEach((x) => { const on = x === t; x.setAttribute('aria-selected', String(on)); x.tabIndex = on ? 0 : -1; document.getElementById(x.getAttribute('aria-controls')).hidden = !on; }); };
+  tabs.forEach((t, i) => { t.addEventListener('click', () => pick(t)); t.addEventListener('keydown', (e) => { const d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0; if (d) { const n = tabs[(i + d + tabs.length) % tabs.length]; pick(n); n.focus(); } }); });
+})();
+</script>
 <script>
 GG.call('listPets', {}).then(({ items }) => {
   const box = document.getElementById('home-pets');
