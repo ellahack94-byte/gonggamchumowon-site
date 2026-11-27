@@ -5248,7 +5248,7 @@ window.chumowonBack = function () {
 function setSheetOpen(open) {
   $('#sheet').classList.toggle('open', open);
   $('#more').setAttribute('aria-expanded', String(open));
-  $('#more-label').textContent = open ? '접기' : '꾸미기';
+  $('#more-label').textContent = open ? '접기' : (S.public ? '근조화환' : '꾸미기');
   document.querySelector('.app').classList.toggle('sheet-open', open);
   frameShift();
 }
@@ -5444,7 +5444,9 @@ $('#act-rite').hidden = S.pet;
 if (S.startRite && !S.pet) setTimeout(openRite, 600);
 
 if (S.public) {
-  $('#more').hidden = true; $('#act-rite').hidden = true;
+  // 공개 추모관: 꾸미기 대신 '근조화환 보내기'만 연다(앱). 홈페이지는 추모관 페이지의 화환 보내기를 쓴다.
+  $('#more').hidden = !APP; $('#act-rite').hidden = true;
+  if (APP) { CATS.altar = [['wreath', '근조화환']]; CATS.grave = [['wreath', '근조화환']]; currentCat.altar = currentCat.grave = 'wreath'; $('#more-label').textContent = '근조화환'; }
   const up = document.querySelector('.g-up'); if (up) up.hidden = true;
   G.items = [];
   const gn = document.querySelector('#gallery .note'); if (gn) gn.textContent = '운영자가 정성껏 모신 공개 추모관이에요. 누구나 분향하고 헌화하며 추모글을 남길 수 있어요.';
