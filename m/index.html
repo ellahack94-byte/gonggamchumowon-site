@@ -61,6 +61,30 @@ h1 small { font-size: .5em; color: var(--sub); margin-left: 6px; }
 .yt-box { position: relative; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; background: #000; box-shadow: 0 0 0 1px var(--line); }
 .yt-box iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 .yt figcaption { color: var(--sub); font-size: 14px; margin-top: 10px; }
+.wreaths { padding: 26px 0 8px; border-top: 1px solid var(--line); }
+.wr-list { list-style: none; margin: 14px 0 18px; padding: 0; display: grid; gap: 8px; }
+.wr-list li { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; padding: 12px 14px; border-radius: 12px; background: rgba(255, 255, 255, .03); box-shadow: inset 0 0 0 1px var(--line); }
+.wr-list li b { font-weight: 600; font-size: 14px; color: var(--gold-soft); }
+.wr-list li span { font-weight: 600; }
+.wr-list li em { grid-column: 1 / -1; font-style: normal; color: var(--sub); font-size: 14.5px; font-family: var(--display); }
+.wr-list li.empty { display: block; color: var(--sub); background: none; box-shadow: none; padding: 0; }
+.btn.wide { width: 100%; }
+form.wf:not([hidden]) { display: grid; }
+.wf [hidden] { display: none !important; }
+.wf select, .wf input { width: 100%; min-width: 0; box-sizing: border-box; }
+.wk button { min-width: 0; }
+.wf { margin-top: 16px; padding: 20px; border-radius: 16px; background: rgba(255, 255, 255, .03); box-shadow: inset 0 0 0 1px var(--line); display: grid; gap: 14px; }
+.wf h3 { margin: 0; font-family: var(--display); font-weight: 400; font-size: 22px; }
+.wf label { display: grid; gap: 6px; font-size: 14.5px; color: var(--sub); }
+.wf select, .wf input { min-height: 50px; border-radius: 12px; border: 1px solid #4a433a; background: #0e0d0c; color: var(--mum); font: 400 16px var(--body); padding: 0 12px; }
+.wk { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.wk button { text-align: left; display: grid; gap: 2px; padding: 12px; border-radius: 12px; border: 1px solid #4a433a; background: none; color: var(--mum); font: 400 14px var(--body); cursor: pointer; }
+.wk button b { font-weight: 600; font-size: 15px; }
+.wk button span { color: var(--gold-soft); font-weight: 600; }
+.wk button small { color: var(--sub); font-size: 12.5px; }
+.wk button[aria-checked="true"] { border-color: var(--gold); box-shadow: inset 0 0 0 1px var(--gold); background: rgba(201, 164, 92, .08); }
+.wf-note { margin: 0; font-size: 14px; color: var(--sub); }
+.wf-note a { color: var(--gold-soft); }
 .acts.one { grid-template-columns: 1fr; }
 .acts { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 6px 0 28px; }
 .btn { appearance: none; border: 0; cursor: pointer; font: 600 17px/1 var(--body); padding: 17px 12px; border-radius: 14px; text-align: center; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 56px; }
@@ -167,6 +191,10 @@ footer a { color: var(--sub); }
 </main>
 <footer><a href="../">공감 추모원</a> · <a href="../privacy.html">개인정보처리방침</a></footer>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
+<script src="/js/fb.js?v=20"></script>
 
 <script>
 const API = 'https://asia-northeast3-gonggam-chumowon.cloudfunctions.net/web';
@@ -243,6 +271,47 @@ function v3dUrl(v) {
   }
   return '/3d/index.html?' + q.toString();
 }
+const WK_NAME = { basket: '근조바구니', t1: '근조화환 1단', t2: '근조화환 2단', t3: '근조화환 3단' };
+function wreathItems(list) {
+  return (list || []).map((w) => `<li><b>${esc(WK_NAME[w.kind] || '근조화환')}</b><span>${esc(w.from)}</span><em>${esc(w.phrase)}</em></li>`).join('') || '<li class="empty">아직 세워진 화환이 없어요. 첫 화환으로 마음을 전해 주세요.</li>';
+}
+let WDATA = null;
+async function wreathForm(v) {
+  const f = $('#wf'), err = $('#werr');
+  if (!WDATA) { try { WDATA = await (await fetch('/3d/wreath.json')).json(); } catch (e) { toast('잠시 뒤 다시 시도해 주세요.'); return; } }
+  let kind = 't3';
+  const paintK = () => { $('#wk').innerHTML = WDATA.kinds.map((k) => `<button type="button" role="radio" aria-checked="${k.id === kind}" data-k="${k.id}"><b>${esc(k.name)}</b><span>${k.price.toLocaleString('ko-KR')}원</span><small>${esc(k.desc)}</small></button>`).join(''); };
+  paintK();
+  $('#wk').onclick = (e) => { const b = e.target.closest('[data-k]'); if (b) { kind = b.dataset.k; paintK(); } };
+  $('#wp').innerHTML = WDATA.groups.map((g) => `<optgroup label="${esc(g.name)}">${g.items.map((t) => `<option>${esc(t)}</option>`).join('')}</optgroup>`).join('') + '<option value="__custom">직접 쓰기…</option>';
+  $('#wp').onchange = () => { $('#wpc-l').hidden = $('#wp').value !== '__custom'; if (!$('#wpc-l').hidden) $('#wpc').focus(); };
+  f.hidden = false; f.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+  const u = await GG.user();
+  if (!GG.isMember(u)) { $('#wbal').innerHTML = '화환은 로그인한 뒤 보낼 수 있어요. <a href="/login/?next=' + encodeURIComponent(location.pathname + location.search) + '">로그인 · 회원가입</a>'; }
+  else {
+    try { const w = await GG.call('getWallet', {}); const n = (w.free || 0) + (w.paid || 0); $('#wbal').textContent = `내 포인트 ${n.toLocaleString('ko-KR')}P · 1P = 1원으로 보내요. 포인트 충전은 공감 추모원 앱에서 할 수 있어요.`; } catch (e) {}
+  }
+  $('#wcancel').onclick = () => { f.hidden = true; };
+  f.onsubmit = async (e) => {
+    e.preventDefault(); err.textContent = '';
+    const uu = await GG.user();
+    if (!GG.isMember(uu)) { location.href = '/login/?next=' + encodeURIComponent(location.pathname + location.search); return; }
+    const phrase = $('#wp').value === '__custom' ? $('#wpc').value.trim() : $('#wp').value;
+    const from = $('#wfrom').value.trim();
+    if (!phrase) { err.textContent = '리본 문구를 적어 주세요.'; return; }
+    if (!from) { err.textContent = '보내는 분 이름을 적어 주세요.'; return; }
+    const k = WDATA.kinds.find((x) => x.id === kind);
+    $('#wsend').disabled = true;
+    try {
+      const r = await GG.call('sendWreath', { code: v.code, kind, phrase, from, expect: k.price });
+      $('#wr-list').innerHTML = wreathItems(r.wreaths); $('#wr-n').textContent = r.wreaths.length + '개';
+      const fr = document.querySelector('.v3d iframe'); try { fr.contentWindow.chumowonWreaths(r.wreaths); } catch (x) {}
+      f.hidden = true; toast('근조화환을 보냈어요. 분향소에 세워졌어요.');
+      document.querySelector('.v3d').scrollIntoView({ behavior: 'smooth' });
+    } catch (x) { err.textContent = x.message; }
+    $('#wsend').disabled = false;
+  };
+}
 function render(v) {
   const pet = v.pet;
   /* 기독교·천주교 추모관은 앱처럼 분향 대신 기도(촛불)로 */
@@ -275,6 +344,21 @@ function render(v) {
     <div class="err" id="err"></div>
     <div class="btns"><button type="button" class="btn line" id="cancel">닫기</button><button type="submit" class="btn gold" id="send">올리기</button></div>
   </form>
+  <section class="wreaths" aria-labelledby="wr">
+    <div class="count"><h2 id="wr">근조화환</h2><span id="wr-n">${(v.wreaths || []).length}개</span></div>
+    <ul class="wr-list" id="wr-list">${wreathItems(v.wreaths)}</ul>
+    <button class="btn gold wide" id="b-wreath" type="button">근조화환 보내기</button>
+    <form id="wf" class="wf" novalidate hidden>
+      <h3>근조화환 보내기</h3>
+      <div class="wk" role="radiogroup" aria-label="화환 종류" id="wk"></div>
+      <label>리본 문구 · 오른쪽 리본<select id="wp"></select></label>
+      <label id="wpc-l" hidden>직접 쓰기 (30자까지)<input id="wpc" maxlength="30" placeholder="예: 삼가 故人의 冥福을 빕니다"></label>
+      <label>보내는 분 · 왼쪽 리본 (20자까지)<input id="wfrom" maxlength="20" placeholder="예: 홍길동 올림, (주)○○ 임직원 일동"></label>
+      <p class="wf-note" id="wbal"></p>
+      <div class="err" id="werr"></div>
+      <div class="btns"><button type="button" class="btn line" id="wcancel">닫기</button><button type="submit" class="btn gold" id="wsend">보내기</button></div>
+    </form>
+  </section>
   ${(v.story && (v.story.bio || v.story.life.length)) || FIG_VIDEO[v.code] ? `<section class="story" aria-labelledby="st"><h2 id="st">생애 이야기</h2>${v.story && v.story.bio ? `<p class="bio">${esc(v.story.bio)}</p>` : ''}${FIG_VIDEO[v.code] ? `<figure class="yt"><div class="yt-box"><iframe src="https://www.youtube-nocookie.com/embed/${FIG_VIDEO[v.code][0]}?rel=0" title="${esc(FIG_VIDEO[v.code][1])}" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div><figcaption>생애를 담은 영상 · ${esc(FIG_VIDEO[v.code][1])}</figcaption></figure>` : ''}${v.story && v.story.life.length ? `<ul class="life">${v.story.life.map((l) => `<li><span class="y">${esc(l.y)}</span><span class="dot"></span><span class="t">${esc(l.t)}</span></li>`).join('')}</ul>` : ''}</section>` : ''}
   <section aria-labelledby="gb">
     <div class="count"><h2 id="gb">추모글</h2><span>${v.noteCount}개</span></div>
@@ -307,6 +391,7 @@ function render(v) {
     } catch (err) { toast(err.message); btn.disabled = false; }
   };
   $('#b-note').onclick = () => open();
+  $('#b-wreath').onclick = () => wreathForm(v);
   $('#cancel').onclick = () => f.classList.remove('on');
   $('#cp').onclick = () => copy(v.code);
   wireReports(document.querySelector('.notes'), 'note', v.code);

@@ -74,6 +74,7 @@ body{background:var(--ground);color:var(--ink);font-family:var(--sans);overflow:
 .opt{height:40px;padding:0 15px;border-radius:12px;border:1px solid var(--line);background:var(--raise);color:var(--ink);font:500 14px var(--sans);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
 .opt[aria-pressed="true"]{background:var(--ink);color:#16130f;border-color:var(--ink);font-weight:700}
 .opt.upload{border-color:var(--gold);color:var(--gold)}
+.opt.buy{background:var(--gold);color:#16130f;border-color:var(--gold);font-weight:700;height:48px;padding:0 26px}
 .opt .pr{font-size:11px;font-weight:700;color:var(--gold);margin-left:2px}
 .pprev{display:flex;justify-content:center;margin:6px 0 10px}
 #p-prev{width:150px;height:200px;border-radius:8px;border:3px solid #a8834d;touch-action:none;cursor:grab;background:#2a2724}
@@ -418,7 +419,7 @@ const S = {
   religion: 'yu', flower: 'white', volume: 'full', theme: 'hall', backdrop: 'screen', light: 'candle', frame: 'black',
   candles: true, music: 'none', lastMusic: 'pad',
   form: 'tree', tree: 'pine', stone: 'black', time: 'morning',
-  place: 'hill', size: 'm', tsize: 'xs', deco: ['sangseok', 'vase'], owned: [],
+  place: 'hill', size: 'm', tsize: 'xs', deco: ['sangseok', 'vase'], adeco: [], owned: [],
   incense: 212, flowers: 128, bouquets: 0, bkind: 'chrys', bqs: [], tacc: [], lit: false,
   pet: false, catholic: false, rites: 0, startRite: false
 };
@@ -463,7 +464,7 @@ const WEB_MEDIA = [];
         if (v.religion === 'catholic') S.catholic = true;
         if (S.pet) S.religion = 'mu';
         S.incense = (v.tribute || {}).incense | 0; S.flowers = (v.tribute || {}).flower | 0;
-        S.web = wc; S.webPhrase = v.phrase || '';
+        S.web = wc; S.webPhrase = v.phrase || ''; S.webWreaths = Array.isArray(v.wreaths) ? v.wreaths : null;
         document.documentElement.classList.add('web-view');
         if (sc.portrait) WEB_MEDIA.push({ purpose: 'portrait', type: 'image', url: WEB_API + '?c=' + wc + '&img=p', file: '' });
         (sc.gallery || []).forEach((id) => WEB_MEDIA.push({ purpose: 'gallery', type: 'image', url: WEB_API + '?c=' + wc + '&img=' + id, file: 'w' + id, public: true }));
@@ -475,7 +476,7 @@ if (S.pet && !S.petReady) { S.theme = 'pet'; S.form = 'pet'; S.place = 'rainbow'
 /* 앱에서 열면 이 추모관에 저장해 둔 꾸미기 설정과 가족이 올린 파일을 불러온다 */
 const SAVED_MEDIA = [];
 WEB_MEDIA.forEach((m) => SAVED_MEDIA.push(m));
-const NOSAVE = ['startRite', 'pet', 'catholic', 'music', 'lit', 'code', 'public', 'ptitle', 'rest', 'reco', 'pphrase'];
+const NOSAVE = ['startRite', 'pet', 'catholic', 'music', 'lit', 'code', 'public', 'ptitle', 'rest', 'reco', 'pphrase', 'web', 'webPhrase', 'webWreaths'];
 if (S.code) {
   try {
     const r = await fetch('state/' + S.code + '.json', { cache: 'no-store' });
@@ -799,49 +800,255 @@ function buildAltar() {
   runner.receiveShadow = true;
   scene.add(runner);
 
-  /* standing funeral wreaths (근조화환) */
-  function wreath(side, seed) {
-    const r = rng(seed);
-    const g = new THREE.Group();
-    const legMat = new THREE.MeshStandardMaterial({ color: '#2a1d14', roughness: 0.6 });
-    for (const a of [0, 2.1, 4.2]) {
-      const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.015, 0.015, 1.5, 6), legMat);
-      leg.position.set(Math.sin(a) * 0.16, 0.72, Math.cos(a) * 0.16 - 0.08);
-      leg.rotation.set(Math.cos(a) * 0.12, 0, -Math.sin(a) * 0.12);
-      leg.castShadow = true;
-      g.add(leg);
+  /* ---------- 근조화환(실제 장례식장 화환처럼): 1단·2단·3단·근조바구니 ----------
+     부채꼴 잎 테두리 위에 흰 국화를 빽빽이 꽂고, 가운데 노란 백합. 맨 위 검정·흰 줄무늬 리본 매듭에서
+     흰 공단 리본 두 줄이 내려온다: 오른쪽은 근조 문구, 왼쪽은 보내는 분. */
+  const W_LEAF = (() => {
+    const sh = new THREE.Shape(); sh.moveTo(0, 0); sh.quadraticCurveTo(0.03, 0.12, 0.004, 0.27); sh.lineTo(-0.004, 0.27); sh.quadraticCurveTo(-0.03, 0.12, 0, 0); return new THREE.ShapeGeometry(sh, 4);
+  })();
+  const W_LILY = (() => {
+    const parts = [];
+    for (let i = 0; i < 6; i++) {
+      const sh = new THREE.Shape(); sh.moveTo(0, 0); sh.quadraticCurveTo(0.022, 0.05, 0, 0.085); sh.quadraticCurveTo(-0.022, 0.05, 0, 0);
+      const g = new THREE.ShapeGeometry(sh, 3); g.rotateX(-0.55); g.rotateZ(i * Math.PI / 3 + (i % 2 ? 0.18 : 0)); parts.push(g.toNonIndexed());
     }
-    const ring = new THREE.InstancedMesh(CHRYS_MID, new THREE.MeshStandardMaterial({ roughness: 0.75 }), 96);
-    const m = new THREE.Matrix4(), q = new THREE.Quaternion(), col = new THREE.Color();
-    let i = 0;
-    for (const L of [[0.42, 40], [0.33, 32], [0.24, 24]]) {
-      for (let k = 0; k < L[1]; k++) {
-        const th = (k / L[1]) * Math.PI * 2;
-        q.setFromEuler(new THREE.Euler(0, 0, r() * 6));
-        const s = 1.1 + r() * 0.3;
-        m.compose(new THREE.Vector3(Math.cos(th) * L[0], 1.72 + Math.sin(th) * L[0], 0.02 * r()), q, new THREE.Vector3(s, s, s));
-        ring.setMatrixAt(i, m);
-        col.set(L[0] === 0.33 && k % 4 === 0 ? '#f2cf58' : pick(CHRYS_PALETTES.white, r));
-        ring.setColorAt(i, col);
-        i++;
+    const c = new THREE.CylinderGeometry(0.006, 0.006, 0.05, 5); c.rotateX(Math.PI / 2); c.translate(0, 0, 0.025); parts.push(c.toNonIndexed());
+    return mergeGeometries(parts);
+  })();
+  const wLeafMat = new THREE.MeshStandardMaterial({ color: '#2c5a3b', roughness: 0.55, side: THREE.DoubleSide });
+  const wMumMat = new THREE.MeshStandardMaterial({ roughness: 0.78 });
+  const wLilyMat = new THREE.MeshStandardMaterial({ color: '#f3cf3e', roughness: 0.5, side: THREE.DoubleSide, emissive: '#3a2a00', emissiveIntensity: 0.25 });
+  const wLegMat = new THREE.MeshStandardMaterial({ color: '#1d1a17', roughness: 0.5, metalness: 0.3 });
+  const bowTex = makeTex(256, 64, (c, w, h) => { c.fillStyle = '#f7f5f0'; c.fillRect(0, 0, w, h); c.fillStyle = '#121212'; for (let x = 0; x < w; x += 32) c.fillRect(x, 0, 14, h); });
+  const wBowMat = new THREE.MeshStandardMaterial({ map: bowTex, roughness: 0.45, side: THREE.DoubleSide });
+  const ribbonCache = {};
+  function wRibbonMat(text, left) {
+    const key = (left ? 'L' : 'R') + text;
+    if (ribbonCache[key]) return ribbonCache[key];
+    const tex = makeTex(128, 1600, (c, w, h) => {
+      const g = c.createLinearGradient(0, 0, w, 0); g.addColorStop(0, '#e9e5dc'); g.addColorStop(0.5, '#fbfaf6'); g.addColorStop(1, '#e6e2d8');
+      c.fillStyle = g; c.fillRect(0, 0, w, h);
+      c.fillStyle = '#1b1b1b'; c.fillRect(6, 0, 4, h); c.fillRect(w - 10, 0, 4, h);
+      c.fillStyle = '#b8964f'; c.fillRect(12, 0, 2, h); c.fillRect(w - 14, 0, 2, h);
+      const chars = Array.from(text || '').filter((ch) => ch !== ' ').length || 1;
+      const step = Math.min(92, (h - 140) / chars), size = Math.min(76, step * 0.9);
+      vertical(c, String(text || ''), w / 2, 60, size, step + 0, '#1c1a17');
+    });
+    tex.anisotropy = ANISO;
+    return (ribbonCache[key] = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.55, side: THREE.DoubleSide }));
+  }
+  const DEFAULT_PHRASE = '삼가 故人의 冥福을 빕니다';
+  function mumDisc(list, cx, cy, R, sy, accent, r) {
+    for (let rr = 0; rr <= R; rr += 0.046) {
+      const n = Math.max(1, Math.round((Math.PI * 2 * rr) / 0.05));
+      for (let k = 0; k < n; k++) {
+        const th = (k / n) * Math.PI * 2 + rr * 7;
+        const x = cx + Math.cos(th) * rr, y = cy + Math.sin(th) * rr * sy;
+        const dome = 0.07 * (1 - (rr / R) * (rr / R));
+        list.push({ x: x, y: y, z: dome, s: 0.52 + r() * 0.14, c: accent && accent(rr / R, th) });
       }
     }
-    ring.count = i;
-    ring.castShadow = true;
-    g.add(ring);
-    const bannerTex = makeTex(96, 640, (c, w, h) => {
-      c.fillStyle = '#f6f3ec'; c.fillRect(0, 0, w, h);
-      vertical(c, side < 0 ? '삼가고인의명복을빕니다' : '故人의 영면을 기원합니다', w / 2, 24, 40, 52, '#2a2622');
+  }
+  function fan(list, cx, cy, R, sy, r) {
+    const n = Math.round(R * 230);
+    for (let k = 0; k < n; k++) {
+      const a = (k / n) * Math.PI * 2 + (r() - 0.5) * 0.04;
+      const ex = Math.hypot(Math.cos(a), Math.sin(a) * sy); // 타원이면 위아래로 더 길게
+      list.push({ x: cx + Math.cos(a) * R * 0.5, y: cy + Math.sin(a) * R * 0.5 * sy, a: Math.atan2(Math.sin(a) * sy, Math.cos(a)), len: (R * 0.55 * ex + 0.13) * (0.92 + r() * 0.16) });
+    }
+  }
+  function makeWreath(w, seed) {
+    const r = rng(seed), g = new THREE.Group();
+    const mums = [], leaves = [], lilies = [];
+    const kind = w.kind || 't3';
+    let top = 2.3, bottom = 0.25, legsTo = 0.8;
+    const whiteAccent = (u) => (u > 0.86 && r() < 0.5 ? '#f1e6b8' : null);
+    if (kind === 't3') {
+      const ys = [2.0, 1.43, 0.86];
+      ys.forEach((y, i) => { fan(leaves, 0, y, 0.29, 1, r); mumDisc(mums, 0, y, 0.27, 1, i === 1 ? (u) => (u < 0.32 ? '#f2c94c' : whiteAccent(u)) : whiteAccent, r); });
+      lilies.push([0, 2.02, 0.09, 0], [-0.07, 1.96, 0.08, 1], [0.07, 1.95, 0.08, 2], [0, 0.9, 0.09, 3], [-0.08, 0.84, 0.08, 4], [0.08, 0.85, 0.08, 5]);
+      top = 2.36; legsTo = 0.62; bottom = 0.22;
+    } else if (kind === 't2') {
+      [1.74, 1.1].forEach((y, i) => { fan(leaves, 0, y, 0.32, 1, r); mumDisc(mums, 0, y, 0.3, 1, i === 0 ? (u) => (u < 0.28 ? '#f2c94c' : whiteAccent(u)) : whiteAccent, r); });
+      lilies.push([0, 1.13, 0.09, 0], [-0.08, 1.06, 0.08, 1], [0.08, 1.07, 0.08, 2]);
+      top = 2.12; legsTo = 0.8; bottom = 0.3;
+    } else if (kind === 't1') {
+      fan(leaves, 0, 1.4, 0.36, 1.45, r); mumDisc(mums, 0, 1.4, 0.34, 1.45, whiteAccent, r);
+      lilies.push([0, 1.62, 0.1, 0], [-0.07, 1.55, 0.09, 1], [0.07, 1.56, 0.09, 2], [0, 1.2, 0.1, 3], [-0.08, 1.13, 0.09, 4], [0.08, 1.14, 0.09, 5]);
+      top = 1.98; legsTo = 0.9; bottom = 0.35;
+    } else {
+      // 근조바구니: 흰 버들 바구니 + 부채꼴 잎 + 타원 국화
+      const bas = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.14, 0.32, 20, 1, true), new THREE.MeshStandardMaterial({ map: wickerTex, color: '#f2ede2', roughness: 0.9, side: THREE.DoubleSide }));
+      bas.position.y = 0.16; bas.castShadow = true; g.add(bas);
+      fan(leaves, 0, 0.72, 0.27, 1.2, r); mumDisc(mums, 0, 0.72, 0.26, 1.2, (u) => (u < 0.25 ? '#f2c94c' : whiteAccent(u)), r);
+      lilies.push([0, 0.74, 0.09, 0], [-0.07, 0.68, 0.08, 1], [0.07, 0.69, 0.08, 2]);
+      top = 1.08; legsTo = 0; bottom = 0.06;
+    }
+    const m = new THREE.Matrix4(), q = new THREE.Quaternion(), col = new THREE.Color();
+    const lm = new THREE.InstancedMesh(W_LEAF, wLeafMat, leaves.length);
+    leaves.forEach((L, i) => { q.setFromEuler(new THREE.Euler(0, 0, L.a - Math.PI / 2)); const s = L.len / 0.27; m.compose(new THREE.Vector3(L.x, L.y, -0.05 - r() * 0.02), q, new THREE.Vector3(1.9, s, 1)); lm.setMatrixAt(i, m); });
+    lm.castShadow = true; g.add(lm);
+    const mm = new THREE.InstancedMesh(CHRYS_LO, wMumMat, mums.length);
+    mums.forEach((u, i) => { q.setFromEuler(new THREE.Euler((r() - 0.5) * 0.3, (r() - 0.5) * 0.3, r() * 6)); m.compose(new THREE.Vector3(u.x, u.y, u.z), q, new THREE.Vector3(u.s, u.s, u.s)); mm.setMatrixAt(i, m); col.set(u.c || pick(CHRYS_PALETTES.white, r)); mm.setColorAt(i, col); });
+    mm.castShadow = true; g.add(mm);
+    if (lilies.length) {
+      const li = new THREE.InstancedMesh(W_LILY, wLilyMat, lilies.length);
+      lilies.forEach((L, i) => { q.setFromEuler(new THREE.Euler(0.1, 0, L[3])); m.compose(new THREE.Vector3(L[0], L[1], L[2]), q, new THREE.Vector3(1.25, 1.25, 1.25)); li.setMatrixAt(i, m); });
+      g.add(li);
+    }
+    if (legsTo > 0) for (const a of [0.5, -0.5, Math.PI]) {
+      const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.011, 0.011, legsTo + 0.25, 6), wLegMat);
+      leg.position.set(Math.sin(a) * 0.17, (legsTo + 0.25) / 2 - 0.02, Math.cos(a) * 0.17 - 0.12);
+      leg.rotation.set(Math.cos(a) * 0.2, 0, -Math.sin(a) * 0.2);
+      leg.castShadow = true; g.add(leg);
+    }
+    // 리본 매듭과 두 줄 리본
+    const bow = new THREE.Group();
+    for (const sx of [-1, 1]) { const loop = new THREE.Mesh(new THREE.TorusGeometry(0.06, 0.016, 6, 14), wBowMat); loop.scale.set(1.25, 0.75, 0.6); loop.position.set(sx * 0.07, 0, 0); loop.rotation.z = sx * 0.3; bow.add(loop); }
+    const knot = new THREE.Mesh(new THREE.SphereGeometry(0.03, 10, 8), wBowMat); bow.add(knot);
+    bow.position.set(0, top, 0.11); g.add(bow);
+    const len = top - bottom;
+    const phrase = (w.phrase || DEFAULT_PHRASE).slice(0, 30), from = (w.from || '謹弔').slice(0, 20);
+    [[1, phrase, false], [-1, from, true]].forEach(([sx, text, left]) => {
+      const rib = new THREE.Mesh(new THREE.PlaneGeometry(0.082, len), wRibbonMat(text, left));
+      // 보는 사람 기준 오른쪽(+x)에 문구, 왼쪽에 보내는 분
+      rib.position.set(sx * (kind === 'basket' ? 0.1 : 0.2), top - len / 2 - 0.03, 0.12 + (kind === 'basket' ? 0.08 : 0));
+      rib.rotation.z = sx * (kind === 'basket' ? 0.1 : 0.035);
+      rib.castShadow = true; g.add(rib);
     });
-    const banner = new THREE.Mesh(new THREE.PlaneGeometry(0.1, 0.66), new THREE.MeshStandardMaterial({ map: bannerTex, roughness: 0.9, side: THREE.DoubleSide }));
-    banner.position.set(0, 1.18, 0.05);
-    g.add(banner);
-    g.position.set(side * 2.15, 0, 0.15);
-    g.rotation.y = -side * 0.38;
+    g.userData.kind = kind;
     return g;
   }
-  const wreaths = [wreath(-1, 61), wreath(1, 62)];
-  wreaths.forEach((w) => { w.visible = !S.pet; scene.add(w); }); // 반려동물 방에는 근조화환을 두지 않는다
+  const wickerTex = makeTex(256, 128, (c, w, h) => {
+    c.fillStyle = '#e9e2d2'; c.fillRect(0, 0, w, h);
+    for (let y = 0; y < h; y += 8) for (let x = (y / 8) % 2 ? 0 : 8; x < w; x += 16) { c.fillStyle = 'rgba(150,130,95,.35)'; c.fillRect(x, y, 9, 6); }
+  }, { repeat: [3, 1] });
+  const wreathGroup = new THREE.Group();
+  scene.add(wreathGroup);
+  // 양옆 화환이 어둠에 묻히지 않게 은은한 보조 조명
+  for (const sx of [-1, 1]) { const wl = new THREE.PointLight('#ffe9cc', 3.2, 6, 1.6); wl.position.set(sx * 2.4, 2.6, 1.6); scene.add(wl); }
+  let wreathList = null;
+  function wreathSlot(i, n, kind) {
+    const side = i % 2 ? 1 : -1, idx = Math.floor(i / 2);
+    if (kind === 'basket') return { x: side * (1.58 + idx * 0.08), z: 0.5 - idx * 0.55, ry: -side * 0.3 };
+    if (idx < 4) return { x: side * (2.0 + idx * 0.62), z: 0.12 - idx * 0.16, ry: -side * (0.34 + idx * 0.06) };
+    return { x: side * 3.95, z: 0.75 + (idx - 4) * 0.66, ry: -side * 1.25 };
+  }
+  function setWreaths(list) {
+    if (Array.isArray(list)) wreathList = list.slice(0, 16);
+    while (wreathGroup.children.length) wreathGroup.remove(wreathGroup.children[0]);
+    const items = wreathList && wreathList.length ? wreathList : (S.pet ? [] : [{ kind: 't3', phrase: DEFAULT_PHRASE, from: '' }, { kind: 't3', phrase: S.religion === 'ki' ? (S.catholic ? '주님, 영원한 안식을 주소서' : '주님의 품에서 편히 쉬소서') : S.religion === 'bul' ? '극락왕생하소서' : '故人의 永眠을 기원합니다', from: '' }]);
+    const baskets = items.filter((w) => w.kind === 'basket'), stands = items.filter((w) => w.kind !== 'basket');
+    stands.forEach((w, i) => { const g = makeWreath(w, 61 + i), p = wreathSlot(i, stands.length, w.kind); g.position.set(p.x, 0, p.z); g.rotation.y = p.ry; wreathGroup.add(g); });
+    baskets.slice(0, 6).forEach((w, i) => { const g = makeWreath(w, 91 + i), p = wreathSlot(i, baskets.length, 'basket'); g.position.set(p.x, 0, p.z); g.rotation.y = p.ry; wreathGroup.add(g); });
+  }
+  setWreaths(null);
+  const wreaths = [];
+
+  /* ---------- 분향소 장식(꾸미기에서 산다): 근조기·현수막·제사상 과일·호접란 화분·백합 화병·돗자리 ---------- */
+  const adeco = {};
+  {
+    // 謹弔 근조기: 검은 벨벳에 금색 글씨, 아래에 흰 술
+    const g = new THREE.Group();
+    const pole = new THREE.MeshStandardMaterial({ color: '#c9a45c', roughness: 0.35, metalness: 0.8 });
+    const p1 = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 2.15, 10), pole); p1.position.y = 1.075; p1.castShadow = true; g.add(p1);
+    const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.01, 0.01, 0.66, 8), pole); bar.rotation.z = Math.PI / 2; bar.position.y = 2.0; g.add(bar);
+    for (const sx of [-1, 1]) { const k = new THREE.Mesh(new THREE.SphereGeometry(0.022, 10, 8), pole); k.position.set(sx * 0.34, 2.0, 0); g.add(k); }
+    const foot = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.19, 0.04, 20), new THREE.MeshStandardMaterial({ color: '#1c1a18', roughness: 0.5 })); foot.position.y = 0.02; g.add(foot);
+    const tex = makeTex(320, 512, (c, w, h) => {
+      const gr = c.createLinearGradient(0, 0, w, 0); gr.addColorStop(0, '#0b0b0b'); gr.addColorStop(0.5, '#1b1a1a'); gr.addColorStop(1, '#0b0b0b');
+      c.fillStyle = gr; c.fillRect(0, 0, w, h);
+      c.strokeStyle = '#c9a45c'; c.lineWidth = 6; c.strokeRect(14, 14, w - 28, h - 28);
+      vertical(c, '謹弔', w / 2, 70, 150, 170, '#e3c77f');
+      c.font = serif(26, 600); c.fillStyle = '#c9a45c'; c.textAlign = 'center'; c.fillText('공감 추모원', w / 2, h - 52);
+    });
+    const cloth = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.96), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.85, side: THREE.DoubleSide }));
+    cloth.position.set(0, 1.5, 0.02); cloth.castShadow = true; g.add(cloth);
+    const fr = makeTex(256, 64, (c, w, h) => { for (let x = 0; x < w; x += 4) { c.fillStyle = x % 8 ? '#f4f1ea' : '#dcd6c9'; c.fillRect(x, 0, 3, h - (x % 12)); } });
+    const fringe = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.12), new THREE.MeshStandardMaterial({ map: fr, transparent: true, alphaTest: 0.1, side: THREE.DoubleSide }));
+    fringe.position.set(0, 0.96, 0.021); g.add(fringe);
+    g.position.set(-1.62, 0, -0.78); g.rotation.y = 0.32;
+    adeco.gunjo = g;
+  }
+  const bannerTex = makeTex(2048, 256, () => {});
+  {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(3.6, 0.45), new THREE.MeshStandardMaterial({ map: bannerTex, roughness: 0.8 }));
+    m.position.set(0, 2.62, -1.24);
+    adeco.banner = m;
+  }
+  function paintBanner() {
+    redraw(bannerTex, (c, w, h) => {
+      c.fillStyle = '#101010'; c.fillRect(0, 0, w, h);
+      c.fillStyle = '#f4f1ea';
+      for (const [x, ch] of [[150, '謹'], [w - 150, '弔']]) { c.beginPath(); c.arc(x, h / 2, 92, 0, Math.PI * 2); c.fill(); c.fillStyle = '#101010'; c.font = serif(118, 700); c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(ch, x, h / 2 + 6); c.fillStyle = '#f4f1ea'; }
+      const t = (S.public || S.pet ? S.name : '故 ' + S.name) + ' 님 ' + (S.pet ? '추모소' : '분향소');
+      let fs = 138; c.font = serif(fs, 700); while (fs > 70 && c.measureText(t).width > w - 520) { fs -= 4; c.font = serif(fs, 700); }
+      c.fillStyle = '#f4f1ea'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.letterSpacing = '6px'; c.fillText(t, w / 2, h / 2 + 6);
+    });
+  }
+  {
+    // 제사상 과일: 붉은 굽다리 접시 위에 배·사과·귤을 쌓는다
+    const g = new THREE.Group();
+    const lac = new THREE.MeshStandardMaterial({ color: '#6a1d16', roughness: 0.35, metalness: 0.1 });
+    const plateGeo = new THREE.LatheGeometry([new THREE.Vector2(0, 0), new THREE.Vector2(0.05, 0), new THREE.Vector2(0.05, 0.012), new THREE.Vector2(0.02, 0.03), new THREE.Vector2(0.02, 0.07), new THREE.Vector2(0.095, 0.085), new THREE.Vector2(0.095, 0.095), new THREE.Vector2(0, 0.095)], 24);
+    const fruits = [['#d9b765', 0.046], ['#a3242a', 0.043], ['#e98a2b', 0.034], ['#d9b765', 0.046]];
+    [-0.66, -0.36, 0.36, 0.66].forEach((x, i) => {
+      const pl = new THREE.Mesh(plateGeo, lac); pl.position.set(x, 0.8, -0.24); pl.castShadow = true; g.add(pl);
+      const [colr, rad] = fruits[i];
+      const mat = new THREE.MeshStandardMaterial({ color: colr, roughness: 0.45 });
+      const pts = [[-1, 0, 0], [1, 0, 0], [0, 0, 1], [0, 0, -1], [0, 1, 0]];
+      pts.forEach((p, k) => { const f = new THREE.Mesh(new THREE.SphereGeometry(rad, 16, 12), mat); f.position.set(x + p[0] * rad * 0.95, 0.8 + 0.095 + rad + p[1] * rad * 1.5, -0.24 + p[2] * rad * 0.95); f.scale.y = colr === '#e98a2b' ? 0.82 : 1; f.castShadow = true; g.add(f); });
+    });
+    adeco.fruit = g;
+  }
+  {
+    // 호접란 화분: 흰 도자기 화분에서 흰 꽃줄기가 아치로 휜다
+    const g = new THREE.Group();
+    const pot = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.1, 0.24, 24), new THREE.MeshStandardMaterial({ color: '#f5f3ee', roughness: 0.25 })); pot.position.y = 0.12; pot.castShadow = true; g.add(pot);
+    const leafM = new THREE.MeshStandardMaterial({ color: '#2f5a33', roughness: 0.5, side: THREE.DoubleSide });
+    for (let i = 0; i < 6; i++) { const lf = new THREE.Mesh(new THREE.SphereGeometry(1, 10, 6), leafM); lf.scale.set(0.05, 0.012, 0.16); lf.position.set(Math.cos(i) * 0.08, 0.26, Math.sin(i) * 0.08); lf.rotation.y = i; lf.rotation.x = 0.4; g.add(lf); }
+    const petal = new THREE.MeshStandardMaterial({ color: '#fbfaf7', roughness: 0.45, side: THREE.DoubleSide });
+    const stemM = new THREE.MeshStandardMaterial({ color: '#4c6b3a', roughness: 0.6 });
+    for (let sIdx = 0; sIdx < 4; sIdx++) {
+      const ang = sIdx * 1.6 + 0.3, curve = new THREE.QuadraticBezierCurve3(new THREE.Vector3(0, 0.25, 0), new THREE.Vector3(Math.cos(ang) * 0.06, 0.85, Math.sin(ang) * 0.06), new THREE.Vector3(Math.cos(ang) * 0.32, 0.72, Math.sin(ang) * 0.32));
+      g.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 16, 0.005, 5), stemM));
+      for (let k = 0; k < 6; k++) {
+        const pt = curve.getPoint(0.45 + k * 0.1), fl = new THREE.Group();
+        for (let q = 0; q < 5; q++) { const pe = new THREE.Mesh(new THREE.CircleGeometry(0.03, 10), petal); pe.scale.set(q < 2 ? 1.2 : 0.8, q < 2 ? 0.9 : 0.7, 1); pe.position.set(Math.cos(q * 1.26) * 0.025, Math.sin(q * 1.26) * 0.025, 0); fl.add(pe); }
+        fl.position.copy(pt); fl.lookAt(pt.x * 3, pt.y, pt.z * 3 + 2); g.add(fl);
+      }
+    }
+    g.position.set(-1.45, 0, 0.95);
+    adeco.orchid = g;
+  }
+  {
+    // 백합 화병
+    const g = new THREE.Group();
+    const vase = new THREE.Mesh(new THREE.LatheGeometry([new THREE.Vector2(0, 0), new THREE.Vector2(0.1, 0), new THREE.Vector2(0.14, 0.12), new THREE.Vector2(0.1, 0.36), new THREE.Vector2(0.08, 0.42), new THREE.Vector2(0.1, 0.46), new THREE.Vector2(0.09, 0.46)], 28), new THREE.MeshStandardMaterial({ color: '#f6f4ef', roughness: 0.2 }));
+    vase.castShadow = true; g.add(vase);
+    const stemM = new THREE.MeshStandardMaterial({ color: '#4f7340', roughness: 0.6 });
+    const lilyW = new THREE.MeshStandardMaterial({ color: '#fbf9f2', roughness: 0.45, side: THREE.DoubleSide });
+    for (let i = 0; i < 7; i++) {
+      const a = i * 0.9, top = new THREE.Vector3(Math.cos(a) * (0.12 + (i % 3) * 0.05), 0.95 + (i % 3) * 0.12, Math.sin(a) * (0.12 + (i % 3) * 0.05));
+      g.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.LineCurve3(new THREE.Vector3(0, 0.4, 0), top), 4, 0.006, 5), stemM));
+      const l = new THREE.Mesh(W_LILY, lilyW); l.position.copy(top); l.scale.setScalar(1.8); l.lookAt(top.x * 4, top.y + 0.6, top.z * 4 + 1.5); g.add(l);
+    }
+    g.position.set(1.45, 0, 0.95);
+    adeco.lilypot = g;
+  }
+  {
+    // 돗자리
+    const tex = makeTex(512, 256, (c, w, h) => { for (let x = 0; x < w; x += 6) { c.fillStyle = x % 12 ? '#c9b07a' : '#bfa46c'; c.fillRect(x, 0, 6, h); } c.strokeStyle = '#5a3d22'; c.lineWidth = 10; c.strokeRect(5, 5, w - 10, h - 10); });
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(1.9, 1.3), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.8 }));
+    m.rotation.x = -Math.PI / 2; m.position.set(0, 0.008, 1.55); m.receiveShadow = true;
+    adeco.table = m;
+  }
+  Object.values(adeco).forEach((o) => { o.visible = false; scene.add(o); });
+  function applyAdeco() {
+    const on = Array.isArray(S.adeco) ? S.adeco : [];
+    Object.keys(adeco).forEach((k) => { adeco[k].visible = on.includes(k) && !(k === 'gunjo' && S.pet); });
+    if (on.includes('banner')) paintBanner();
+  }
 
   /* folding screen (병풍) with ink landscapes */
   function inkPanel(seed) {
@@ -1360,9 +1567,11 @@ function buildAltar() {
         const yMax = 2.06 - 0.42 * ax * ax;
         if (y > yMax) continue;
         // 영정 바로 뒤도 비워 두지 않는다: 위에서 내려다봐도 꽃이 빈틈없이 차 보이게
-        const z = -0.82 - row * 0.035 + 0.3 * ax * ax + (r() - 0.5) * 0.03;
+        // 실제 장례식장처럼 계단식: 세 줄씩 한 단, 단마다 뒤로 물러나며 올라간다
+        const band = Math.floor(row / 3), inBand = row % 3;
+        const z = -0.66 - band * 0.17 - inBand * 0.03 + 0.3 * ax * ax + (r() - 0.5) * 0.025;
         const d = Math.hypot(x / 1.4, (y - 1.5) / 0.9);
-        slots.push({ x: x + (r() - 0.5) * 0.025, y: y + (r() - 0.5) * 0.025, z: z, d: d, spin: r() * Math.PI * 2, s: 0.92 + r() * 0.26, tilt: (r() - 0.5) * 0.3 });
+        slots.push({ x: x + (r() - 0.5) * 0.025, y: y + (r() - 0.5) * 0.025, z: z, d: d, spin: r() * Math.PI * 2, s: 0.92 + r() * 0.26, tilt: (r() - 0.5) * 0.3 - (inBand === 0 ? 0.15 : 0), acc: inBand === 2 && r() < 0.85 });
         // 뒤로 두 겹 더 쌓아 두툼한 꽃 제단으로(옆·위에서 봐도 꽉 차게)
         for (let k = 1; k <= 2; k++) {
           const yy = y + (r() - 0.5) * 0.05 + (k === 2 && y + 0.1 > yMax ? -0.04 : 0);
@@ -1407,10 +1616,31 @@ function buildAltar() {
     }
   }
   scene.add(leaves);
+  /* 단과 단 사이 초록 잎 줄(실제 제단의 단 경계) */
+  const tierLeafPts = [];
+  for (let band = 0; band < 4; band++) {
+    const y0 = 0.9 + band * 0.3 - 0.05;
+    const half = 1.65 * Math.min(1, Math.sqrt(Math.max(0, (2.06 - y0) / 0.42)));
+    for (let x = -half; x <= half; x += 0.035) { const ax = Math.abs(x) / 1.65; tierLeafPts.push([x, y0, -0.66 - band * 0.17 + 0.3 * ax * ax + 0.06]); }
+  }
+  const tierLeaves = new THREE.InstancedMesh(leafGeo, new THREE.MeshStandardMaterial({ color: '#2f5a33', roughness: 0.7 }), tierLeafPts.length * 2);
+  {
+    const r = rng(15), m = new THREE.Matrix4(), q = new THREE.Quaternion();
+    tierLeafPts.forEach((P, i) => {
+      for (let k = 0; k < 2; k++) {
+        q.setFromEuler(new THREE.Euler(-0.6 + r() * 0.5, 0, (k ? 0.5 : -0.5) + (r() - 0.5) * 0.8));
+        m.compose(new THREE.Vector3(P[0] + (r() - 0.5) * 0.02, P[1] + (r() - 0.5) * 0.02, P[2]), q, new THREE.Vector3(1.6, 1.8, 1));
+        tierLeaves.setMatrixAt(i * 2 + k, m);
+      }
+    });
+  }
+  tierLeaves.castShadow = true;
+  scene.add(tierLeaves);
 
   function paintFlowers() {
     const r = rng(12), pal = CHRYS_PALETTES[S.flower], col = new THREE.Color();
-    for (let i = 0; i < slots.length; i++) { col.set(pick(pal, r)); flowerWall.setColorAt(i, col); }
+    const ACC = { white: ['#f2d24c', '#f5dd7a', '#f7f4ed'], mix: ['#eaa9c1', '#f2d24c', '#f7f4ed'], purple: ['#9f86cf', '#f7f4ed'], rose: ['#e28aa3', '#f7f4ed'] }[S.flower] || ['#f2d24c'];
+    for (let i = 0; i < slots.length; i++) { col.set(slots[i].acc ? pick(ACC, r) : pick(pal, r)); flowerWall.setColorAt(i, col); }
     flowerWall.instanceColor.needsUpdate = true;
     const n = S.volume === 'full' ? slots.length : Math.floor(slots.length * 0.58);
     flowerWall.count = n;
@@ -1920,9 +2150,9 @@ function buildAltar() {
     paintFlowers: paintFlowers, applyReligion: applyReligion, applyBackdrop: applyBackdrop, applyTheme: applyTheme, updateGardenView: updateGardenView, markGarden: () => { gardenDirty = true; }, applyLight: applyLight, applyFrame: applyFrame,
     applyCandles: applyCandles, paintTexts: paintTexts, setPhotoFromImage: setPhotoFromImage, redrawPhoto: redrawPhoto, hasPhoto: () => !!portraitImg, photoTex: photoTex,
     resetPhoto: () => { portraitImg = null; redraw(photoTex, portraitDefault()); },
-    burn: burn, offer: offer, update: update, rite: rite
+    burn: burn, offer: offer, update: update, rite: rite, setWreaths: setWreaths, applyAdeco: applyAdeco
   };
-  paintFlowers(); applyFrame(); applyBackdrop(); applyTheme(); applyReligion(); applyCandles();
+  paintFlowers(); applyFrame(); applyBackdrop(); applyTheme(); applyReligion(); applyCandles(); applyAdeco();
   return api;
 }
 
@@ -4269,7 +4499,7 @@ $('#music-btn').addEventListener('click', () => setMusic(S.music === 'none' ? S.
 
 /* ---------- UI: categories and panels ---------- */
 const CATS = {
-  altar: [['reco', '추천'], ['portrait', '영정사진'], ['name', '이름'], ['religion', '종교'], ['flower', '꽃'], ['backdrop', '테마'], ['light', '조명'], ['music', '음악']],
+  altar: [['reco', '추천'], ['wreath', '근조화환'], ['adeco', '분향소 장식'], ['portrait', '영정사진'], ['name', '이름'], ['religion', '종교'], ['flower', '꽃'], ['backdrop', '테마'], ['light', '조명'], ['music', '음악']],
   grave: [['reco', '추천'], ['form', '형식'], ['place', '장소'], ['size', '크기'], ['deco', '석물'], ['bouquet', '꽃다발'], ['photos', '사진'], ['tree', '나무'], ['stone', '비석'], ['name', '이름'], ['time', '시간'], ['music', '음악']]
 };
 let currentCat = { altar: 'reco', grave: 'reco' };
@@ -4316,12 +4546,14 @@ let PLAN = QS.get('public') === '1' ? 'lifetime' : (QS.get('plan') || 'free');
 const FREE_PRICE_X = 2;
 /* 분향소·추모목·돌 꾸미기 가격(정가). 첫 번째 기본값은 무료. 멤버십은 모두 포함, 무료는 2배 가격으로 산다. */
 const EXTRA = { theme: { columbarium: 4900, temple: 4900, chapel: 4900, hanok: 4900, garden: 4900 }, frame: { gold: 1900, wood: 1900 }, flower: { mix: 990, purple: 990, rose: 1900 }, backdrop: { hanji: 1900, marble: 2900, night: 2900 },
-  light: { soft: 990, bright: 990 }, tree: { jat: 990, jumok: 990, hyang: 990, oak: 990, zelkova: 990, cherry: 1900, maple: 1900 }, stone: { granite: 1900, marble: 2900 } };
+  light: { soft: 990, bright: 990 }, tree: { jat: 990, jumok: 990, hyang: 990, oak: 990, zelkova: 990, cherry: 1900, maple: 1900 }, stone: { granite: 1900, marble: 2900 },
+  adeco: { gunjo: 1900, banner: 2900, fruit: 1900, orchid: 1900, lilypot: 1900, table: 990 } };
+const ADECO = [['gunjo', '謹弔 근조기'], ['banner', '분향소 현수막'], ['fruit', '제사상 과일'], ['orchid', '호접란 화분'], ['lilypot', '백합 화병'], ['table', '돗자리']];
 const OPT_NAMES = { 'theme:columbarium': '봉안당', 'theme:temple': '사찰 봉안당', 'theme:chapel': '예배당', 'theme:hanok': '한옥 사당', 'theme:garden': '정원 추모실(창 밖 장지)', 'theme:vip': 'VIP 추모홀', 'frame:vip': '금빛 VIP 액자', 'frame:gold': '금색 액자', 'frame:wood': '원목 액자', 'flower:mix': '흰·노랑 국화', 'flower:purple': '보라 국화', 'flower:rose': '분홍 장미',
   'backdrop:hanji': '한지 벽', 'backdrop:marble': '대리석', 'backdrop:night': '밤하늘', 'light:soft': '은은하게', 'light:bright': '밝게',
   'tree:jat': '잣나무', 'tree:jumok': '주목', 'tree:hyang': '향나무', 'tree:oak': '참나무', 'tree:zelkova': '느티나무', 'tree:cherry': '벚나무', 'tree:maple': '단풍나무',
   'stone:granite': '화강암', 'stone:marble': '대리석' };
-const EXTRA_NAMES = { theme: '테마', frame: '액자', flower: '꽃', backdrop: '뒷배경', light: '조명', tree: '추모목', stone: '돌' };
+const EXTRA_NAMES = { theme: '테마', frame: '액자', flower: '꽃', backdrop: '뒷배경', light: '조명', tree: '추모목', stone: '돌', adeco: '분향소 장식' };
 const FREE_DEFAULT = { theme: 'hall', form: 'tree', place: 'hill', size: 'm', tsize: 'xs', frame: 'black', flower: 'white', backdrop: 'screen', light: 'candle', tree: 'pine', stone: 'black' };
 function isMember() { return PLAN === 'premium' || PLAN === 'lifetime'; }
 /* 평생(VIP) 회원 전용 꾸미기: 살 수 없고 평생 이용권에만 열린다 */
@@ -4334,6 +4566,7 @@ function paidOnly(st) {
   const unpaid = (k, v) => locked(k, v) || (priceOf(k, v) > 0 && !owned(k, v));
   Object.keys(FREE_DEFAULT).forEach((k) => { if (st[k] && unpaid(k, st[k])) st[k] = FREE_DEFAULT[k]; });
   if (Array.isArray(st.deco)) st.deco = st.deco.filter((d) => !unpaid('deco', d));
+  if (Array.isArray(st.adeco)) st.adeco = st.adeco.filter((d) => !unpaid('adeco', d));
   return st;
 }
 const PLAN_COVERS = { basic: ['form'], mid: ['form', 'place', 'deco'], premium: ['form', 'place', 'size', 'tsize', 'deco'], lifetime: ['form', 'place', 'size', 'tsize', 'deco'] };
@@ -4348,11 +4581,47 @@ function priceTag(key, val) {
   if (onSale(key, val)) return '<small class="pr sale"><s>' + listPrice(key, val).toLocaleString('ko-KR') + '</s> 50% ' + pr.toLocaleString('ko-KR') + '</small>';
   return '<small class="pr">+' + pr.toLocaleString('ko-KR') + '</small>';
 }
+/* ---------- 근조화환 보내기(앱): 종류·리본 문구·보내는 분 → 앱이 서버에 보내고 포인트를 쓴다 ---------- */
+let WREATH_DATA = null;
+fetch('wreath.json').then((r) => r.json()).then((j) => { WREATH_DATA = j; }).catch(() => {});
+const WF = { kind: 't3', phrase: '삼가 故人의 冥福을 빕니다', custom: false, from: '', busy: false };
+function escA(t) { return String(t || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]); }
+function wreathPanel() {
+  const D = WREATH_DATA;
+  if (!D) return '<p class="note">화환 목록을 불러오는 중이에요…</p>';
+  const kinds = D.kinds.map((k) => '<button class="opt" data-wkind="' + k.id + '" aria-pressed="' + (WF.kind === k.id) + '">' + k.name + '<small class="pr">' + k.price.toLocaleString('ko-KR') + 'P</small></button>').join('');
+  const groups = D.groups.map((g) => '<div class="group"><span>' + g.name + '</span><div class="opts">' + g.items.map((t) => '<button class="opt" data-wphrase="' + escA(t) + '" aria-pressed="' + (!WF.custom && WF.phrase === t) + '">' + escA(t) + '</button>').join('') + '</div></div>').join('');
+  return '<div class="group"><span>화환 종류</span><div class="opts">' + kinds + '</div><p class="note">보낸 화환은 분향소 양옆에 리본과 함께 세워져요. 포인트로 보내요(1P = 1원).</p></div>' +
+    '<div class="group"><span>리본 문구 · 오른쪽 리본</span><div class="opts"><button class="opt" data-act="w-custom" aria-pressed="' + WF.custom + '">직접 쓰기</button></div>' +
+    (WF.custom ? '<label class="wide phr-in">문구 (30자까지)<input id="w-phrase" value="' + escA(WF.phrase) + '" maxlength="30" placeholder="예: 삼가 故人의 冥福을 빕니다" autocomplete="off"></label>' : '') + '</div>' + groups +
+    '<div class="group"><label class="wide phr-in">보내는 분 · 왼쪽 리본 (20자까지)<input id="w-from" value="' + escA(WF.from) + '" maxlength="20" placeholder="예: 홍길동 올림, (주)○○ 임직원 일동" autocomplete="off"></label></div>' +
+    '<div class="group"><div class="opts"><button class="opt buy" data-act="w-send"' + (WF.busy ? ' disabled' : '') + '>' + (WF.busy ? '보내는 중…' : '화환 보내기') + '</button></div></div>';
+}
+function sendWreathFromPanel() {
+  const fe = document.getElementById('w-from'), pe = document.getElementById('w-phrase');
+  WF.from = (fe ? fe.value : WF.from).trim();
+  if (WF.custom && pe) WF.phrase = pe.value.trim();
+  if (!WF.from) { toast('보내는 분 이름을 적어 주세요.'); return; }
+  if (!WF.phrase) { toast('리본 문구를 골라 주세요.'); return; }
+  const k = (WREATH_DATA.kinds || []).find((x) => x.id === WF.kind);
+  if (!APP) { toast('화환은 공감 추모원 앱이나 홈페이지 추모관에서 보낼 수 있어요.'); return; }
+  WF.busy = true; renderPanel();
+  toApp({ type: 'sendWreath', code: S.code, kind: WF.kind, phrase: WF.phrase, from: WF.from, expect: k ? k.price : 0 });
+}
+document.addEventListener('input', (e) => { if (e.target && e.target.id === 'w-from') WF.from = e.target.value; if (e.target && e.target.id === 'w-phrase') WF.phrase = e.target.value; });
+/* 앱이 결과를 알려 준다 */
+window.chumowonWreathResult = function (ok, list, msg) {
+  WF.busy = false;
+  if (ok) { if (Array.isArray(list)) scenes.altar.setWreaths(list); toast('근조화환을 보냈어요. 분향소에 세워졌어요.'); }
+  else toast(msg || '화환을 보내지 못했어요.');
+  try { renderPanel(); } catch (e) {}
+};
 function cartItems() {
   const items = [];
   ['form', 'place', 'size'].concat(S.form === 'tree' ? ['tsize'] : []).forEach((k) => { const pr = priceOf(k, S[k]); if (pr && !owned(k, S[k])) items.push({ key: k + ':' + S[k], label: PRICE_NAMES[k] + ' · ' + GRAVE[k].find((x) => x[0] === S[k])[1], price: pr }); });
   ['theme', 'frame', 'flower', 'backdrop', 'light', 'stone'].concat(S.form === 'tree' ? ['tree'] : []).forEach((k) => { const pr = priceOf(k, S[k]); if (pr && !owned(k, S[k])) items.push({ key: k + ':' + S[k], label: EXTRA_NAMES[k] + ' · ' + (OPT_NAMES[k + ':' + S[k]] || S[k]), price: pr }); });
   if (S.form !== 'royal') S.deco.forEach((d) => { const pr = priceOf('deco', d); if (pr && !owned('deco', d)) items.push({ key: 'deco:' + d, label: '석물 · ' + GRAVE.deco.find((x) => x[0] === d)[1], price: pr }); });
+  (S.adeco || []).forEach((d) => { const pr = priceOf('adeco', d); const o = ADECO.find((x) => x[0] === d); if (pr && o && !owned('adeco', d)) items.push({ key: 'adeco:' + d, label: '분향소 장식 · ' + o[1], price: pr }); });
   return items;
 }
 function galleryId(it) { return it.file ? 'f:' + it.file : (it.ex ? 'ex:' + it.cap : (it.src && it.src.length < 300 ? it.src : 'c:' + (it.cap || ''))); }
@@ -4520,6 +4789,12 @@ function renderPanel() {
         : '<p class="note">장지 형식을 수목장으로 고르면 나무에 사진 장식과 액세서리를 달 수 있어요.</p>') +
       '<div class="group"><div class="opts"><label class="opt upload" for="g-file">추모갤러리에 사진 올리기</label></div>' +
       '<p class="note">' + (imgs.length ? '사진을 누르면 걸고, 한 번 더 누르면 내려요.' : '먼저 사진을 올려 주세요.') + '</p></div>';
+  } else if (c === 'adeco') {
+    h = buyBar() + '<div class="group"><span>분향소 장식 · 여러 개 고를 수 있어요</span><div class="opts" role="group" aria-label="분향소 장식">' +
+      ADECO.map((o) => '<button class="opt" data-adeco="' + o[0] + '" aria-pressed="' + (S.adeco || []).includes(o[0]) + '">' + o[1] + priceTag('adeco', o[0]) + '</button>').join('') + '</div>' +
+      '<p class="note">실제 장례식장처럼 근조기, 제단 뒤 현수막, 굽다리 접시의 과일, 화분과 화병, 조문객 돗자리를 놓아요. 미리 보고 마음에 들면 구매해 주세요.</p></div>';
+  } else if (c === 'wreath') {
+    h = wreathPanel();
   } else if (c === 'deco') {
     h = buyBar() + saleNote() + (S.form === 'royal' ? '<p class="note">왕릉 형식에는 석물이 모두 갖춰져 있어요.</p>' :
       '<div class="group"><span>석물 · 여러 개 고를 수 있어요</span><div class="opts" role="group" aria-label="석물">' +
@@ -4639,6 +4914,18 @@ $('#panel').addEventListener('click', (e) => {
   if (act && act.dataset.act === 'photo-fit') { S.pz = 1; S.px = 0; S.py = 0; scenes.altar.redrawPhoto(); renderPanel(); return; }
   const gp = e.target.closest('[data-gp]');
   if (gp) { toggleGravePhoto(gp.dataset.gp, gp.dataset.id); return; }
+  const ad = e.target.closest('[data-adeco]');
+  if (ad) {
+    const d = ad.dataset.adeco; S.adeco = (S.adeco || []).slice(); const i = S.adeco.indexOf(d);
+    if (i >= 0) S.adeco.splice(i, 1); else { S.adeco.push(d); if (priceOf('adeco', d) && !owned('adeco', d)) toast('미리 볼 수 있어요. 마음에 드시면 구매해 주세요.'); }
+    scenes.altar.applyAdeco(); renderPanel(); return;
+  }
+  const wk = e.target.closest('[data-wkind]');
+  if (wk) { WF.kind = wk.dataset.wkind; renderPanel(); return; }
+  const wp = e.target.closest('[data-wphrase]');
+  if (wp) { WF.phrase = wp.dataset.wphrase; WF.custom = false; renderPanel(); return; }
+  if (act && act.dataset.act === 'w-custom') { WF.custom = true; renderPanel(); const el = document.getElementById('w-phrase'); if (el) el.focus(); return; }
+  if (act && act.dataset.act === 'w-send') { sendWreathFromPanel(); return; }
   const dc = e.target.closest('[data-deco]');
   if (dc) {
     const d = dc.dataset.deco, i = S.deco.indexOf(d);
@@ -5192,6 +5479,9 @@ SAVED_MEDIA.forEach((m) => {
   }
 });
 if (G.items.some((i) => !i.ex)) G.items = G.items.filter((i) => !i.ex);
+if (S.webWreaths && S.webWreaths.length) { try { scenes.altar.setWreaths(S.webWreaths); } catch (e) {} }
+/* 화환 목록이 바뀌면(앱이 알려 주거나 홈페이지에서 보내면) 다시 세운다 */
+window.chumowonWreaths = function (list) { try { scenes.altar.setWreaths(Array.isArray(list) ? list : []); } catch (e) {} };
 if (S.web) {
   G.items = G.items.filter((i) => !i.ex);
   const ids = G.items.filter((i) => i.type === 'image').map((i) => galleryId(i));
