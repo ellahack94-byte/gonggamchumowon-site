@@ -1,0 +1,4 @@
+User-agent: *
+Disallow: /admin.html
+Disallow: /my/
+Sitemap: https://gonggamchumowon.co.kr/sitemap.xml

@@ -8,12 +8,12 @@
 <meta property="og:title" content="온라인 분향소 · 공감 추모원">
 <meta property="og:description" content="누구나 분향하고 국화를 올릴 수 있는 온라인 분향소와 무지개 정원">
 <meta property="og:image" content="https://gonggamchumowon.co.kr/img/og.jpg">
-<meta name="theme-color" content="#151311">
+<meta name="theme-color" content="#101216">
 <link rel="icon" href="/icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Song+Myung&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="/style.css?v=20">
+<link rel="stylesheet" href="/style.css?v=21">
 </head>
 <body>
 <div id="site-top"></div>
@@ -51,7 +51,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
 <script src="/js/fb.js?v=20"></script>
-<script src="/js/site.js?v=20"></script>
+<script src="/js/site.js?v=21"></script>
 <script>
 const FIGS = [
   { code: 'KMGU-1876', name: '김구', role: '임시정부 주석', years: '1876–1949' },
@@ -75,7 +75,7 @@ const memCard = (m) => {
 const $ = (s) => document.querySelector(s);
 $('#figs').innerHTML = FIGS.map(figCard).join('');
 GG.get({ hall: 1 }).then(({ items }) => { $('#hall').innerHTML = items.length ? items.map(memCard).join('') : '<p class="empty">아직 목록에 올라온 분향소가 없어요.</p>'; }).catch((e) => { $('#hall').innerHTML = `<p class="empty">${esc(e.message)}</p>`; });
-GG.call('listPets', {}).then(({ items }) => { $('#pets').innerHTML = items.length ? items.map((p) => memCard({ ...p, pet: true })).join('') : '<p class="empty">아직 모셔진 친구가 없어요.</p>'; }).catch((e) => { $('#pets').innerHTML = `<p class="empty">${esc(e.message)}</p>`; });
+GG.call('listPets', {}).then(({ items }) => { $('#pets').innerHTML = items.length ? items.map((p) => memCard({ ...p, pet: true }).replace('class="card"', 'class="card pet"')).join('') : '<p class="empty">아직 모셔진 친구가 없어요.</p>'; }).catch((e) => { $('#pets').innerHTML = `<p class="empty">${esc(e.message)}</p>`; });
 
 </script>
 </body>

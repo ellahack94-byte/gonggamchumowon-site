@@ -3,71 +3,71 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>공감 추모원 — 그리운 분을 언제든 찾아뵙는 곳</title>
-<meta name="description" content="가족이 함께 만드는 온라인 추모원. 3D 분향소와 장지를 가족의 뜻대로 모시고, 제사·추도예배 순서와 기일·생신 알림까지 한곳에서.">
+<title>공감 추모원 · 모바일 부고장과 온라인 추모관</title>
+<meta name="description" content="모바일 부고장을 무료로 만들어 카카오톡으로 보내고, 3D 분향소와 장지를 갖춘 온라인 추모관을 가족과 함께 모십니다. 장례 절차 안내, 반려동물 추모관(무지개 정원)까지.">
 <meta property="og:title" content="공감 추모원">
 <meta property="og:description" content="그리운 분을 언제든 찾아뵙는 곳. 3D 분향소와 장지, 제사 안내, 기일 알림.">
 <meta property="og:image" content="https://gonggamchumowon.co.kr/img/og.jpg">
 <meta property="og:url" content="https://gonggamchumowon.co.kr/">
-<meta name="theme-color" content="#151311">
+<meta name="theme-color" content="#101216">
+<link rel="canonical" href="https://gonggamchumowon.co.kr/">
 <link rel="icon" href="/icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Song+Myung&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
-<link rel="stylesheet" href="/style.css?v=20">
+<link rel="stylesheet" href="/style.css?v=21">
 </head>
 <body>
 <div id="site-top"></div>
 
 <main>
-  <section class="hero" aria-labelledby="hero-title">
+  <section class="altar-hero" aria-labelledby="hero-title">
+    <canvas class="smoke" aria-hidden="true"></canvas>
     <div class="wrap">
-      <h1 class="epitaph" id="hero-title">그리운 분을<br><span>언제든 찾아뵙는 곳</span></h1>
-      <div class="hero-copy">
-        <p class="lead">멀리 있어 자주 가지 못하는 산소, 바쁜 날에도 잊고 싶지 않은 기일. 공감 추모원은 휴대폰 안에 3D 분향소와 장지를 모시고, 가족의 뜻대로 꾸며 언제든 찾아뵙는 곳입니다.</p>
-        <p class="sub">향을 피우고 국화를 올리고, 기일에는 제사 순서를 따라 절을 올립니다. 사진과 영상은 추모갤러리에 모으고, 찾아온 분들은 방명록에 마음을 남깁니다.</p>
-        <div class="actions">
-          <a class="btn gold" href="/bugo/">부고장 보내기</a>
-          <a class="btn line" href="/create/">추모관 만들기</a>
-        </div>
-        <p class="status"><b>가입비 없이 바로 시작</b> · 카카오·네이버·구글 계정으로 1분이면 가입해요. 앱은 안드로이드 출시를 준비하고 있어요.</p>
+      <h1 class="vline" id="hero-title"><span>그리운 분을</span> <span>언제든 찾아뵙는 곳</span></h1>
+      <div class="altar" aria-hidden="true">
+        <div class="candle"><i></i></div>
+        <svg class="censer" viewBox="0 0 120 92" role="presentation">
+          <g class="sticks"><line x1="52" y1="34" x2="48" y2="2"/><line x1="60" y1="34" x2="60" y2="0"/><line x1="68" y1="34" x2="72" y2="2"/></g>
+          <g class="tips"><circle cx="48" cy="2" r="1.6"/><circle cx="60" cy="0" r="1.6"/><circle cx="72" cy="2" r="1.6"/></g>
+          <path class="bowl" d="M18 36 H102 C100 58 84 70 60 70 C36 70 20 58 18 36 Z"/>
+          <path class="rim" d="M14 36 H106"/>
+          <path class="legs" d="M34 66 L28 86 M60 70 V88 M86 66 L92 86"/>
+        </svg>
+        <div class="candle"><i></i></div>
       </div>
-      <div class="phone"><img src="img/hero.jpg" alt="공감 추모원 앱의 3D 분향소. 영정과 흰 국화 제단, 촛불과 향이 놓여 있다." width="390" height="760"></div>
+      <p class="lead">멀리 있어 자주 가지 못하는 산소, 바쁜 날에도 잊고 싶지 않은 기일. 휴대폰 안에 분향소와 장지를 모시고, 가족이 함께 언제든 찾아뵙습니다.</p>
+      <div class="actions">
+        <a class="btn gold" href="/bugo/">부고장 보내기</a>
+        <a class="btn line" href="/create/">추모관 만들기</a>
+        <a class="btn line" href="/pet/">반려동물 추모관</a>
+      </div>
+      <p class="status">가입비 없이 바로 시작해요. 카카오·네이버·구글 계정으로 1분이면 가입합니다.</p>
     </div>
   </section>
 
-  <section class="quick" aria-label="빠른 메뉴">
-    <div class="wrap tiles">
-      <a class="tile main" href="/bugo/"><b>부고장 보내기</b><span>빈소·발인 일정을 적으면 모바일 부고장이 만들어져요. 카카오톡으로 바로 보내요.</span><i>무료로 만들기</i></a>
-      <a class="tile" href="/create/"><b>추모관 만들기</b><span>성함과 기일만 있으면 바로 모셔요. 가족과 함께 꾸며요.</span><i>모시기</i></a>
-      <a class="tile" href="/search/"><b>추모관 찾기</b><span>고인 성함으로 공개 추모관을 찾아 조문해요.</span><i>찾아보기</i></a>
-      <a class="tile" href="/hall/"><b>온라인 분향소</b><span>누구나 분향하고 국화를 올릴 수 있는 분향소예요.</span><i>조문하기</i></a>
-    </div>
-  </section>
-
-  <section class="band" id="public" aria-labelledby="public-title">
+  <nav class="doors" aria-label="자주 찾는 메뉴">
     <div class="wrap">
-      <div class="head">
-        <h2 id="public-title">우리가 함께 기리는 독립운동가</h2>
-        <p>나라를 위해 목숨을 바친 분들을 공감 추모원이 직접 모신 공개 추모관입니다. 누구나 들어가 분향하고 국화를 올릴 수 있습니다. 장지는 기사로 확인된 실제 장례 방식과 모신 곳에 맞춰 꾸몄습니다.</p>
-      </div>
-      <div class="figures">
-        <!-- 카드는 아래 스크립트가 FIGS로 채운다 -->
-      </div>
-      <p class="note">공개 추모관에는 언론에 공개된 사실만 담습니다. 후손께서 원하지 않으시면 연락 주시는 즉시 내립니다. 새로 모실 분은 계속 더해 갑니다.</p>
+      <a href="/bugo/"><b>부고장 보내기</b><span>빈소와 발인 일정을 적으면 모바일 부고장이 만들어지고, 카카오톡으로 바로 보내요.</span></a>
+      <a href="/create/"><b>추모관 만들기</b><span>성함과 기일만 있으면 모십니다. 사진과 생애 이야기는 가족과 함께 채워요.</span></a>
+      <a href="/search/"><b>추모관 찾기</b><span>고인의 성함으로 공개된 추모관을 찾아 분향하고 글을 남겨요.</span></a>
+      <a href="/hall/"><b>온라인 분향소</b><span>누구나 들어가 향을 피우고 국화 한 송이를 올릴 수 있어요.</span></a>
     </div>
-  </section>
+  </nav>
 
-  <section class="band paper" aria-labelledby="how-title">
+  <section class="band paper urgent" aria-labelledby="urgent-title">
     <div class="wrap">
-      <div class="head">
-        <h2 id="how-title">추모관은 이렇게 모십니다</h2>
-        <p>가입이나 결제 없이 바로 시작할 수 있습니다. 추모관을 늘리는 데에는 요금을 받지 않습니다.</p>
+      <div class="urgent-head">
+        <h2 id="urgent-title">갑자기 상을 당하셨나요</h2>
+        <p>경황이 없으실 때 무엇부터 해야 하는지 순서대로 정리했어요. 자세한 내용은 장례 안내에 있습니다.</p>
+        <div class="actions"><a class="btn ink" href="/funeral/">장례 안내 전체 보기</a><a class="btn paperline" href="https://pf.kakao.com/_kWpvX/chat" target="_blank" rel="noopener">카카오톡으로 묻기</a></div>
       </div>
-      <ol class="steps">
-        <li><h3>고인 정보 적기</h3><p>성함, 생년월일, 기일과 종교를 적습니다. 음력 기일도 매년 양력 날짜로 바꿔 드립니다.</p></li>
-        <li><h3>분향소와 장지 꾸미기</h3><p>영정사진을 올리고 위치와 크기를 손가락으로 맞춥니다. 수목장, 봉분, 봉안묘 등 장지의 형식과 장소를 고릅니다.</p></li>
-        <li><h3>잊지 않고 찾아뵙기</h3><p>기일 일주일 전, 전날, 당일에 알려 드리고, 알림을 누르면 그날의 제사 순서가 열립니다. 추모관 소식은 카카오톡으로 가족에게 전할 수 있습니다.</p></li>
+      <ol class="todo">
+        <li><b>사망진단서 받기</b><span>병원에서 발급받아요. 장례식장, 사망신고, 보험 청구에 쓰이니 여러 부 받아 두세요.</span></li>
+        <li><b>장례식장 정하고 고인 모시기</b><span>가까운 장례식장과 화장장은 <a href="https://www.15774129.go.kr" target="_blank" rel="noopener">e하늘 장사정보시스템</a>에서 찾을 수 있어요.</span></li>
+        <li><b>부고 알리기</b><span><a href="/bugo/">모바일 부고장</a>에 빈소와 발인 일정을 적어 카카오톡으로 보내요.</span></li>
+        <li><b>입관과 발인, 화장 또는 매장</b><span>화장은 돌아가신 때부터 24시간이 지나야 할 수 있어요.</span></li>
+        <li><b>사망신고와 안심상속</b><span>사망신고는 돌아가신 사실을 안 날부터 1개월 안에 해요. 이때 안심상속 원스톱서비스를 함께 신청하면 재산과 빚을 한 번에 조회할 수 있어요.</span></li>
       </ol>
     </div>
   </section>
@@ -167,6 +167,29 @@
     </div>
   </section>
 
+  <section class="band dawn" id="rainbow" aria-labelledby="rainbow-title">
+    <div class="wrap">
+      <div class="head">
+        <h2 id="rainbow-title">무지개 정원</h2>
+        <p>무지개다리를 건넌 반려견, 반려묘, 그리고 모든 친구들을 위한 정원이에요. 추모관을 모시면 이곳에 함께 있어, 다른 분들도 꽃 한 송이 놓아 줄 수 있어요.</p>
+      </div>
+      <div class="cards pets" id="home-pets"></div>
+      <div class="actions"><a class="btn sky" href="/create/?target=pet">반려동물 추모관 만들기</a><a class="btn skyline" href="/pet/">무지개 정원 모두 보기</a><a class="btn skyline" href="/pet/#guide">반려동물 장례 안내</a></div>
+    </div>
+  </section>
+
+  <section class="band" id="public" aria-labelledby="public-title">
+    <div class="wrap">
+      <div class="head">
+        <h2 id="public-title">우리가 함께 기리는 독립운동가</h2>
+        <p>나라를 위해 목숨을 바친 분들을 공감 추모원이 직접 모신 공개 추모관입니다. 누구나 들어가 분향하고 국화를 올릴 수 있습니다. 장지는 기사로 확인된 실제 장례 방식과 모신 곳에 맞춰 꾸몄습니다.</p>
+      </div>
+      <div class="figures"></div>
+      <button class="btn line morefig" type="button" aria-expanded="false">열 분 모두 보기</button>
+      <p class="note">공개 추모관에는 언론에 공개된 사실만 담습니다. 후손께서 원하지 않으시면 연락 주시는 즉시 내립니다. 새로 모실 분은 계속 더해 갑니다.</p>
+    </div>
+  </section>
+
   <section class="band paper" aria-labelledby="rites-title">
     <div class="wrap">
       <div class="head">
@@ -183,16 +206,21 @@
     </div>
   </section>
 
-  <section class="band" aria-labelledby="more-title">
+  <section class="band trust" aria-labelledby="trust-title">
     <div class="wrap">
       <div class="head">
-        <h2 id="more-title">조문은 언제나 무료입니다</h2>
-        <p>부고장 보내기와 추모관 2곳 모시기는 무료예요. 사진·영상을 더 담고 고급 꾸미기를 모두 쓰시려면 멤버십(월 9,900원부터, 출시 기념 50% 할인)을 이용해 주세요.</p>
+        <h2 id="trust-title">믿고 맡기실 수 있도록</h2>
+        <p>부고와 추모는 가족의 가장 조심스러운 일입니다. 누가 운영하는지, 무엇을 지키는지 밝혀 둡니다.</p>
       </div>
-      <div class="tiles three">
-        <a class="tile" href="/guide/#plans"><b>요금 보기</b><span>무료와 멤버십에서 할 수 있는 일</span><i>자세히</i></a>
-        <a class="tile" href="/support/#faq"><b>자주 묻는 질문</b><span>계좌 가림, 공개 범위, 휴대폰을 바꿀 때</span><i>자세히</i></a>
-        <a class="tile" href="https://pf.kakao.com/_kWpvX/chat" target="_blank" rel="noopener"><b>카카오톡 문의</b><span>경황이 없으시면 "부고장"이라고만 보내 주세요</span><i>채팅 열기</i></a>
+      <div class="pledges">
+        <div><h3>운영하는 곳을 밝힙니다</h3><p>라도그(대표 최사무엘), 사업자등록번호 794-50-00416, 통신판매업 신고 제2020-서울강서-3690호.</p><a href="https://www.ftc.go.kr/bizCommPop.do?wrkr_no=7945000416" target="_blank" rel="noopener">공정거래위원회에서 사업자정보 확인</a></div>
+        <div><h3>가족이 공개 범위를 정합니다</h3><p>추모관은 처음에 초대한 가족만 들어와요. 공개할지, 온라인 분향소 목록에 올릴지는 가족이 고릅니다. 부고장의 조의금 계좌는 발인 3일 뒤 저절로 가려져요.</p><a href="/privacy.html">개인정보처리방침 보기</a></div>
+        <div><h3>조문은 언제나 무료입니다</h3><p>부고장 보내기와 추모관 2곳 모시기는 무료예요. 사진·영상을 더 담고 고급 꾸미기를 쓰시려면 멤버십(월 9,900원부터)을 이용해 주세요.</p><a href="/guide/#plans">요금 자세히 보기</a></div>
+      </div>
+      <div class="askbar">
+        <p>경황이 없으시면 카카오톡으로 "부고장"이라고만 보내 주세요. 만드는 것부터 도와드립니다.</p>
+        <a class="btn kakao" href="https://pf.kakao.com/_kWpvX/chat" target="_blank" rel="noopener">카카오톡 상담</a>
+        <a class="btn line" href="/support/#faq">자주 묻는 질문</a>
       </div>
     </div>
   </section>
@@ -203,7 +231,16 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
 <script src="/js/fb.js?v=20"></script>
-<script src="/js/site.js?v=20"></script>
+<script src="/js/site.js?v=21"></script>
+<script src="/js/smoke.js?v=1"></script>
+<script>
+GG.call('listPets', {}).then(({ items }) => {
+  const box = document.getElementById('home-pets');
+  const cards = items.slice(0, 8).map((m) => `<a class="card pet" href="/m/?c=${encodeURIComponent(m.code)}"><div class="pic">${m.photo ? `<img src="${esc(m.photo)}" alt="" loading="lazy">` : `<span class="sil">${esc((m.name || '').slice(0, 1))}</span>`}</div><b>${esc(m.name)}</b><span>${[m.born, m.died].map((d) => (d ? d.slice(0, 4) : '')).filter(Boolean).join('–')}${m.notes ? ` · 추모글 ${m.notes}` : ''}</span></a>`);
+  cards.push(`<a class="card pet add" href="/create/?target=pet"><div class="pic"><span class="sil">＋</span></div><b>우리 아이 모시기</b><span>무료로 만들 수 있어요</span></a>`);
+  box.innerHTML = cards.join('');
+}).catch(() => { document.getElementById('home-pets').innerHTML = '<a class="card pet add" href="/create/?target=pet"><div class="pic"><span class="sil">＋</span></div><b>우리 아이 모시기</b><span>무료로 만들 수 있어요</span></a>'; });
+</script>
 
 <script>
 const FIGS = [
@@ -234,6 +271,10 @@ box.innerHTML = FIGS.map((f) => `
     <dl>${f.rest ? `<dt>모신 곳</dt><dd>${f.rest}</dd>` : ''}<dt>장지 꾸밈</dt><dd>${f.grave}</dd></dl>
     <a class="btn line sm" href="/m/?c=${f.code}">분향하러 가기</a>
   </article>`).join('');
+const more = document.querySelector('.morefig');
+const fold = () => box.querySelectorAll('.fig').forEach((el, i) => { el.hidden = more.getAttribute('aria-expanded') !== 'true' && i >= 6; });
+fold();
+more.addEventListener('click', () => { const o = more.getAttribute('aria-expanded') !== 'true'; more.setAttribute('aria-expanded', String(o)); more.textContent = o ? '접기' : '열 분 모두 보기'; fold(); if (!o) box.scrollIntoView({ block: 'start' }); });
 box.addEventListener('click', (e) => {
   const b = e.target.closest('button[data-v]');
   if (!b) return;
