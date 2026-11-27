@@ -136,6 +136,13 @@ footer a { color: var(--sub); }
 .smoke { position: absolute; bottom: 48px; left: 50%; width: 10px; height: 46px; border-radius: 50%; background: radial-gradient(closest-side, rgba(225, 220, 210, .45), transparent); filter: blur(3px); opacity: 0; pointer-events: none; }
 .lit .smoke { animation: rise 5s linear infinite; } .lit .smoke.s2 { animation-delay: 1.7s; } .lit .smoke.s3 { animation-delay: 3.4s; }
 @keyframes rise { 0% { transform: translate(-50%, 0) scale(.5, .6); opacity: 0; } 15% { opacity: .8; } 100% { transform: translate(-20%, -110px) scale(1.8, 1.4); opacity: 0; } }
+.candle { position: relative; width: 22px; height: 52px; flex: none; margin: 0 8px; }
+.candle::before { content: ""; position: absolute; bottom: 0; left: 4px; width: 14px; height: 34px; border-radius: 2px; background: linear-gradient(90deg, #d9d2c2, #f4efe4 45%, #cfc7b6); }
+.candle .wick { position: absolute; bottom: 34px; left: 10px; width: 2px; height: 5px; background: #3a2e22; }
+.candle .flame { position: absolute; bottom: 38px; left: 6px; width: 10px; height: 16px; border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%; background: radial-gradient(circle at 50% 70%, #fff6d0, #ffb347 55%, rgba(255, 140, 40, 0) 75%); opacity: 0; transform-origin: 50% 100%; }
+.lit .candle .flame { opacity: 1; animation: flick 1.6s ease-in-out infinite alternate; }
+@keyframes flick { from { transform: scale(1, 1); } to { transform: scale(.92, 1.08) translateX(.5px); } }
+@media (prefers-reduced-motion: reduce) { .lit .candle .flame { animation: none; } }
 .tally { color: var(--faint); font-size: 14.5px; margin-top: 10px; letter-spacing: .02em; }
 .acts .wide { grid-column: 1 / -1; }
 .btn.goldline { background: transparent; color: var(--gold-soft); border: 1px solid var(--gold); }
@@ -208,20 +215,23 @@ function wireReports(list, kind, parent) {
 
 function render(v) {
   const pet = v.pet;
+  /* 기독교·천주교 추모관은 앱처럼 분향 대신 기도(촛불)로 */
+  const pray = !pet && ['christian', 'catholic'].includes(v.religion);
+  const rite = pray ? '기도' : '분향';
   document.body.classList.toggle('pet', pet);
   document.title = `${pet ? v.name : '故 ' + v.name} 추모관 · 공감 추모원`;
   const notes = v.notes.map((n) => `<li data-id="${esc(n.id || '')}"><div class="who">${esc(n.name)}${n.rel ? ` <em>${esc(n.rel)}</em>` : ''}${n.flower ? '<span class="fl">헌화</span>' : ''}${n.id ? `<button class="rep" type="button" aria-label="${esc(n.name)}님 글 신고">신고</button>` : ''}</div><p>${esc(n.text)}</p></li>`).join('');
   $('#main').innerHTML = `
   <section class="altar" aria-label="분향소">
     <div class="portrait"><div class="in" ${v.photo ? `style="background-image:url('${esc(v.photo)}')"` : ''} role="img" aria-label="${esc(v.name)} ${pet ? '사진' : '영정'}">${v.photo ? '' : (pet ? PAW : SIL)}</div><span class="ribbon l"></span><span class="ribbon r"></span></div>
-    <div class="table" id="table" aria-hidden="true"><div class="mums l" id="mums-l"></div>${pet ? '' : `<div class="burner">${BURNER}<span class="stick"></span><span class="stick"></span><span class="stick"></span><i class="smoke"></i><i class="smoke s2"></i><i class="smoke s3"></i></div>`}<div class="mums r" id="mums-r"></div></div>
+    <div class="table" id="table" aria-hidden="true"><div class="mums l" id="mums-l"></div>${pet ? '' : pray ? '<div class="candle"><i class="wick"></i><i class="flame"></i></div>' : `<div class="burner">${BURNER}<span class="stick"></span><span class="stick"></span><span class="stick"></span><i class="smoke"></i><i class="smoke s2"></i><i class="smoke s3"></i></div>`}<div class="mums r" id="mums-r"></div></div>
     <h1>${pet ? '' : '故 '}${esc(v.name)}${v.title ? `<small>${esc(v.title)}</small>` : ''}</h1>
     <div class="dates">${fmt(v.born)} – ${fmt(v.died)}</div>
     <div class="phrase">${esc(v.phrase)}</div>
     <div class="tally" id="tally" aria-live="polite"></div>
   </section>
   <div class="acts">
-    ${pet ? '' : '<button class="btn gold" id="b-incense">분향하기</button>'}
+    ${pet ? '' : `<button class="btn gold" id="b-incense">${rite}하기</button>`}
     <button class="btn ${pet ? 'gold' : 'goldline'}" id="b-flower">${pet ? '꽃 놓아 주기' : '헌화하기'}</button>
     <button class="btn line ${pet ? '' : 'wide'}" id="b-note" ${v.gbOpen ? '' : 'disabled'}>추모글 남기기</button>
   </div>
@@ -249,7 +259,7 @@ function render(v) {
   const f = $('#f');
   const open = () => { f.classList.add('on'); $('#who').focus(); };
   let tr = v.tribute || { incense: 0, flower: 0 };
-  const tally = () => { $('#tally').textContent = pet ? (tr.flower ? `놓인 꽃 ${tr.flower}송이` : '') : [tr.incense ? `분향 ${tr.incense}` : '', tr.flower ? `헌화 ${tr.flower}` : ''].filter(Boolean).join(' · '); };
+  const tally = () => { $('#tally').textContent = pet ? (tr.flower ? `놓인 꽃 ${tr.flower}송이` : '') : [tr.incense ? `${rite} ${tr.incense}` : '', tr.flower ? `헌화 ${tr.flower}` : ''].filter(Boolean).join(' · '); };
   tally(); paintMums(tr.flower, false);
   /* 분향·헌화: 글 없이 한 번 눌러 마음을 전한다. 같은 곳에서는 하루 한 번만 센다 */
   const give = async (kind, btn) => {
@@ -261,9 +271,9 @@ function render(v) {
       if (!r.ok || !j.ok) throw new Error(j.error || '잠시 뒤 다시 시도해 주세요.');
       const was = tr.flower; tr = j.tribute; tally();
       if (kind === 'flower') paintMums(Math.max(tr.flower, was + 1), true);
-      const done = kind === 'incense' ? '분향했어요' : (pet ? '꽃을 놓았어요' : '헌화했어요');
+      const done = kind === 'incense' ? `${rite}했어요` : (pet ? '꽃을 놓았어요' : '헌화했어요');
       toast(j.already ? `오늘은 이미 ${done}. 마음이 전해졌을 거예요.` : `${done}. ${v.gbOpen ? '추모글도 남길 수 있어요.' : '마음이 전해질 거예요.'}`);
-      btn.textContent = kind === 'incense' ? '분향했어요' : (pet ? '꽃을 놓았어요' : '헌화했어요');
+      btn.textContent = kind === 'incense' ? `${rite}했어요` : (pet ? '꽃을 놓았어요' : '헌화했어요');
     } catch (err) { toast(err.message); btn.disabled = false; }
   };
   if (!pet) $('#b-incense').onclick = (e) => give('incense', e.currentTarget);
