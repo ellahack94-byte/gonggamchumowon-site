@@ -129,7 +129,7 @@ document.querySelectorAll('[role=tab]').forEach((t) => t.onclick = () => {
   if (t.dataset.tab === 'stats') loadStats();
 });
 
-const COLS = [['users', '새 가입'], ['google', '구글 연결'], ['memorials', '추모관'], ['pets', '반려동물'], ['bugo', '부고장'], ['notes', '추모글'], ['msgs', '조의 말씀'], ['subs', '구독 결제'], ['buys', '포인트·평생']];
+const COLS = [['users', '새 가입'], ['google', '계정 연결'], ['memorials', '추모관'], ['pets', '반려동물'], ['bugo', '부고장'], ['notes', '추모글'], ['msgs', '조의 말씀'], ['subs', '구독 결제'], ['buys', '포인트·평생']];
 async function loadStats() {
   $('#statbox').innerHTML = '<p class="empty">불러오는 중…</p>';
   try {
@@ -138,7 +138,7 @@ async function loadStats() {
     const n = (v) => Number(v).toLocaleString('ko-KR');
     const dayName = (k) => { const d = new Date(k + 'T00:00:00+09:00'); return (d.getMonth() + 1) + '월 ' + d.getDate() + '일 (' + '일월화수목금토'[d.getDay()] + ')'; };
     $('#statbox').innerHTML = `<div class="totals">
-        <div><b>${n(total.users)}</b><span>전체 계정 · 구글 연결 ${n(total.google)}</span></div>
+        <div><b>${n(total.users)}</b><span>전체 계정 · 계정 연결 ${n(total.google)}</span></div>
         <div><b>${n(total.memorials)}</b><span>전체 추모관</span></div>
         <div><b>${n(total.bugo)}</b><span>보관 중인 부고장</span></div>
         <div><b>${n(sum('subs') + sum('buys'))}</b><span>최근 14일 결제</span></div>
