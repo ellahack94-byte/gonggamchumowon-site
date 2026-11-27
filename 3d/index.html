@@ -444,9 +444,12 @@ try {
   Object.assign(S, QP);
   if (q.get('public') === '1') { S.public = true; S.ptitle = (q.get('ptitle') || '').slice(0, 30); S.rest = (q.get('rest') || '').slice(0, 12); S.pphrase = (q.get('pphrase') || '').slice(0, 30); document.documentElement.classList.add('public'); }
   if (q.get('app') === '1') document.documentElement.classList.add('in-app');
+  if (q.get('honor')) S.honor = q.get('honor').slice(0, 4);
   if (/^[A-Z0-9]{4}-[A-Z0-9]{4}$/.test(q.get('code') || '')) S.code = q.get('code');
 } catch (e) {}
 S.notes = S.notes || [];
+/* 공감 추모원이 모신 공개 추모관은 실제 분향소처럼 장식을 모두 갖춘다 */
+if (S.public && !S.pet && !(S.adeco || []).length) S.adeco = ['gunjo', 'banner', 'fruit', 'orchid', 'lilypot', 'table'];
 /* 홈페이지에서 열 때(?web=번호): 가족이 앱에서 꾸민 그대로 서버에서 받아 3D로 보여 준다 */
 const WEB_API = 'https://asia-northeast3-gonggam-chumowon.cloudfunctions.net/web';
 const WEB_MEDIA = [];
@@ -476,7 +479,7 @@ if (S.pet && !S.petReady) { S.theme = 'pet'; S.form = 'pet'; S.place = 'rainbow'
 /* 앱에서 열면 이 추모관에 저장해 둔 꾸미기 설정과 가족이 올린 파일을 불러온다 */
 const SAVED_MEDIA = [];
 WEB_MEDIA.forEach((m) => SAVED_MEDIA.push(m));
-const NOSAVE = ['startRite', 'pet', 'catholic', 'music', 'lit', 'code', 'public', 'ptitle', 'rest', 'reco', 'pphrase', 'web', 'webPhrase', 'webWreaths'];
+const NOSAVE = ['startRite', 'pet', 'catholic', 'music', 'lit', 'code', 'public', 'ptitle', 'rest', 'reco', 'pphrase', 'web', 'webPhrase', 'webWreaths', 'honor'];
 if (S.code) {
   try {
     const r = await fetch('state/' + S.code + '.json', { cache: 'no-store' });
@@ -937,7 +940,8 @@ function buildAltar() {
   function setWreaths(list) {
     if (Array.isArray(list)) wreathList = list.slice(0, 16);
     while (wreathGroup.children.length) wreathGroup.remove(wreathGroup.children[0]);
-    const items = wreathList && wreathList.length ? wreathList : (S.pet ? [] : [{ kind: 't3', phrase: DEFAULT_PHRASE, from: '' }, { kind: 't3', phrase: S.religion === 'ki' ? (S.catholic ? '주님, 영원한 안식을 주소서' : '주님의 품에서 편히 쉬소서') : S.religion === 'bul' ? '극락왕생하소서' : '故人의 永眠을 기원합니다', from: '' }]);
+    const pubDefault = S.public && !S.pet ? [{ kind: 'basket', phrase: '謹弔', from: '공감 추모원' }, { kind: 'basket', phrase: '삼가 故人의 冥福을 빕니다', from: '공감 추모원 가족 일동' }] : [];
+    const items = wreathList && wreathList.length ? wreathList.concat(pubDefault) : (S.pet ? [] : pubDefault.concat([{ kind: 't3', phrase: DEFAULT_PHRASE, from: S.public ? '공감 추모원' : '' }, { kind: 't3', phrase: S.religion === 'ki' ? (S.catholic ? '주님, 영원한 안식을 주소서' : '주님의 품에서 편히 쉬소서') : S.religion === 'bul' ? '극락왕생하소서' : '故人의 永眠을 기원합니다', from: '' }]));
     const baskets = items.filter((w) => w.kind === 'basket'), stands = items.filter((w) => w.kind !== 'basket');
     stands.forEach((w, i) => { const g = makeWreath(w, 61 + i), p = wreathSlot(i, stands.length, w.kind); g.position.set(p.x, 0, p.z); g.rotation.y = p.ry; wreathGroup.add(g); });
     baskets.slice(0, 6).forEach((w, i) => { const g = makeWreath(w, 91 + i), p = wreathSlot(i, baskets.length, 'basket'); g.position.set(p.x, 0, p.z); g.rotation.y = p.ry; wreathGroup.add(g); });
@@ -981,7 +985,7 @@ function buildAltar() {
       c.fillStyle = '#101010'; c.fillRect(0, 0, w, h);
       c.fillStyle = '#f4f1ea';
       for (const [x, ch] of [[150, '謹'], [w - 150, '弔']]) { c.beginPath(); c.arc(x, h / 2, 92, 0, Math.PI * 2); c.fill(); c.fillStyle = '#101010'; c.font = serif(118, 700); c.textAlign = 'center'; c.textBaseline = 'middle'; c.fillText(ch, x, h / 2 + 6); c.fillStyle = '#f4f1ea'; }
-      const t = (S.public || S.pet ? S.name : '故 ' + S.name) + ' 님 ' + (S.pet ? '추모소' : '분향소');
+      const t = S.honor ? '故 ' + S.name + ' ' + S.honor + ' 분향소' : (S.public || S.pet ? S.name : '故 ' + S.name) + ' 님 ' + (S.pet ? '추모소' : '분향소');
       let fs = 138; c.font = serif(fs, 700); while (fs > 70 && c.measureText(t).width > w - 520) { fs -= 4; c.font = serif(fs, 700); }
       c.fillStyle = '#f4f1ea'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.letterSpacing = '6px'; c.fillText(t, w / 2, h / 2 + 6);
     });

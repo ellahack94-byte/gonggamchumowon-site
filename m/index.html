@@ -267,6 +267,7 @@ function v3dUrl(v) {
   const f = FIGP[v.code];
   if (f) {
     q.set('public', '1'); q.set('code', v.code); q.set('ptitle', f.ptitle || ''); q.set('pphrase', v.phrase || '');
+    if (FIG_TITLE[v.code]) q.set('honor', FIG_TITLE[v.code]);
     Object.entries(f.preset || {}).forEach(([k, x]) => q.set('g' + k, Array.isArray(x) ? x.join(',') : String(x)));
   }
   return '/3d/index.html?' + q.toString();
