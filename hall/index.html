@@ -52,20 +52,9 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
 <script src="/js/fb.js?v=20"></script>
 <script src="/js/site.js?v=21"></script>
+<script src="/js/figs.js?v=1"></script>
 <script>
-const FIGS = [
-  { code: 'KMGU-1876', name: '김구', role: '임시정부 주석', years: '1876–1949' },
-  { code: 'HBDO-1868', name: '홍범도', role: '대한독립군 총사령관', years: '1868–1943' },
-  { code: 'KJJI-1889', name: '김좌진', role: '북로군정서 총사령관', years: '1889–1930' },
-  { code: 'AJGE-1879', name: '안중근', role: '의사', years: '1879–1910' },
-  { code: 'YBGI-1908', name: '윤봉길', role: '의사', years: '1908–1932' },
-  { code: 'LBCH-1901', name: '이봉창', role: '의사', years: '1901–1932' },
-  { code: 'YGSU-1902', name: '유관순', role: '열사', years: '1902–1920' },
-  { code: 'PKYE-1902', name: '박열', role: '독립운동가', years: '1902–1974' },
-  { code: 'KNFU-1903', name: '가네코 후미코', role: '독립운동가', years: '1903–1926' },
-  { code: 'YUIH-1895', name: '유일한', role: '기업인 · 독립운동가', years: '1895–1971' },
-];
-const FIG_TITLE = {"KMGU-1876": "선생", "HBDO-1868": "장군", "KJJI-1889": "장군", "AJGE-1879": "의사", "YBGI-1908": "의사", "LBCH-1901": "의사", "YGSU-1902": "열사", "PKYE-1902": "의사", "KNFU-1903": "여사", "YUIH-1895": "박사"};
+const FIGS = window.FIGS;
 const figCard = (f) => `<a class="card" href="/m/?c=${f.code}"><div class="pic"><img src="/img/fig/${f.code}-portrait.jpg" alt="" loading="lazy"></div><b>${esc(f.name)} ${FIG_TITLE[f.code] || ''}</b><span>${esc(f.role)} · ${esc(f.years)}</span></a>`;
 const memCard = (m) => {
   const yrs = [m.born, m.died].map((d) => (d ? d.slice(0, 4) : '')).filter(Boolean).join('–');

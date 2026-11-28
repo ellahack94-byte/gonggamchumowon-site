@@ -211,6 +211,7 @@ footer a { color: var(--sub); }
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="/js/fb.js?v=20"></script>
+<script src="/js/figs.js?v=1"></script>
 
 <script>
 const API = 'https://asia-northeast3-gonggam-chumowon.cloudfunctions.net/web';
@@ -269,15 +270,8 @@ function wireReports(list, kind, parent) {
 
 let FIGP = {};
 /* 공개 추모관 인물의 호칭과 생애 영상 */
-const FIG_TITLE = { 'KMGU-1876': '선생', 'HBDO-1868': '장군', 'KJJI-1889': '장군', 'AJGE-1879': '의사', 'YBGI-1908': '의사', 'LBCH-1901': '의사', 'YGSU-1902': '열사', 'PKYE-1902': '의사', 'KNFU-1903': '여사', 'YUIH-1895': '박사' };
-const FIG_VIDEO = {
-  'YBGI-1908': ['GEgHdpmfrV0', '윤봉길 의사 훙커우공원 의거, 그날의 모든 것'],
-  'AJGE-1879': ['aLEb972ebwc', '“죽어도 마음은 쇠와 같다” 안중근, 그날의 하얼빈'],
-  'PKYE-1902': ['bgHtOnfBZWE', '가네코 후미코가 사랑한 남자, 박열'],
-  'KNFU-1903': ['bgHtOnfBZWE', '가네코 후미코가 사랑한 남자, 박열'],
-  'YGSU-1902': ['eoOEEnxdNUE', '유관순 열사 아우내 만세운동, 그날의 모든 것'],
-  'YUIH-1895': ['PBiUIqmb1v8', '유한양행 유일한 특별편: 쉰 살에 총을 든 회장, 코드명 A'],
-};
+const FIG_TITLE = window.FIG_TITLE || {};
+const FIG_VIDEO = window.FIG_VIDEO || {};
 function v3dUrl(v) {
   const q = new URLSearchParams({ app: '1', web: v.code });
   const f = FIGP[v.code];

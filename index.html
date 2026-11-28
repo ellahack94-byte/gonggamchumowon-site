@@ -226,7 +226,7 @@
         <p>나라를 위해 목숨을 바친 분들을 공감 추모원이 직접 모신 공개 추모관입니다. 누구나 들어가 분향하고 국화를 올릴 수 있습니다. 장지는 기사로 확인된 실제 장례 방식과 모신 곳에 맞춰 꾸몄습니다.</p>
       </div>
       <div class="figures"></div>
-      <button class="btn line morefig" type="button" aria-expanded="false">열 분 모두 보기</button>
+      <button class="btn line morefig" type="button" aria-expanded="false">모두 보기</button>
       <p class="note">공개 추모관에는 언론에 공개된 사실만 담습니다. 후손께서 원하지 않으시면 연락 주시는 즉시 내립니다. 새로 모실 분은 계속 더해 갑니다.</p>
     </div>
   </section>
@@ -273,6 +273,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
 <script src="/js/fb.js?v=20"></script>
 <script src="/js/site.js?v=21"></script>
+<script src="/js/figs.js?v=1"></script>
 <script src="/js/smoke.js?v=1"></script>
 <script>
 (function () {
@@ -291,18 +292,7 @@ GG.call('listPets', {}).then(({ items }) => {
 </script>
 
 <script>
-const FIGS = [
-  { code: 'KMGU-1876', name: '김구', title: '선생', role: '독립운동가 · 임시정부 주석', years: '1876–1949', line: '대한민국임시정부를 끝까지 지킨 백범', rest: '서울 효창공원 김구 묘역', grave: 'VIP 추모홀 · 추모공원 단지의 큰 봉분 · 문인석·동자석' },
-  { code: 'HBDO-1868', name: '홍범도', title: '장군', role: '독립운동가 · 대한독립군 총사령관', years: '1868–1943', line: '봉오동 전투의 영웅, 78년 만에 돌아온 장군', rest: '국립대전현충원', grave: '대리석 분향소 · 잔디 언덕 추모비 · 한낮' },
-  { code: 'KJJI-1889', name: '김좌진', title: '장군', role: '독립운동가 · 북로군정서 총사령관', years: '1889–1930', line: '청산리 전투를 승리로 이끈 장군', rest: '충남 보령 김좌진 장군 묘', grave: '한옥 사당 · 산 중턱 명당 봉분 · 문인석' },
-  { code: 'AJGE-1879', name: '안중근', title: '의사', role: '독립운동가 · 의사', years: '1879–1910', line: '하얼빈 의거의 주인공, 아직 돌아오지 못한 유해', rest: '서울 효창공원 가묘', grave: '예배당 · 기독교 추모공원 대리석 묘' },
-  { code: 'YBGI-1908', name: '윤봉길', title: '의사', role: '독립운동가 · 의사', years: '1908–1932', line: '1932년 상하이 훙커우 공원 의거의 주인공', rest: '서울 효창공원 삼의사 묘역', grave: '산수화 병풍 분향소 · 소나무 숲 봉분' },
-  { code: 'LBCH-1901', name: '이봉창', title: '의사', role: '독립운동가 · 의사', years: '1901–1932', line: '1932년 도쿄에서 일왕에게 폭탄을 던진 한인애국단 단원', rest: '서울 효창공원 삼의사 묘역', grave: '밤하늘 분향소 · 소나무 숲 오석 봉분 · 노을' },
-  { code: 'YGSU-1902', name: '유관순', title: '열사', role: '독립운동가 · 열사', years: '1902–1920', line: '열여덟 살에 순국한 3·1 운동의 상징', rest: '충남 천안 매봉산 초혼묘', grave: '예배당 · 분홍 장미 · 꽃동산 봉분' },
-  { code: 'PKYE-1902', name: '박열', title: '의사', role: '독립운동가', years: '1902–1974', line: '일왕 처단을 꾀해 22년을 옥에서 보낸 독립운동가', rest: '북한 (고향 문경에 박열의사기념관)', grave: '봉안당 · 호숫가 추모비 · 노을' },
-  { code: 'KNFU-1903', name: '가네코 후미코', title: '여사', role: '독립운동가', years: '1903–1926', line: '조선의 독립을 함께 꿈꾼 일본인 독립운동가', rest: '경북 문경 박열의사기념관', grave: '정원 추모실 · 꽃동산 추모비' },
-  { code: 'YUIH-1895', name: '유일한', title: '박사', role: '기업인 · 독립운동가', years: '1895–1971', line: '유한양행을 세우고 모든 것을 사회에 남긴 기업인', rest: '경기 부천 유한동산', grave: '한지 벽 분향소 · 잔디 언덕 추모비' },
-];
+const FIGS = window.FIGS.map((f) => ({ ...f, title: f.honor }));
 const box = document.querySelector('.figures');
 box.innerHTML = FIGS.map((f) => `
   <article class="fig" data-view="altar">
@@ -322,7 +312,7 @@ box.innerHTML = FIGS.map((f) => `
 const more = document.querySelector('.morefig');
 const fold = () => box.querySelectorAll('.fig').forEach((el, i) => { el.hidden = more.getAttribute('aria-expanded') !== 'true' && i >= 6; });
 fold();
-more.addEventListener('click', () => { const o = more.getAttribute('aria-expanded') !== 'true'; more.setAttribute('aria-expanded', String(o)); more.textContent = o ? '접기' : '열 분 모두 보기'; fold(); if (!o) box.scrollIntoView({ block: 'start' }); });
+more.addEventListener('click', () => { const o = more.getAttribute('aria-expanded') !== 'true'; more.setAttribute('aria-expanded', String(o)); more.textContent = o ? '접기' : '모두 보기'; fold(); if (!o) box.scrollIntoView({ block: 'start' }); });
 box.addEventListener('click', (e) => {
   const b = e.target.closest('button[data-v]');
   if (!b) return;

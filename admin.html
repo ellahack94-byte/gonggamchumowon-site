@@ -96,6 +96,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
+<script src="/js/figs.js?v=1"></script>
 <script>
 firebase.initializeApp({
   apiKey: 'AIzaSyCQcSmk4bielcfI_pnhSbd3vezUypyKvR8',
@@ -108,7 +109,7 @@ const fn = firebase.app().functions('asia-northeast3');
 const call = async (name, data) => (await fn.httpsCallable(name)(data || {})).data;
 const $ = (s) => document.querySelector(s);
 const esc = (t) => String(t ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-const NAMES = { 'KMGU-1876': '김구', 'HBDO-1868': '홍범도', 'KJJI-1889': '김좌진', 'AJGE-1879': '안중근', 'YBGI-1908': '윤봉길', 'LBCH-1901': '이봉창', 'YGSU-1902': '유관순', 'PKYE-1902': '박열', 'KNFU-1903': '가네코 후미코', 'YUIH-1895': '유일한' };
+const NAMES = Object.fromEntries((window.FIGS || []).map((f) => [f.code, f.name]));
 const ORDER = Object.keys(NAMES);
 const KIND = { note: '추모글', bugo: '조의 말씀', bugopage: '부고장(계좌)' };
 const STATUS = { open: '확인 전', hidden: '자동으로 가려짐', kept: '문제없음 처리', 'hidden-by-admin': '가림 처리', deleted: '지움' };
