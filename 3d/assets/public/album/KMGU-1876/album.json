@@ -2,5 +2,65 @@
  {
   "file": "1.jpg",
   "cap": "인물 사진, 1949년"
+ },
+ {
+  "file": "2.jpg",
+  "cap": "1919년의 김구",
+  "src": "https://commons.wikimedia.org/wiki/File:Kim_Gu_in_1919.gif"
+ },
+ {
+  "file": "3.jpg",
+  "cap": "1930년대의 김구",
+  "src": "https://commons.wikimedia.org/wiki/File:Kim_Gu_1930.jpg"
+ },
+ {
+  "file": "4.jpg",
+  "cap": "1921년 상하이, 아내 최준례와 맏아들 김인",
+  "src": "https://commons.wikimedia.org/wiki/File:1921%EB%85%84%EC%9D%98_%EA%B9%80%EA%B5%AC_%EA%B0%80%EC%A1%B1%EC%82%AC%EC%A7%84.jpg"
+ },
+ {
+  "file": "5.jpg",
+  "cap": "폭탄 제작을 도운 중국인 기술자들과",
+  "src": "https://commons.wikimedia.org/wiki/File:Kim_Koo_with_Chinese_engineers.jpg"
+ },
+ {
+  "file": "6.jpg",
+  "cap": "1945년 11월, 임시정부 환국",
+  "src": "https://commons.wikimedia.org/wiki/File:1945.11.03_%EB%8C%80%ED%95%9C%EB%AF%BC%EA%B5%AD_%EC%9E%84%EC%8B%9C%EC%A0%95%EB%B6%80_%ED%99%98%EA%B5%AD.jpg"
+ },
+ {
+  "file": "7.jpg",
+  "cap": "1945년 11월, 임시정부 요인 일동",
+  "src": "https://commons.wikimedia.org/wiki/File:1945.11.23_%EB%8C%80%ED%95%9C%EB%AF%BC%EA%B5%AD_%EC%9E%84%EC%8B%9C%EC%A0%95%EB%B6%80_%EC%9A%94%EC%9D%B8_%EC%9D%BC%EB%8F%99.png"
+ },
+ {
+  "file": "8.jpg",
+  "cap": "1946년 6월, 삼의사 유해 봉환식",
+  "src": "https://commons.wikimedia.org/wiki/File:1946.06_3%EC%9D%98%EC%82%AC_%EC%9C%A0%ED%95%B4%EB%B4%89%ED%99%98%EC%8B%9D%EC%9E%A5.jpg"
+ },
+ {
+  "file": "9.jpg",
+  "cap": "백범일지 원본",
+  "src": "https://commons.wikimedia.org/wiki/File:Diary_of_Kim_Ku_(%EB%B0%B1%EB%B2%94%EC%9D%BC%EC%A7%80).jpg"
+ },
+ {
+  "file": "10.jpg",
+  "cap": "1948년의 백범",
+  "src": "https://commons.wikimedia.org/wiki/File:Baikbum_Kim_Gu.jpg"
+ },
+ {
+  "file": "11.jpg",
+  "cap": "1949년, 환하게 웃는 모습",
+  "src": "https://commons.wikimedia.org/wiki/File:Kim_Gu_in_1949.jpg"
+ },
+ {
+  "file": "12.jpg",
+  "cap": "1949년 7월, 서울운동장 장례식",
+  "src": "https://commons.wikimedia.org/wiki/File:Baikbum_Kim_Gu_Funeral.jpg"
+ },
+ {
+  "file": "13.jpg",
+  "cap": "장례 행렬",
+  "src": "https://commons.wikimedia.org/wiki/File:Funeral_for_Kim_Koo.jpg"
  }
 ]

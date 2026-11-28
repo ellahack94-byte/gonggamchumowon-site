@@ -5277,7 +5277,7 @@ function showItem() {
     ? '<img src="' + it.src + '" alt="' + cap + '">'
     : '<video src="' + it.src + '" controls autoplay playsinline></video>';
   $('#v-cap').textContent = it.cap + (it.ex ? ' · 예시' : '');
-  $('#v-del').hidden = !!it.ex || (window.CLOUD && !window.CLOUD.member); $('#v-del').textContent = '내리기'; $('#v-del').dataset.armed = '';
+  $('#v-del').hidden = !!it.ex || !!it.yt || S.public || !!S.web || (window.CLOUD && !window.CLOUD.member); $('#v-del').textContent = '내리기'; $('#v-del').dataset.armed = '';
   const pubOk = APP && !it.ex && it.file && window.CLOUD && window.CLOUD.member;
   $('#v-pub').hidden = !pubOk;
   $('#v-pub').setAttribute('aria-pressed', String(!!it.pub));

@@ -10,5 +10,20 @@
  {
   "file": "1.jpg",
   "cap": "서대문형무소 수형 기록 사진"
+ },
+ {
+  "file": "3.jpg",
+  "cap": "이화학당 시절 (뒷줄 오른쪽 끝)",
+  "src": "https://commons.wikimedia.org/wiki/File:%EC%9C%A0%EA%B4%80%EC%88%9C_%EC%9C%A0%EC%98%88%EB%8F%84_%EB%B0%95%EC%9D%B8%EB%8D%95.jpg"
+ },
+ {
+  "file": "4.jpg",
+  "cap": "일제 감시대상 인물카드",
+  "src": "https://commons.wikimedia.org/wiki/File:%EC%9C%A0%EA%B4%80%EC%88%9C_%EC%9D%BC%EC%A0%9C%EA%B0%90%EC%8B%9C%EB%8C%80%EC%83%81%EC%9D%B8%EB%AC%BC%EC%B9%B4%EB%93%9C.jpg"
+ },
+ {
+  "file": "5.jpg",
+  "cap": "유관순 열사",
+  "src": "https://commons.wikimedia.org/wiki/File:Ryu_Gwan-sun.jpg"
  }
 ]

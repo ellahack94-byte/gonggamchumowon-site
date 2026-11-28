@@ -2,5 +2,35 @@
  {
   "file": "1.jpg",
   "cap": "인물 사진"
+ },
+ {
+  "file": "2.jpg",
+  "cap": "1912년의 홍범도",
+  "src": "https://commons.wikimedia.org/wiki/File:Hong_Beom-do_1912.jpg"
+ },
+ {
+  "file": "3.jpg",
+  "cap": "1921년의 홍범도",
+  "src": "https://commons.wikimedia.org/wiki/File:Hong_Beom-do_1921.jpg"
+ },
+ {
+  "file": "4.jpg",
+  "cap": "홍범도 장군",
+  "src": "https://commons.wikimedia.org/wiki/File:%E6%B4%AA%E8%8C%83%E5%9B%BE.jpg"
+ },
+ {
+  "file": "5.jpg",
+  "cap": "젊은 전사들과",
+  "src": "https://commons.wikimedia.org/wiki/File:%E6%B4%AA%E8%8C%83%E5%9B%BE%E4%B8%8E%E5%B9%B4%E8%BD%BB%E6%88%98%E5%A3%AB.jpg"
+ },
+ {
+  "file": "6.jpg",
+  "cap": "엄인섭과 함께",
+  "src": "https://commons.wikimedia.org/wiki/File:Eom_In-seop_and_Hong_Beom-do.jpg"
+ },
+ {
+  "file": "7.jpg",
+  "cap": "현규창과 함께",
+  "src": "https://commons.wikimedia.org/wiki/File:%E6%B4%AA%E8%8C%83%E5%9B%BE%EF%BC%88%E5%B7%A6%EF%BC%89%E4%B8%8E%E7%8E%84%E5%A5%8E%E6%98%8C.jpg"
  }
 ]
