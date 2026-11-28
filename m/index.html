@@ -66,6 +66,16 @@ h1 small { font-size: .5em; color: var(--sub); margin-left: 6px; }
 .yt-box { position: relative; aspect-ratio: 16 / 9; border-radius: 12px; overflow: hidden; background: #000; box-shadow: 0 0 0 1px var(--line); }
 .yt-box iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 .yt figcaption { color: var(--sub); font-size: 14px; margin-top: 10px; }
+.letters { padding: 26px 0 8px; border-top: 1px solid var(--line); }
+.lt-note { color: var(--sub); font-size: 15px; margin: 8px 0 14px; }
+.lt-note a { color: var(--gold-soft); }
+.lt-form { display: grid !important; gap: 10px; background: none; border: 0; padding: 0; margin: 0; }
+.lt-form textarea { min-height: 140px; border-radius: 12px; border: 1px solid #4a433a; background: #0e0d0c; color: var(--mum); font: 400 16px/1.7 var(--display); padding: 14px; resize: vertical; }
+.lt-list { list-style: none; margin: 18px 0 0; padding: 0; display: grid; gap: 10px; }
+.lt-list li { padding: 14px 16px; border-radius: 12px; background: rgba(255, 255, 255, .03); box-shadow: inset 0 0 0 1px var(--line); }
+.lt-list span { color: var(--sub); font-size: 13.5px; }
+.lt-list p { margin: 6px 0 0; white-space: pre-wrap; font-family: var(--display); line-height: 1.8; }
+.lt-del { background: none; border: 0; color: var(--sub); font: 400 13px var(--body); cursor: pointer; padding: 6px 0 0; text-decoration: underline; }
 .wreaths { padding: 26px 0 8px; border-top: 1px solid var(--line); }
 .wr-list { list-style: none; margin: 14px 0 18px; padding: 0; display: grid; gap: 8px; }
 .wr-list li { display: grid; grid-template-columns: auto 1fr; gap: 2px 12px; padding: 12px 14px; border-radius: 12px; background: rgba(255, 255, 255, .03); box-shadow: inset 0 0 0 1px var(--line); }
@@ -199,6 +209,7 @@ footer a { color: var(--sub); }
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="/js/fb.js?v=20"></script>
 
 <script>
@@ -318,6 +329,28 @@ async function wreathForm(v) {
     $('#wsend').disabled = false;
   };
 }
+async function letters(v) {
+  const box = $('#lt-box');
+  const u = await GG.user();
+  if (!GG.isMember(u)) { box.innerHTML = `<p class="lt-note">하늘 편지는 로그인한 뒤 쓸 수 있어요. <a href="/login/?next=${encodeURIComponent(location.pathname + location.search)}">로그인 · 회원가입</a></p>`; return; }
+  const col = firebase.firestore().collection('users').doc(u.uid).collection('letters');
+  const draw = async () => {
+    let list = [];
+    try { list = (await col.where('code', '==', v.code).get()).docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => b.at - a.at); } catch (e) {}
+    const day = (ms) => { const d = new Date(ms); return `${d.getFullYear()}. ${d.getMonth() + 1}. ${d.getDate()}.`; };
+    box.innerHTML = `<form class="lt-form" id="ltf"><textarea id="ltt" maxlength="3000" placeholder="${v.pet ? esc(v.name) + '야, ' : ''}보고 싶은 마음을 적어 주세요."></textarea><div class="btns"><button type="submit" class="btn gold">편지 보내기</button></div></form>` +
+      (list.length ? `<ul class="lt-list">${list.map((l) => `<li data-id="${esc(l.id)}"><span>${day(l.at)}</span><p>${esc(l.text)}</p><button type="button" class="lt-del">지우기</button></li>`).join('')}</ul>` : '');
+    $('#ltf').onsubmit = async (e) => {
+      e.preventDefault(); const t = $('#ltt').value.trim(); if (!t) return;
+      try { await col.add({ code: v.code, text: t.slice(0, 3000), at: Date.now() }); toast('하늘로 편지를 보냈어요.'); draw(); } catch (x) { toast('편지를 저장하지 못했어요.'); }
+    };
+    box.querySelectorAll('.lt-del').forEach((b) => b.onclick = async () => {
+      if (!b.dataset.sure) { b.dataset.sure = '1'; b.textContent = '한 번 더 누르면 지워져요'; return; }
+      try { await col.doc(b.closest('li').dataset.id).delete(); draw(); } catch (x) {}
+    });
+  };
+  draw();
+}
 function render(v) {
   const pet = v.pet;
   /* 기독교·천주교 추모관은 앱처럼 분향 대신 기도(촛불)로 */
@@ -351,6 +384,11 @@ function render(v) {
     <div class="err" id="err"></div>
     <div class="btns"><button type="button" class="btn line" id="cancel">닫기</button><button type="submit" class="btn gold" id="send">올리기</button></div>
   </form>
+  <section class="letters" aria-labelledby="lt">
+    <div class="count"><h2 id="lt">하늘 편지</h2><span>나만 보는 편지</span></div>
+    <p class="lt-note">${pet ? esc(v.name) + '에게' : '고인께'} 하고 싶은 말을 편지로 남겨요. 가족도 볼 수 없고, 나만 다시 읽을 수 있어요. 앱과 같은 계정이면 앱에서도 이어서 봐요.</p>
+    <div id="lt-box"><button class="btn line wide" id="b-letter" type="button">편지 쓰기</button></div>
+  </section>
   <section class="wreaths" aria-labelledby="wr">
     <div class="count"><h2 id="wr">근조화환</h2><span id="wr-n">${(v.wreaths || []).length}개</span></div>
     <ul class="wr-list" id="wr-list">${wreathItems(v.wreaths)}</ul>
@@ -401,6 +439,7 @@ function render(v) {
   };
   $('#b-note').onclick = () => open();
   $('#b-wreath').onclick = () => wreathForm(v);
+  $('#b-letter').onclick = () => letters(v);
   $('#cancel').onclick = () => f.classList.remove('on');
   $('#cp').onclick = () => copy(v.code);
   $('#cplink').onclick = () => copy('https://b.gonggamchumowon.co.kr/m/' + v.code);
