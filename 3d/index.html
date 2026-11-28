@@ -74,6 +74,7 @@ body{background:var(--ground);color:var(--ink);font-family:var(--sans);overflow:
 .opt{height:40px;padding:0 15px;border-radius:12px;border:1px solid var(--line);background:var(--raise);color:var(--ink);font:500 14px var(--sans);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
 .opt[aria-pressed="true"]{background:var(--ink);color:#16130f;border-color:var(--ink);font-weight:700}
 .opt.upload{border-color:var(--gold);color:var(--gold)}
+.yt-wrap{width:min(92vw,960px);display:grid;gap:10px;justify-items:center}.yt-wrap iframe{width:100%;aspect-ratio:16/9;border:0;border-radius:10px;background:#000}.yt-out{color:#e3d0a2;font:500 14px var(--sans)}
 .opt.buy{background:var(--gold);color:#16130f;border-color:var(--gold);font-weight:700;height:48px;padding:0 26px}
 .opt .pr{font-size:11px;font-weight:700;color:var(--gold);margin-left:2px}
 .pprev{display:flex;justify-content:center;margin:6px 0 10px}
@@ -5191,7 +5192,9 @@ function renderGallery() {
   }
   grid.innerHTML = G.list.map((it, i) => {
     const cap = it.cap.replace(/[<>&"]/g, '');
-    const media = it.type === 'image'
+    const media = it.yt
+      ? '<img src="' + it.src + '" alt="' + cap + '"><span class="badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg><span>유튜브</span></span>'
+      : it.type === 'image'
       ? '<img src="' + it.src + '" alt="' + cap + '">'
       : '<video src="' + it.src + '" muted playsinline preload="metadata" data-v="' + i + '"></video><span class="badge"><svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4l13 8-13 8z"/></svg><span>' + (it.dur || '영상') + '</span></span>';
     return '<button class="tile" data-i="' + i + '" aria-label="' + cap + (it.type === 'video' ? ' 영상 보기' : ' 사진 보기') + '">' + media + (it.ex ? '<span class="ex">예시</span>' : '') + '</button>';
@@ -5268,7 +5271,9 @@ function showItem() {
   const old = st.querySelector('video');
   if (old) old.pause();
   const cap = it.cap.replace(/[<>&"]/g, '');
-  st.innerHTML = it.type === 'image'
+  st.innerHTML = it.yt
+    ? '<div class="yt-wrap"><iframe src="https://www.youtube-nocookie.com/embed/' + it.yt + '?autoplay=1&rel=0&playsinline=1" title="' + cap + '" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe><a class="yt-out" href="https://www.youtube.com/watch?v=' + it.yt + '" target="_blank" rel="noopener">유튜브에서 보기</a></div>'
+    : it.type === 'image'
     ? '<img src="' + it.src + '" alt="' + cap + '">'
     : '<video src="' + it.src + '" controls autoplay playsinline></video>';
   $('#v-cap').textContent = it.cap + (it.ex ? ' · 예시' : '');
@@ -5573,7 +5578,7 @@ if (S.public) {
       const r = await fetch(base + 'album.json', { cache: 'no-store' });
       if (r.ok) {
         const list = await r.json();
-        list.slice(0, 12).forEach((a) => G.items.push({ type: a.type || (/\.(mp4|webm)$/i.test(a.file) ? 'video' : 'image'), src: base + a.file, cap: a.cap || '' }));
+        list.slice(0, 40).forEach((a) => G.items.push(a.yt ? { type: 'video', yt: a.yt, src: 'https://i.ytimg.com/vi/' + a.yt + '/hqdefault.jpg', cap: a.cap || '생애 이야기 영상' } : { type: a.type || (/\.(mp4|webm)$/i.test(a.file) ? 'video' : 'image'), src: base + a.file, cap: a.cap || '' }));
         const ids = G.items.filter((i) => i.type === 'image').map((i) => galleryId(i));
         S.gstand = ids.slice(0, 3); S.gtree = ids.slice(0, 6);
         try { renderGallery(); scenes.grave.refreshPhotos(); } catch (e) {}
