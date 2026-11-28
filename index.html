@@ -292,23 +292,23 @@ GG.call('listPets', {}).then(({ items }) => {
 
 <script>
 const FIGS = [
-  { code: 'KMGU-1876', name: '김구', title: '선생', role: '독립운동가 · 임시정부 주석', years: '1876–1949', line: '대한민국임시정부를 끝까지 지킨 백범', rest: '서울 효창공원 김구 묘역', grave: '개신교(감리교) → 예배당 · 봉분 · 소나무 숲' },
-  { code: 'HBDO-1868', name: '홍범도', title: '장군', role: '독립운동가 · 대한독립군 총사령관', years: '1868–1943', line: '봉오동 전투의 영웅, 78년 만에 돌아온 장군', rest: '국립대전현충원', grave: '현충원 → 한옥 사당 · 추모비 · 소나무 숲' },
-  { code: 'KJJI-1889', name: '김좌진', title: '장군', role: '독립운동가 · 북로군정서 총사령관', years: '1889–1930', line: '청산리 전투를 승리로 이끈 장군', rest: '충남 보령 김좌진 장군 묘', grave: '보령 묘소 → 한옥 사당 · 봉분 · 산 중턱' },
-  { code: 'AJGE-1879', name: '안중근', title: '의사', role: '독립운동가 · 의사', years: '1879–1910', line: '하얼빈 의거의 주인공, 아직 돌아오지 못한 유해', rest: '서울 효창공원 가묘', grave: '천주교(토마스) → 예배당 · 가묘 봉분 · 소나무 숲' },
-  { code: 'YBGI-1908', name: '윤봉길', title: '의사', role: '독립운동가 · 의사', years: '1908–1932', line: '1932년 상하이 훙커우 공원 의거의 주인공', rest: '서울 효창공원 삼의사 묘역', grave: '효창공원 묘역 → 한옥 사당 · 봉분 · 소나무 숲' },
-  { code: 'LBCH-1901', name: '이봉창', title: '의사', role: '독립운동가 · 의사', years: '1901–1932', line: '1932년 도쿄에서 일왕에게 폭탄을 던진 한인애국단 단원', rest: '서울 효창공원 삼의사 묘역', grave: '효창공원 묘역 → 한옥 사당 · 봉분 · 소나무 숲' },
-  { code: 'YGSU-1902', name: '유관순', title: '열사', role: '독립운동가 · 열사', years: '1902–1920', line: '열여덟 살에 순국한 3·1 운동의 상징', rest: '충남 천안 매봉산 초혼묘', grave: '개신교 신앙 → 예배당 · 초혼묘 봉분 · 산 중턱' },
-  { code: 'PKYE-1902', name: '박열', title: '의사', role: '독립운동가', years: '1902–1974', line: '일왕 처단을 꾀해 22년을 옥에서 보낸 독립운동가', rest: '북한 (고향 문경에 박열의사기념관)', grave: '기념관 → 정원 추모실 · 추모비 · 소나무 숲' },
-  { code: 'KNFU-1903', name: '가네코 후미코', title: '여사', role: '독립운동가', years: '1903–1926', line: '조선의 독립을 함께 꿈꾼 일본인 독립운동가', rest: '경북 문경 박열의사기념관', grave: '기념관 경내 → 정원 추모실 · 추모비 · 꽃동산' },
-  { code: 'YUIH-1895', name: '유일한', title: '박사', role: '기업인 · 독립운동가', years: '1895–1971', line: '유한양행을 세우고 모든 것을 사회에 남긴 기업인', rest: '경기 부천 유한동산', grave: '유한동산 → 정원 추모실 · 추모비 · 꽃동산' },
+  { code: 'KMGU-1876', name: '김구', title: '선생', role: '독립운동가 · 임시정부 주석', years: '1876–1949', line: '대한민국임시정부를 끝까지 지킨 백범', rest: '서울 효창공원 김구 묘역', grave: 'VIP 추모홀 · 추모공원 단지의 큰 봉분 · 문인석·동자석' },
+  { code: 'HBDO-1868', name: '홍범도', title: '장군', role: '독립운동가 · 대한독립군 총사령관', years: '1868–1943', line: '봉오동 전투의 영웅, 78년 만에 돌아온 장군', rest: '국립대전현충원', grave: '대리석 분향소 · 잔디 언덕 추모비 · 한낮' },
+  { code: 'KJJI-1889', name: '김좌진', title: '장군', role: '독립운동가 · 북로군정서 총사령관', years: '1889–1930', line: '청산리 전투를 승리로 이끈 장군', rest: '충남 보령 김좌진 장군 묘', grave: '한옥 사당 · 산 중턱 명당 봉분 · 문인석' },
+  { code: 'AJGE-1879', name: '안중근', title: '의사', role: '독립운동가 · 의사', years: '1879–1910', line: '하얼빈 의거의 주인공, 아직 돌아오지 못한 유해', rest: '서울 효창공원 가묘', grave: '예배당 · 기독교 추모공원 대리석 묘' },
+  { code: 'YBGI-1908', name: '윤봉길', title: '의사', role: '독립운동가 · 의사', years: '1908–1932', line: '1932년 상하이 훙커우 공원 의거의 주인공', rest: '서울 효창공원 삼의사 묘역', grave: '산수화 병풍 분향소 · 소나무 숲 봉분' },
+  { code: 'LBCH-1901', name: '이봉창', title: '의사', role: '독립운동가 · 의사', years: '1901–1932', line: '1932년 도쿄에서 일왕에게 폭탄을 던진 한인애국단 단원', rest: '서울 효창공원 삼의사 묘역', grave: '밤하늘 분향소 · 소나무 숲 오석 봉분 · 노을' },
+  { code: 'YGSU-1902', name: '유관순', title: '열사', role: '독립운동가 · 열사', years: '1902–1920', line: '열여덟 살에 순국한 3·1 운동의 상징', rest: '충남 천안 매봉산 초혼묘', grave: '예배당 · 분홍 장미 · 꽃동산 봉분' },
+  { code: 'PKYE-1902', name: '박열', title: '의사', role: '독립운동가', years: '1902–1974', line: '일왕 처단을 꾀해 22년을 옥에서 보낸 독립운동가', rest: '북한 (고향 문경에 박열의사기념관)', grave: '봉안당 · 호숫가 추모비 · 노을' },
+  { code: 'KNFU-1903', name: '가네코 후미코', title: '여사', role: '독립운동가', years: '1903–1926', line: '조선의 독립을 함께 꿈꾼 일본인 독립운동가', rest: '경북 문경 박열의사기념관', grave: '정원 추모실 · 꽃동산 추모비' },
+  { code: 'YUIH-1895', name: '유일한', title: '박사', role: '기업인 · 독립운동가', years: '1895–1971', line: '유한양행을 세우고 모든 것을 사회에 남긴 기업인', rest: '경기 부천 유한동산', grave: '한지 벽 분향소 · 잔디 언덕 추모비' },
 ];
 const box = document.querySelector('.figures');
 box.innerHTML = FIGS.map((f) => `
   <article class="fig" data-view="altar">
     <div class="shot">
-      <img class="altar" src="/img/fig/${f.code}-altar.jpg?v=10" alt="${f.name} 님 공개 분향소" loading="lazy" width="390" height="452">
-      <img class="grave" src="/img/fig/${f.code}-grave.jpg?v=7" alt="${f.name} 님 공개 장지" loading="lazy" width="390" height="452">
+      <img class="altar" src="/img/fig/${f.code}-altar.jpg?v=11" alt="${f.name} 님 공개 분향소" loading="lazy" width="390" height="452">
+      <img class="grave" src="/img/fig/${f.code}-grave.jpg?v=8" alt="${f.name} 님 공개 장지" loading="lazy" width="390" height="452">
       <div class="toggle" role="group" aria-label="${f.name} 님 화면 고르기">
         <button type="button" data-v="altar" aria-pressed="true">분향소</button>
         <button type="button" data-v="grave" aria-pressed="false">장지</button>
