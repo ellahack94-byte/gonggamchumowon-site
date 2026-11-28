@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>포인트 충전 · 공감 추모원</title>
+<meta name="description" content="추모관 꾸미기와 근조화환에 쓰는 포인트를 카드·간편결제로 충전해요.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#101216">
+<link rel="icon" href="/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Song+Myung&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="/style.css?v=21">
+<style>
+.packs { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; }
+.pack { display: grid; gap: 6px; padding: 20px 18px; border-radius: 16px; background: var(--ink-2); box-shadow: 0 0 0 1px var(--ink-line); color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.pack:hover, .pack:focus-visible { box-shadow: 0 0 0 2px var(--gold); outline: none; }
+.pack[aria-pressed="true"] { box-shadow: 0 0 0 2px var(--gold); background: rgba(194, 163, 106, .08); }
+.pack b { font-size: 24px; font-weight: 600; }
+.pack span { color: var(--mum); font-size: 14px; }
+.pack em { font-style: normal; color: var(--gold); font-size: 13px; }
+.paybar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-top: 18px; }
+.paybar p { margin: 0; color: var(--mum); }
+.fine { color: var(--mum); font-size: 14px; line-height: 1.7; }
+.fine li { margin: 2px 0; }
+#done { text-align: center; }
+</style>
+</head>
+<body>
+<div id="site-top"></div>
+<main>
+  <section class="pagehead"><div class="wrap">
+    <h1>포인트 충전</h1>
+    <p id="who">로그인 정보를 확인하는 중이에요…</p>
+  </div></section>
+  <section class="section"><div class="wrap" style="display:grid;gap:22px;max-width:760px">
+    <div class="panel" id="done" hidden></div>
+    <div class="panel" id="buy">
+      <h2>충전할 포인트를 골라 주세요</h2>
+      <p class="fine" style="margin:0">1P는 1원이에요. 앱과 홈페이지에서 같은 계정이면 포인트가 함께 쓰여요.</p>
+      <div class="packs" id="packs"></div>
+      <div class="paybar">
+        <p id="sel">상품을 골라 주세요.</p>
+        <button class="btn gold" id="pay" disabled>결제하기</button>
+      </div>
+    </div>
+    <div class="panel">
+      <h3 style="font-size:18px">꼭 읽어 주세요</h3>
+      <ul class="fine">
+        <li>카드, 카카오페이·네이버페이·토스페이 같은 간편결제로 결제할 수 있어요. 결제는 토스페이먼츠가 처리해요.</li>
+        <li>충전한 포인트는 충전일로부터 5년 동안 쓸 수 있어요.</li>
+        <li>결제일로부터 7일 안에 쓰지 않은 포인트는 결제를 취소할 수 있어요. 일부를 썼다면 남은 충전 포인트만큼 환불을 요청할 수 있어요.</li>
+        <li>취소·환불 문의: 카카오톡 상담 또는 010-6387-2283</li>
+        <li>자세한 내용은 <a href="/terms.html">이용약관</a>을 봐 주세요.</li>
+      </ul>
+    </div>
+  </div></section>
+</main>
+<div id="site-foot"></div>
+<div class="toast" id="toast"></div>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-functions-compat.js"></script>
+<script src="https://js.tosspayments.com/v2/standard"></script>
+<script src="/js/fb.js?v=20"></script>
+<script src="/js/site.js?v=21"></script>
+<script>
+/* 토스페이먼츠 클라이언트 키(공개용). 라이브 계약이 끝나면 live_ck_ 키로 바꾼다 */
+const TOSS_CLIENT_KEY = 'test_ck_c19Bmx9u6GSOjViKFFhXapnDl0mqeN5p4I';
+const PACKS = [
+  { id: 'points_1000', price: 1000, points: 1000 },
+  { id: 'points_5000', price: 5000, points: 5500 },
+  { id: 'points_10000', price: 10000, points: 11500 },
+  { id: 'points_30000', price: 30000, points: 36000 },
+];
+const $ = (s) => document.querySelector(s);
+const won = (n) => n.toLocaleString('ko-KR');
+function toast(t) { const el = $('#toast'); if (!el) return alert(t); el.textContent = t; el.classList.add('on'); clearTimeout(toast.t); toast.t = setTimeout(() => el.classList.remove('on'), 3000); }
+let pick = null, user = null;
+
+function drawPacks() {
+  $('#packs').innerHTML = PACKS.map((p) => {
+    const bonus = p.points - p.price;
+    return `<button class="pack" data-id="${p.id}" aria-pressed="false"><b>${won(p.points)}P</b><span>${won(p.price)}원</span>${bonus ? `<em>${won(bonus)}P 더 드려요</em>` : '<em>&nbsp;</em>'}</button>`;
+  }).join('');
+  $('#packs').querySelectorAll('.pack').forEach((b) => b.addEventListener('click', () => {
+    pick = PACKS.find((p) => p.id === b.dataset.id);
+    $('#packs').querySelectorAll('.pack').forEach((x) => x.setAttribute('aria-pressed', String(x === b)));
+    $('#sel').textContent = `${won(pick.points)}P · ${won(pick.price)}원`;
+    $('#pay').disabled = false;
+  }));
+}
+
+async function pay() {
+  if (!pick) return;
+  $('#pay').disabled = true; $('#pay').textContent = '결제창을 여는 중…';
+  try {
+    const o = await GG.call('tossOrder', { productId: pick.id });
+    const toss = TossPayments(TOSS_CLIENT_KEY);
+    const payment = toss.payment({ customerKey: user.uid });
+    await payment.requestPayment({
+      method: 'CARD',
+      amount: { currency: 'KRW', value: o.amount },
+      orderId: o.orderId,
+      orderName: o.orderName,
+      successUrl: location.origin + '/charge/?ok=1',
+      failUrl: location.origin + '/charge/?fail=1',
+      customerEmail: user.email || undefined,
+      customerName: user.displayName || undefined,
+      card: { useEscrow: false, flowMode: 'DEFAULT', useCardPoint: false, useAppCardOnly: false },
+    });
+  } catch (e) {
+    if (e && e.code !== 'USER_CANCEL') toast(e.message || '결제창을 열지 못했어요.');
+    $('#pay').disabled = false; $('#pay').textContent = '결제하기';
+  }
+}
+
+function showDone(html) { $('#done').innerHTML = html; $('#done').hidden = false; $('#buy').hidden = true; }
+
+async function finish(q) {
+  showDone('<h2>결제를 확인하는 중이에요…</h2><p class="fine">창을 닫지 말고 잠시만 기다려 주세요.</p>');
+  try {
+    const r = await GG.call('tossConfirm', { paymentKey: q.get('paymentKey'), orderId: q.get('orderId'), amount: Number(q.get('amount')) });
+    showDone(`<h2>${won(r.points)}P를 충전했어요</h2><p class="fine">앱과 홈페이지 어디서든 바로 쓸 수 있어요.</p><p><a class="btn gold" href="/my/">내 추모관으로</a></p>`);
+  } catch (e) {
+    showDone(`<h2>결제를 마치지 못했어요</h2><p class="fine">${e.message || ''}<br>돈이 빠져나갔는데 포인트가 들어오지 않았다면 주문번호 ${q.get('orderId') || ''}를 알려 주세요.</p><p><a class="btn line" href="/charge/">다시 충전하기</a></p>`);
+  }
+  history.replaceState(null, '', '/charge/');
+}
+
+(async () => {
+  user = await GG.requireMember();
+  $('#who').textContent = `${user.displayName || '회원'}님의 포인트를 충전해요.`;
+  try { const w = await GG.call('getWallet', {}); $('#who').textContent = `지금 ${won((w.free || 0) + (w.paid || 0))}P가 있어요.`; } catch (e) {}
+  drawPacks();
+  $('#pay').addEventListener('click', pay);
+  const q = new URLSearchParams(location.search);
+  if (q.get('ok') && q.get('paymentKey')) finish(q);
+  else if (q.get('fail')) { toast(q.get('message') || '결제를 취소했어요.'); history.replaceState(null, '', '/charge/'); }
+})();
+</script>
+</body>
+</html>
