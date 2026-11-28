@@ -376,6 +376,7 @@ function render(v) {
     <h2>가족과 함께 꾸미고 기억하기</h2>
     <p>공감 추모원 앱에서는 가족이 함께 ${pet ? '무지개 정원' : '분향소와 장지'}를 꾸미고, 기일과 생신 알림을 받을 수 있어요. 앱에서 아래 추모원 번호를 넣어 주세요.</p>
     <div><span class="code">${esc(v.code)}</span><button class="copy" id="cp">번호 복사</button></div>
+    <p style="margin:14px 0 0"><button class="btn line" id="cplink" type="button" style="width:100%">추모관 링크 복사 · 카카오톡에 붙여 넣기</button></p>
     <p style="margin:14px 0 0"><a class="btn line" href="../#contact" style="width:100%">앱 출시 알림 받기</a></p>
   </section>`;
   const f = $('#f');
@@ -402,6 +403,7 @@ function render(v) {
   $('#b-wreath').onclick = () => wreathForm(v);
   $('#cancel').onclick = () => f.classList.remove('on');
   $('#cp').onclick = () => copy(v.code);
+  $('#cplink').onclick = () => copy('https://b.gonggamchumowon.co.kr/m/' + v.code);
   wireReports(document.querySelector('.notes'), 'note', v.code);
   f.onsubmit = async (e) => {
     e.preventDefault();

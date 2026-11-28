@@ -141,7 +141,7 @@
       $('#code').textContent = code;
       const open = pet || $('#open').checked;
       if (open) {
-        const link = location.origin + '/m/?c=' + code;
+        const link = 'https://b.gonggamchumowon.co.kr/m/' + code; // 카카오톡 미리보기에 이름·사진이 뜬다
         $('#openbox').hidden = false; $('#link').textContent = link; $('#view').href = link;
         $('#cp2').onclick = (e) => copy(link, e.target);
       }
