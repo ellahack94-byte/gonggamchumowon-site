@@ -54,6 +54,11 @@ h1 small { font-size: .5em; color: var(--sub); margin-left: 6px; }
 
 .v3d { margin: 18px calc(50% - min(50vw, 520px)) 0; }
 .v3d iframe { display: block; width: 100%; height: min(80vh, 760px); min-height: 520px; border: 0; border-radius: 16px; background: #0b0a09; box-shadow: 0 0 0 1px var(--line), 0 30px 70px rgba(0, 0, 0, .5); }
+.v3d { position: relative; }
+.v3d-load { position: absolute; inset: 0; z-index: 2; border-radius: 16px; background: #0b0a09 center / cover no-repeat; display: grid; place-items: end center; padding-bottom: 28px; transition: opacity .6s; pointer-events: none; }
+.v3d-load span { background: rgba(10, 9, 8, .78); color: var(--mum); padding: 10px 18px; border-radius: 999px; font-size: 15px; }
+.v3d-load.off { opacity: 0; }
+@media (max-width: 600px) { .v3d-load { border-radius: 0; } }
 .v3d-tip { text-align: center; color: var(--sub); font-size: 14.5px; margin: 12px 16px 0; }
 .v3d-tip b { color: var(--mum); font-weight: 600; }
 @media (max-width: 600px) { .v3d { margin-inline: calc(-1 * max(20px, env(safe-area-inset-left, 0px))); } .v3d iframe { border-radius: 0; box-shadow: none; height: 78vh; } }
@@ -323,7 +328,8 @@ function render(v) {
   const notes = v.notes.map((n) => `<li data-id="${esc(n.id || '')}"><div class="who">${esc(n.name)}${n.rel ? ` <em>${esc(n.rel)}</em>` : ''}${n.flower ? '<span class="fl">헌화</span>' : ''}${n.id ? `<button class="rep" type="button" aria-label="${esc(n.name)}님 글 신고">신고</button>` : ''}</div><p>${esc(n.text)}</p></li>`).join('');
   $('#main').innerHTML = `
   <section class="v3d" aria-label="3D 분향소와 장지">
-    <iframe src="${esc(v3dUrl(v))}" title="${esc(v.name)} ${pet ? '추모관' : '님 추모관'} 3D 분향소와 장지" allow="fullscreen; autoplay" allowfullscreen></iframe>
+    <div class="v3d-load" id="v3d-load" ${FIGP[v.code] ? `style="background-image:url('/img/fig/${v.code}-altar.jpg?v=11')"` : ''}><span>3D 분향소를 여는 중이에요…</span></div>
+    <iframe onload="setTimeout(() => { const l = document.getElementById('v3d-load'); if (l) l.classList.add('off'); }, 1800)" src="${esc(v3dUrl(v))}" title="${esc(v.name)} ${pet ? '추모관' : '님 추모관'} 3D 분향소와 장지" allow="fullscreen; autoplay" allowfullscreen></iframe>
     <p class="v3d-tip">손가락으로 돌려 보고, 아래 <b>분향소 · 장지</b>를 눌러 오가며 둘러보세요.</p>
   </section>
   <section class="altar" aria-label="고인 정보">
