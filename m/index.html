@@ -300,7 +300,7 @@ async function wreathForm(v) {
   const u = await GG.user();
   if (!GG.isMember(u)) { $('#wbal').innerHTML = '화환은 로그인한 뒤 보낼 수 있어요. <a href="/login/?next=' + encodeURIComponent(location.pathname + location.search) + '">로그인 · 회원가입</a>'; }
   else {
-    try { const w = await GG.call('getWallet', {}); const n = (w.free || 0) + (w.paid || 0); $('#wbal').textContent = `내 포인트 ${n.toLocaleString('ko-KR')}P · 1P = 1원으로 보내요. 포인트 충전은 공감 추모원 앱에서 할 수 있어요.`; } catch (e) {}
+    try { const w = await GG.call('getWallet', {}); const n = (w.free || 0) + (w.paid || 0); $('#wbal').innerHTML = `내 포인트 ${n.toLocaleString('ko-KR')}P · 1P = 1원으로 보내요. <a href="/charge/" style="color:var(--gold)">포인트 충전하기</a>`; } catch (e) {}
   }
   $('#wcancel').onclick = () => { f.hidden = true; };
   f.onsubmit = async (e) => {
