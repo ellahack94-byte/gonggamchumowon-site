@@ -68,6 +68,7 @@
       <button role="tab" aria-selected="true" data-tab="figs" type="button">제단 문구</button>
       <button role="tab" aria-selected="false" data-tab="reps" type="button">신고 <span id="repn"></span></button>
       <button role="tab" aria-selected="false" data-tab="wrs" type="button">근조화환</button>
+      <button role="tab" aria-selected="false" data-tab="pays" type="button">홈페이지 결제</button>
       <button role="tab" aria-selected="false" data-tab="stats" type="button">통계</button>
     </div>
 
@@ -84,6 +85,11 @@
     <div id="wrs" class="list" style="margin-top:18px" hidden>
       <p class="lead">최근에 세워진 근조화환 150개예요. 리본 문구나 이름이 부적절하면 '내리기'를 눌러 주세요. 포인트는 돌려주지 않아요(약관).</p>
       <div id="wrlist" class="list"><p class="empty">근조화환 탭을 누르면 불러와요.</p></div>
+    </div>
+
+    <div id="pays" class="list" style="margin-top:18px" hidden>
+      <p class="lead">홈페이지에서 카드·간편결제로 충전한 최근 100건이에요. 7일 안에 쓰지 않은 포인트는 '결제 취소'로 환불해요. 토스 결제가 취소되고 충전 포인트도 함께 빠져요. 회원이 포인트를 이미 썼다면 토스 상점관리자에서 부분 취소해 주세요.</p>
+      <div id="paylist" class="list"><p class="empty">홈페이지 결제 탭을 누르면 불러와요.</p></div>
     </div>
 
     <div id="reps" class="list" style="margin-top:18px" hidden>
@@ -132,8 +138,9 @@ auth.onAuthStateChanged(async (u) => {
 
 document.querySelectorAll('[role=tab]').forEach((t) => t.onclick = () => {
   document.querySelectorAll('[role=tab]').forEach((x) => x.setAttribute('aria-selected', x === t));
-  $('#figs').hidden = t.dataset.tab !== 'figs'; $('#reps').hidden = t.dataset.tab !== 'reps'; $('#stats').hidden = t.dataset.tab !== 'stats'; $('#wrs').hidden = t.dataset.tab !== 'wrs';
+  $('#figs').hidden = t.dataset.tab !== 'figs'; $('#reps').hidden = t.dataset.tab !== 'reps'; $('#stats').hidden = t.dataset.tab !== 'stats'; $('#wrs').hidden = t.dataset.tab !== 'wrs'; $('#pays').hidden = t.dataset.tab !== 'pays';
   if (t.dataset.tab === 'wrs') loadWrs();
+  if (t.dataset.tab === 'pays') loadPays();
   if (t.dataset.tab === 'stats') loadStats();
 });
 
@@ -200,6 +207,28 @@ async function loadWrs() {
       catch (x) { msg.textContent = x.message; b.disabled = false; }
     });
   } catch (e) { $('#wrlist').innerHTML = '<p class="empty">불러오지 못했어요. (' + esc(e.message) + ')</p>'; }
+}
+async function loadPays() {
+  $('#paylist').innerHTML = '<p class="empty">불러오는 중…</p>';
+  try {
+    const { items } = await call('adminTossOrders');
+    if (!items.length) { $('#paylist').innerHTML = '<p class="empty">아직 홈페이지 결제가 없어요.</p>'; return; }
+    $('#paylist').innerHTML = items.map((o) => `<div class="row" data-o="${esc(o.orderId)}">
+      <div class="line"><span class="tag${o.status === 'canceled' ? ' red' : ''}">${o.status === 'canceled' ? '취소됨' : '결제 완료'}</span><span class="sub">${o.amount.toLocaleString()}원 · ${o.points.toLocaleString()}P · ${esc(o.method || '')} · ${esc(day(o.at))}</span></div>
+      <div class="quote">주문번호 ${esc(o.orderId)} · 회원 ${esc(o.uid.slice(0, 8))}… · 지금 충전 포인트 ${o.paidNow.toLocaleString()}P</div>
+      ${o.status === 'done' ? '<div class="line"><button class="btn" data-c="1" type="button">결제 취소</button></div>' : ''}
+      <p class="msg" role="status"></p></div>`).join('');
+    document.querySelectorAll('#paylist .row').forEach((row) => {
+      const b = row.querySelector('[data-c]'); if (!b) return;
+      b.onclick = async () => {
+        const msg = row.querySelector('.msg');
+        if (b.dataset.c === '1') { b.dataset.c = '2'; b.textContent = '정말 취소하기 (되돌릴 수 없어요)'; msg.textContent = '한 번 더 누르면 토스 결제가 취소되고 포인트가 빠져요.'; return; }
+        b.disabled = true; msg.textContent = '취소하는 중…';
+        try { await call('adminTossCancel', { orderId: row.dataset.o }); msg.textContent = '취소했어요.'; setTimeout(loadPays, 800); }
+        catch (x) { msg.textContent = x.message; b.disabled = false; b.dataset.c = '1'; b.textContent = '결제 취소'; }
+      };
+    });
+  } catch (e) { $('#paylist').innerHTML = '<p class="empty">불러오지 못했어요. (' + esc(e.message) + ')</p>'; }
 }
 async function loadReps() {
   const { items } = await call('adminReports');
