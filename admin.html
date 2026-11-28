@@ -67,6 +67,7 @@
     <div class="tabs" role="tablist">
       <button role="tab" aria-selected="true" data-tab="figs" type="button">제단 문구</button>
       <button role="tab" aria-selected="false" data-tab="reps" type="button">신고 <span id="repn"></span></button>
+      <button role="tab" aria-selected="false" data-tab="wrs" type="button">근조화환</button>
       <button role="tab" aria-selected="false" data-tab="stats" type="button">통계</button>
     </div>
 
@@ -78,6 +79,11 @@
     <div id="stats" class="list" style="margin-top:18px" hidden>
       <p class="lead">최근 14일 동안 날짜별로 얼마나 쓰였는지예요(한국 시간 기준). 누가 했는지는 담지 않아요.</p>
       <div id="statbox"><p class="empty">통계 탭을 누르면 불러와요.</p></div>
+    </div>
+
+    <div id="wrs" class="list" style="margin-top:18px" hidden>
+      <p class="lead">최근에 세워진 근조화환 150개예요. 리본 문구나 이름이 부적절하면 '내리기'를 눌러 주세요. 포인트는 돌려주지 않아요(약관).</p>
+      <div id="wrlist" class="list"><p class="empty">근조화환 탭을 누르면 불러와요.</p></div>
     </div>
 
     <div id="reps" class="list" style="margin-top:18px" hidden>
@@ -125,11 +131,12 @@ auth.onAuthStateChanged(async (u) => {
 
 document.querySelectorAll('[role=tab]').forEach((t) => t.onclick = () => {
   document.querySelectorAll('[role=tab]').forEach((x) => x.setAttribute('aria-selected', x === t));
-  $('#figs').hidden = t.dataset.tab !== 'figs'; $('#reps').hidden = t.dataset.tab !== 'reps'; $('#stats').hidden = t.dataset.tab !== 'stats';
+  $('#figs').hidden = t.dataset.tab !== 'figs'; $('#reps').hidden = t.dataset.tab !== 'reps'; $('#stats').hidden = t.dataset.tab !== 'stats'; $('#wrs').hidden = t.dataset.tab !== 'wrs';
+  if (t.dataset.tab === 'wrs') loadWrs();
   if (t.dataset.tab === 'stats') loadStats();
 });
 
-const COLS = [['users', '새 가입'], ['google', '계정 연결'], ['memorials', '추모관'], ['pets', '반려동물'], ['bugo', '부고장'], ['notes', '추모글'], ['msgs', '조의 말씀'], ['subs', '구독 결제'], ['buys', '포인트·평생']];
+const COLS = [['users', '새 가입'], ['google', '계정 연결'], ['memorials', '추모관'], ['pets', '반려동물'], ['bugo', '부고장'], ['notes', '추모글'], ['msgs', '조의 말씀'], ['subs', '구독 결제'], ['buys', '포인트·평생'], ['wreaths', '근조화환'], ['wreathP', '화환 포인트']];
 async function loadStats() {
   $('#statbox').innerHTML = '<p class="empty">불러오는 중…</p>';
   try {
@@ -175,6 +182,24 @@ async function loadFigs() {
   });
 }
 
+const WK = { basket: '근조바구니', t1: '1단', t2: '2단', t3: '3단' };
+async function loadWrs() {
+  $('#wrlist').innerHTML = '<p class="empty">불러오는 중…</p>';
+  try {
+    const { items } = await call('adminWreaths');
+    if (!items.length) { $('#wrlist').innerHTML = '<p class="empty">아직 보낸 화환이 없어요.</p>'; return; }
+    $('#wrlist').innerHTML = items.map((w) => `<div class="row" data-p="${esc(w.path)}">
+      <div class="line"><span class="tag">${esc(WK[w.kind] || w.kind)}</span>${w.hidden ? '<span class="tag red">내림</span>' : ''}<span class="sub">${esc(NAMES[w.code] || w.code)} · ${w.price.toLocaleString()}P · ${esc(day(w.at))} · <a href="m/?c=${encodeURIComponent(w.code)}" target="_blank" rel="noopener">추모관 보기</a></span></div>
+      <div class="quote">리본: ${esc(w.phrase)} / 보낸 분: ${esc(w.from)}</div>
+      <div class="line"><button class="btn" data-h="${w.hidden ? '0' : '1'}" type="button">${w.hidden ? '다시 세우기' : '내리기'}</button></div>
+      <p class="msg" role="status"></p></div>`).join('');
+    document.querySelectorAll('#wrlist .row').forEach((row) => row.querySelector('[data-h]').onclick = async (e) => {
+      const b = e.currentTarget, msg = row.querySelector('.msg'); b.disabled = true;
+      try { await call('adminSetWreath', { path: row.dataset.p, hide: b.dataset.h === '1' }); msg.textContent = '처리했어요.'; setTimeout(loadWrs, 600); }
+      catch (x) { msg.textContent = x.message; b.disabled = false; }
+    });
+  } catch (e) { $('#wrlist').innerHTML = '<p class="empty">불러오지 못했어요. (' + esc(e.message) + ')</p>'; }
+}
 async function loadReps() {
   const { items } = await call('adminReports');
   const open = items.filter((r) => r.status === 'open' || r.status === 'hidden');

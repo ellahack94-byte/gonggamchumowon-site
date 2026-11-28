@@ -4712,7 +4712,7 @@ function wreathPanel() {
   if (!D) return '<p class="note">화환 목록을 불러오는 중이에요…</p>';
   const kinds = D.kinds.map((k) => '<button class="opt" data-wkind="' + k.id + '" aria-pressed="' + (WF.kind === k.id) + '">' + k.name + '<small class="pr">' + k.price.toLocaleString('ko-KR') + 'P</small></button>').join('');
   const groups = D.groups.map((g) => '<div class="group"><span>' + g.name + '</span><div class="opts">' + g.items.map((t) => '<button class="opt" data-wphrase="' + escA(t) + '" aria-pressed="' + (!WF.custom && WF.phrase === t) + '">' + escA(t) + '</button>').join('') + '</div></div>').join('');
-  return '<div class="group"><span>화환 종류</span><div class="opts">' + kinds + '</div><p class="note">보낸 화환은 분향소 양옆에 리본과 함께 세워져요. 포인트로 보내요(1P = 1원).</p></div>' +
+  return '<div class="group"><span>화환 종류</span><div class="opts">' + kinds + '</div><p class="note">보낸 화환은 분향소 양옆에 리본과 함께 세워져요. 포인트로 보내요(1P = 1원). 화면 속 디지털 화환이라 실물 배송은 없고, 세워진 뒤에는 철회·환불이 어려워요.</p></div>' +
     '<div class="group"><span>리본 문구 · 오른쪽 리본</span><div class="opts"><button class="opt" data-act="w-custom" aria-pressed="' + WF.custom + '">직접 쓰기</button></div>' +
     (WF.custom ? '<label class="wide phr-in">문구 (30자까지)<input id="w-phrase" value="' + escA(WF.phrase) + '" maxlength="30" placeholder="예: 삼가 故人의 冥福을 빕니다" autocomplete="off"></label>' : '') + '</div>' + groups +
     '<div class="group"><label class="wide phr-in">보내는 분 · 왼쪽 리본 (20자까지)<input id="w-from" value="' + escA(WF.from) + '" maxlength="20" placeholder="예: 홍길동 올림, (주)○○ 임직원 일동" autocomplete="off"></label></div>' +
